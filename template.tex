@@ -1013,7 +1013,7 @@ The RAGL algorithm \ref{algo_RAGL} implements the formula \eqref{RAGL2_splitting
 
 \begin{remark}
   The goal of this article is to develop free-hyperparameters mini-batch algorithms. But aside from the heuristic, the algorithms RAG, RAGL, RAGL-prototype\footnote{\newG{Cet algo
-  n'est pas introduit dans le texte non? }} introduce three new hyperparameters $\lambda, f_1$ and $f_2$. As explained in \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}, they do not influence the convergence of the algorithm (contrary to $\eta$ for GD) but only the nature of the critical points found and the time complexity. It is also possible to estimate the number of evaluations of $\R$ (in the full-batch case). Theorem 2.5 of \cite{Bilel_thesis} and 5.1 of \cite{Bilel_ICML} stipulate that the mean number of evaluations is upper bounded by ($C_n$ the number of evaluations until the $n$-th epoch):
+  n'est pas introduit dans le texte non? La différence avec RAG n'est pas explicitée si je ne me trompe pas}} introduce three new hyperparameters $\lambda, f_1$ and $f_2$. As explained in \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}, they do not influence the convergence of the algorithm (contrary to $\eta$ for GD) but only the nature of the critical points found and the time complexity. It is also possible to estimate the number of evaluations of $\R$ (in the full-batch case). Theorem 2.5 of \cite{Bilel_thesis} and 5.1 of \cite{Bilel_ICML} stipulate that the mean number of evaluations is upper bounded by ($C_n$ the number of evaluations until the $n$-th epoch):
 \begin{equation}
 	\displaystyle{\limsup_{n\to \infty}}\dfrac{C_n}{n} \leq 1+\frac{\log(f_2)}{\log(f_1)}+p,
 	\label{complexity_law}
@@ -1028,8 +1028,13 @@ We will see later that this estimation is also verified empirically in the mini-
 
 \paragraph{A first test to skim off the best}
 ~~\\
-As explained in subsection \ref{new_splitting}, RAGL-prototype is not adapted to deal with stiff problems. We are going to confirm this fact on the stiffest analytical example that we have, namely \polyFive: $\R$ is a two variables polynomial, of degree total 10, with different degree of degeneracy. Although $m=2$ and the benchmark satisfies the interpolation condition, it is very difficult since $\R_1$ and $\R_2$ do not admit the same order of degeneracy around some critical points (for example $(-4,3)$): $\nnR_1$ is non-zero whereas the second and third order derivatives of $\R_2$ are zero. This may generate some important slow downs since around these points, two very different scales should be taken into account: it is the main reason behind the linesearch with interaction \ref{linesearch_batch2}. \\
-The table \ref{polyFive_ecreme} presents the number of divergent trajectories on \polyFive as well as the execution time for $28000$ trainings initialized uniformly on $[-5,5]^2$.
+As explained in subsection \ref{new_splitting}, RAGL-prototype\footnote{\newG{aussi, pas clair que c'est expliqué dans la section en question}} is not adapted to deal with stiff
+problems. We are going to confirm this fact on the stiffest analytical example that we have, namely \polyFive: $\R$ is a two variables polynomial, of degree total 10, with
+different degree of degeneracy. Although $m=2$ and the benchmark satisfies the interpolation condition, it is very difficult since $\R_1$ and $\R_2$ do not admit the same order of
+degeneracy around some critical points (for example $(-4,3)$): $\nnR_1$ is non-zero whereas the second and third order derivatives of $\R_2$ are zero. This may generate some
+important slow downs since around these points, two very different scales should be taken into account: it is the main reason behind the linesearch with interaction (i.e.
+algorithm \ref{linesearch_batch2}). \\
+The table \ref{polyFive_ecreme} presents the number of divergent\footnote{\newG{divergent ou non-convergent?}} trajectories on \polyFive as well as the execution time for $28000$ trainings initialized uniformly on $[-5,5]^2$.
 RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL, with similar execution times. It is possible to completely suppress the divergent trajectories by turning off the heuristic ($h_{max}=1$) but the execution time is $2.6$ times larger than RAGL. In fact on the ML benchmarks, the difference is more distinct (factor from 4 to 6). Therefore, we will only test RAG and RAGL in the following.
 
 
@@ -1053,7 +1058,8 @@ In this section, we have introduced new adaptive mini-batch optimizers based on 
 \section{Numerical results}
 \label{section_results}
 
-The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most famous stochastic optimizer in the Deep Learning litterature, namely RRAdam (called also Adam in the litterature \cite{Adam}). It is exactly described in appendix \ref{annexe_adam}. Another slight modification of RRAdam without the debiased steps (that we call RRAWB: Random Reshuffle Adam without bias steps) is sometimes tested to illustrate some instability phenomenons. They are also compared to new Armijo-like full-batch optimizers introduced in chapter 2 of \cite{Bilel_thesis} (see \cite{Lyap_Theory_Bilel} for an analysis): LC (Lyapunov control) and LCD (Lyapunov Control Dichotomy) since they have many good properties (stability for example).
+The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most famous stochastic optimizer
+in the Deep Learning litterature, namely RRAdam (called also Adam in the litterature \cite{Adam}), described in appendix \ref{annexe_adam}. Another slight modification of RRAdam without the debiased steps (that we call RRAWB: Random Reshuffle Adam without bias steps) is sometimes tested to illustrate some instability phenomenons. They are also compared to new Armijo-like full-batch optimizers introduced in chapter 2 of \cite{Bilel_thesis} (see \cite{Lyap_Theory_Bilel} for an analysis): LC (Lyapunov control) and LCD (Lyapunov Control Dichotomy) since they have many good properties (stability for example).
 
 \subsection{Analytic benchmarks \newG{comme ces bench ne sont pas communement acceptés... Les mettre en annexes? }}
 \label{test_analytic}
@@ -1061,7 +1067,7 @@ The goal of this section is to evaluate RAG and RAGL in many different configura
 First of all, we begin by the analytic benchmarks where all the information is available about the $\R_i$ and $\R$, in order to test the behaviors of the new optimizers in several configurations:
 \begin{itemize}
 	\item the examples in dimension one, \exOne to \exHeight, are necessary to know if our algorithms can handle the interpolation deficiency \eqref{interpolation}. Let us remember that the stochastic optimizers used by the ML community, namely SGD and RRGD (the same for RRAdam) are not able of this, even in the simple setups of \exOne and \exTwo. 
-	\item Are the examples \polyTwo and \polyThree stable as it is the case for Armijo-like algorithms in chapter 2 of \cite{Bilel_thesis}. In fact, in \cite{Bilel}, the authors show that it is crucial to develop Lyapunov stable optimizers for ML. Let us recall what a Lyapunov stable dynamical system means: if the initialization $\theta_0$ is close to a critical point, all the trajectory remains close to this critical point. In \cite{Bilel}, the authors empirically evaluate the stability of a given deterministic optimizer, for $N=2$, by a map (called sensitivity map) drawn as follows:
+	\item The question now is: are the minimizations of \polyTwo and \polyThree stable with RAG and RAGL as they are with the Armijo-like algorithms in chapter 2 of \cite{Bilel_thesis}. In \cite{Bilel}, the authors show that it is crucial to develop Lyapunov stable optimizers for ML. Let us recall what a Lyapunov stable dynamical system means: if the initialization $\theta_0$ is close to a critical point, all the trajectory remains close to this critical point. In \cite{Bilel}, the authors empirically evaluate the stability of a given deterministic optimizer, for $N=2$, by a map (called sensitivity map) drawn as follows:
 	\begin{itemize}
 		\item the localization of a point on the plane is the value of $\theta_0$.
 		\item The color of the point (see the legend of figure \ref{RAG_stabilite} which is generated with 10000 initializations) corresponds to the convergent point of a given algorithm. More precisely, for a minimum $\theta^*$ a color covers the set:
@@ -1072,9 +1078,15 @@ First of all, we begin by the analytic benchmarks where all the information is a
 		\item The red points refers to values of $\theta_0$ such that the algorithm does not converge.
 		\item Some isolines are drawn in green to easily identify the minimums.
 	\end{itemize}
-	We also extend this map to the stochastic setting. In this case, there as many maps as minimums and each point is an initialization $\theta_0$. For each minimum $\theta^*$, the gradation of colors indicates the approximative probability to converge to $\theta^*$ in the knowledge that the initial point is $\theta_0$. An example of such a map is given by the figure \ref{RRAWB_polyThree} which is generated with $10000$ initial points and for each $\theta_0$, $100$ trajectories are simulated.
-	\item The management of the stiffness (\polyFive), especially when the functions $\R_i$ tackle distinct order of degeneracy. Informally, for \polyFive, $\R_1$ "sees" a quadratic function (possibly degenerated) while $\R_2$ "sees" a quadric one in the neighborhood of some minimums. Moreover, the estimation of the Lipschitz constant of $\nR$ by $L_1+L_2$ is rough around some critical points of \polyFive, like $(-4,3)$ and $(4,-1)$ if we only employed the linesearch free of interaction. 
-	\item The behavior in the neighborhood of saddle points especially the ones that are degenerated (comparison between \polyThree and \polyFive). Do RAG and RAGL achieve to escape them? This is relevant since some saddle points of $\R$ are global minimums for one of the $\R_i$ (one may see this as a "strong" interpolation property).
+	We also extend this map to the stochastic setting. In this case, there are as many maps as minimums and each point is an initialization $\theta_0$. For each minimum
+        $\theta^*$, the gradation of colors indicates the approximative probability to converge to $\theta^*$ from initial point $\theta_0$. An example of such a map is given by
+        the figure \ref{RRAWB_polyThree} which is generated with $10000$ initial points.  For each initial points $\theta_0$, $100$ trajectories are simulated and used to estimate
+        the probability of ending in the vicinities of the different critical points.
+	\item The next benchmark also allows studying the management of the stiffness (\polyFive) by RAG and RAGL, especially when the functions $\R_i$ tackle distinct order of
+          degeneracy. Informally, for \polyFive, $\R_1$ "sees" a quadratic function (possibly degenerated) while $\R_2$ "sees" a quadric one in the neighborhood of some minimums.
+          Moreover, the estimation of the Lipschitz constant of $\nR$ by $L_1+L_2$ is coarse in the vicinities of some critical points of \polyFive, like $(-4,3)$ and $(4,-1)$,
+          especially if the linesearch free of interactioni is used. 
+	\item Finally, with the next benchmarks, the behavior in the neighborhood of saddle points is studied, especially the ones that are degenerated (comparison between \polyThree and \polyFive). Do RAG and RAGL escape them? This is relevant since some saddle points of $\R$ are global minimums for one of the $\R_i$ (one may see this as a "strong" interpolation property).
 \end{itemize}
 
 \paragraph{Hyperparameters}
@@ -1089,8 +1101,10 @@ In the following, the hyperparameters are the following:
 ~~\\
 In the same way as in the section \ref{section_splitting_schemes}, we represent the final distribution of the points $\theta$ on the eight benchmarks using $10000$ points in the Monte-Carlo simulation. Here, we do not stop the algorithm for a time $t_f$ large enough, but we use our stopping criterion with $\epsilon=10^{-4}$ and $n_{max}=200000$: this makes it possible to evaluate its relevancy. 
 \\
-The figures \ref{RAG_exs} and \ref{RAGL_exs} present the eight distributions , both for RAG and RAGL. The below comments concern the two algorithms given that their distributions are exactly the same.\\
-In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. This also points out that our stopping criterion seems sufficient. In fact, computing a posteriori the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
+The figures \ref{RAG_exs} and \ref{RAGL_exs} present the eight distributions, both for RAG and RAGL. The below comments concern the two algorithms given that their distributions are exactly the same.\\
+In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
+soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. This also points out that
+our stopping criterion seems sufficient. In fact, when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
 The global minimum is favored even facing interpolating minimums, except on \exHeight. Even not-mild setups like \exSix ("semi-interpolation": minimum of two functions among three) or \exThree (a local minimum is the intersection of the graphs of $\R_1$ and $\R_2$) do not promote local minimums. The singularity of \exHeight can not be explained by the interpolation condition since any of its minimums is interpolating. We think that this is due to the fact that in the neighborhood of the local minimum, the stiffnesses $L_i$ are uniform whereas the variations of the gradients around the global minimum are largely scattered. \\
 As a result, it is relevant to think that a critical point is not favored depending on their degree of interpolation but rather in accordance with a complex structure between its nature (global or local) and the covariance matrix around this point. In our eyes, it is critical that a minimum is not favored because of its interpolation condition since this property has no meaning from the point of view of the objective function. \\
 It is important to notice that in the litterature, the interpolation hypothesis is always considered on the whole set of critical points and there is no intermediary situation: critical points that are interpolating and others that are not, critical points that only vanish some of the $\nR_i$ but not the whole like in \exSix.     

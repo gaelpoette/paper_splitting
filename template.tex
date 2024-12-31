@@ -189,7 +189,7 @@ grestore
 \title{Numerical splitting schemes as the cornerstone for mini-batch optimization}
 \subtitle{}
 
-\titlerunning{Optimization splitting schemes}        % if too long for running head
+\titlerunning{Splitting schemes for mini-batch optimization}        % if too long for running head
 
 \author{Bilel Bensaid     \and
 		Ga\"el Po\"ette   \and
@@ -488,7 +488,7 @@ can be solved exactly (to make it simpler)  with solution $\phi_{\eta}^i(y_0)$ a
 	\chi_{\eta} = \phi_{\eta}^m \circ \dots \phi_{\eta}^2 \circ \phi_{\eta}^1.
 	\label{splitting_lie_trotter}
 \end{equation} 
-Then the integrator $\chi$ satisfies $\chi_{\eta}(y_0) = \phi_{\eta}(y_0) + \mathcal{O}(\eta^2)$. Then $\chi_{\eta}$ is an order one approximation of \eqref{Cauchy_problem}. A splitting method is then made up of:
+Then the integrator $\chi$ satisfies $\chi_{\eta}(y_0) = \phi_{\eta}(y_0) + \mathcal{O}(\eta^2)$. Then $\chi_{\eta}$ is an order one approximation of $\phi_{\eta}$, the solution of \eqref{Cauchy_problem}. A splitting method is then made up of:
 \begin{itemize}
 	\item the choice of operators $F_i$: in the resolution of an ODE or a PDE, these are selectioned in order to represent the different scales or stiffnesses of a physical phenomenon (for example convection-diffusion). In our case, this choice is imposed by the decomposition of the dataset into $m$ batches. We do not do our best to balance the batches in this paper.
 	\item Solve exactly or approximately the ODE $y'(t)=F_i(y(t))$.
@@ -498,7 +498,8 @@ As a basis for splitting schemes, see \cite{splitting_ode_review,splitting_ode_r
 
 \paragraph{RRGD as a splitting}
 ~~\\
-Let us remember that the deterministic version of RRGD is IG ({\it Incremental Gradient}) in the litterature \cite{IG_proximal}. The latter can be interpreted as a Lie-Trotter splitting with an Euler explicit scheme consisting in applying an Euler explicit scheme to each ODE $\theta'(t)=-\nR_i(\theta(t))$ and then to put them together like \eqref{splitting_lie_trotter}. \\
+Let us remember that the deterministic version of RRGD is IG ({\it Incremental Gradient}) in the litterature \cite{IG_proximal}. The latter can be interpreted as a Lie-Trotter
+splitting with an Euler explicit scheme consisting in applying an Euler explicit scheme to each ODE $\theta'(t)=-\nR_i(\theta(t))$ and then to put them together like in \eqref{splitting_lie_trotter}. \\
 In the same way as for SGD and RRGD, we plot the stationary distributions of IG on \exOne and \exTwo for the same choices of time steps, on the figures \ref{IG_ex1} and \ref{IG_ex2}. Since there is no stochasticity, we only represent $u$, the stationary distribution corresponding to the initial condition:
 \begin{equation*}
 	u_0(\theta) = \frac{1}{2} \mathds{1}_{[-1,1]}(\theta).
@@ -519,12 +520,15 @@ On the figure \ref{IG_ex1}, if the learning rate is not small enough (graphs a) 
 	\label{IG_ex2}
 \end{figure}
 
-The most natural idea to improve IG is then to apply a Strang splitting: in fact, this splitting generates an order two scheme while having a slight supplementary cost for two operators (each indivudal scheme is of order one). This one is commonly written for $m=2$:
+The most natural idea to improve IG is then to apply a Strang splitting: in fact, this splitting generates an order two scheme while having a slight overcost for two operators
+(each individual scheme is of order one). This one is commonly written for $m=2$:
 \begin{equation*}
 	\chi_{\eta} = \phi_{\eta/2}^1 \circ \phi_{\eta}^2 \circ \phi_{\eta/2}^1,
 \end{equation*}
 where each $\phi_{\eta}^i$ is an Euler explicit scheme with step $\eta$ applied to $\theta'(t) = -\nR_i(\theta(t))$.
-The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the stationary distributions of this scheme for \exOne and \exTwo. On the figure \ref{Strang_ex2}, the rise of the order does not change anything for the values of $\eta$ used on \exTwo. On the figure \ref{Strang_ex1}, we get closer to the stationary state faster when $\eta \to 0$ on \exOne. However, there still exists undesirable stationary states, in other words states, that do not correspond to a minimization of $\R$. 
+The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the stationary distributions of this scheme for \exOne and \exTwo. On the figure \ref{Strang_ex2}, the rise
+of the order does not change anything for the values of $\eta$ used on \exTwo. On the figure \ref{Strang_ex1}, we get closer to the stationary state faster when $\eta \to 0$ on
+\exOne. However, there still exists undesirable stationary states in the sense they do not correspond to a minimization of $\R$. 
 
 \begin{figure}[h!]
 	\centering
@@ -542,7 +546,7 @@ The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the sta
 
 \paragraph{Non-balanced schemes}
 ~~\\
-Now, the reasonable question is the following: why are there stationary states that have nothing to do with the ones of $y'(t)=F(y(t))$ when this ODE is solved by splitting? This phenomenon was already noticed in the ODE/PDE context \cite{rebalanced_splitting}: arbitrary small time steps may be necessary to recover the stationary states of an ODE, even when the solutions slowly vary. \\
+Now, the reasonable question is the following one: why are there stationary states that have nothing to do with the ones of $y'(t)=F(y(t))$ when this ODE is solved by splitting? This phenomenon was already noticed in the ODE/PDE context \cite{rebalanced_splitting}: arbitrary small time steps may be necessary to recover the stationary states of an ODE, even when the solutions slowly vary. \\
 Let us illustrate this phenomenon on an affine ODE where:
 \begin{equation}
 	F(y) = \left(Ay+a\right) + \left(By+b\right) \coloneqq F_1(y) + F_2(y),
@@ -556,11 +560,12 @@ where the invariant state $y_{\infty}$ is the solution of the linear system:
 \begin{equation*}
 	(A+B)y_{\infty} = -(a+b).
 \end{equation*}
-We assume that the real parts of the eigenvalues of $A+B$ are negative in order for $y_{\infty}$ to be the stationary state of \eqref{EDO_linear} and for all the matrixes at stake to be invertible, to simplify the presentation. The invariant states of each vector field satisfy:
+We assume that the real parts of the eigenvalues of $A+B$ are negative in order for $y_{\infty}$ to be the stationary state of \eqref{EDO_linear} and for all the matrices at stake to be invertible, to simplify the presentation. The invariant states of each vector field satisfy:
 \begin{equation*}
 	Ay_{\infty}^1 = -a \text{ et } By_{\infty}^2 = -b.
 \end{equation*}
-Now, let us apply an exact Lie-Trotter splitting by composing $e^{A\eta}$ with $e^{B\eta}$, that is to say, one step is given by the product $e^{B\eta}e^{A\eta}$. If we have integrated directly $F$, we would use the operator $e^{(A+B)\eta}$. The error for one step $\eta$ is then related to the non-commutativity of $e^{B\eta}e^{A\eta}$ and $e^{(A+B)\eta}$:
+Now, let us apply an exact Lie-Trotter splitting by composing $e^{A\eta}$ with $e^{B\eta}$, that is to say, one step is given by the product $e^{B\eta}e^{A\eta}$. To integrate
+directly $F$, we would have used the operator $e^{(A+B)\eta}$. The error for one step $\eta$ is then related to the non-commutativity of $e^{B\eta}e^{A\eta}$ and $e^{(A+B)\eta}$:
 \begin{equation}
 	e^{B\eta}e^{A\eta} = e^{(A+B)\eta} + \left[B,A\right]\eta^2 + \mathcal{O}(\eta^3),
 	\label{Taylor_split}
@@ -568,14 +573,15 @@ Now, let us apply an exact Lie-Trotter splitting by composing $e^{A\eta}$ with $
 where $\left[B,A\right]=BA-AB$ is the commutator of $A$ and $B$.\\
 Let us begin by the two cases where this splitting makes it possible to retrieve $y_{\infty}$:
 \begin{itemize}
-	\item if $A^{-1}a=B^{-1}b$ (interpolation) then $y_{\infty}$ is the stationary sate of each $F_i$.
+	\item if $A^{-1}a=B^{-1}b$ (interpolation) then $y_{\infty}$ is the stationary state of each $F_i$.
 	\item If $A$ and $B$ commute then for every $\eta>0$, $e^{(A+B)\eta}=e^{B\eta}e^{A\eta}$. Therefore the splitting is exact and the stationary state $y_{\infty}$ is recovered asymptotically. 
 \end{itemize}
 In the general case, the Taylor developement \eqref{Taylor_split} suggests that the local error introduced by a first order splitting is $\mathcal{O}(\eta^2)$ in the neighborhood of $y_{\infty}$:
 \begin{equation*}
 	\left[e^{(A+B)\eta}-e^{B\eta}e^{A\eta}\right]y_{\infty} \approx \frac{\eta^2}{2}\left[B,A\right]y_{\infty}.
 \end{equation*}
-The error above assume that one starts from a point in the neighborhood of $y_{\infty}$ and integrates during one step. In fact, one starts from an arbitrary initial condition and integrate during a time in the order of $1/\eta$, until he approaches the scheme stationary state denoted by $z_{\infty}$. Since then, the error $z_{\infty}-y_{\infty}$ is of order $\mathcal{O}(\eta)$ for a Lie-Trotter splitting and of $\mathcal{O}(\eta^2)$ for the Strang one. Concerning the system \eqref{EDO_linear}, the authors of \cite{rebalanced_splitting} compute explicitly the stationary state for a Strang splitting:
+The error above assumes that one starts from a point in the neighborhood of $y_{\infty}$ and integrates during one step. In fact, one starts from an arbitrary initial condition and
+integrate during a time in the order of $1/\eta$, until the scheme's stationary state denoted by $z_{\infty}$ is approached. Since then, the error $z_{\infty}-y_{\infty}$ is of order $\mathcal{O}(\eta)$ for a Lie-Trotter splitting and of $\mathcal{O}(\eta^2)$ for the Strang one. Concerning the system \eqref{EDO_linear}, the authors of \cite{rebalanced_splitting} compute explicitly the stationary state for a Strang splitting:
 \begin{equation*}
 	z_{\infty} = (I-\alpha\beta\alpha)^{-1}\left[\alpha B^*b + (\alpha\beta+I)A^*a\right],
 \end{equation*}
@@ -643,7 +649,7 @@ This scheme is well-balanced since if $(y_n)_{n\in \mathbb{N}}$ converges then:
 	\left\{
 	\begin{array}{ll}
 		F_1(y_{\infty})=-c_{\infty}, \\
-		F_2(y_{\infty})=c_{\infty}.
+		F_2(y_{\infty})=c_{\infty},
 	\end{array}
 	\right.
 \end{equation*}
@@ -778,7 +784,7 @@ The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ correspon
 \paragraph{Trade-off between balancing and memory cost}
 ~~\\
 The perturbation added to $g_n$, the estimator of $F$, may grow if the number of batches become large or if one batch is stiffer than the others (every term in the sum is an increase of $F_j$): in fact, the contributions of the previous epoch (hidden in $g_n$) remain since we only substract the vector fields of the epoch $n+1$ \eqref{RAGL_splitting}. \\ 
-Here, we suggest an intuitive way to reduce this perturbation and empirically confirm its interest in the following section. For simplicity, let us assume that for $i\in \{1,\dots,m\}$, $F_i$ is $L_i$-lipschitz continuous and let us denote by $i_{max} = \displaystyle{\argmax_{1 \leq i \leq m}} (L_i)$ the index of the stiffest batch. We then define the following splitting:
+Here, we suggest an intuitive way to reduce this perturbation and empirically confirm its interest in the following section. For simplicity, let us assume that for $i\in \{1,\dots,m\}$, $F_i$ is $L_i$-Lipschitz continuous and let us denote by $i_{max} = \displaystyle{\argmax_{1 \leq i \leq m}} (L_i)$ the index of the stiffest batch. We then define the following splitting:
 \begin{multline}
 	y_{n+i/m} = y_{n+(i-1)/m} \\
 	+\eta^i
@@ -794,7 +800,8 @@ where $g_n$ and the initialization are defined in the same way as \eqref{RAGL_sp
 Some comments are necessary:
 \begin{itemize}
 	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to supress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
-	\item When the time step is adaptative, we imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, the fact to substract to $g_n$ the $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ is likely to reduce (at best) the residues of epoch $n$.
+	\item When the time step is adaptative, we imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
+          iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$.
 \end{itemize} 
 
 \begin{remark}
@@ -817,7 +824,8 @@ In this section, we have highlighted the necessity of balanced splitting in orde
 In this section, we suggest a way to make the formulas \eqref{RAG_scheme}, \eqref{RAGL_splitting} and \eqref{RAGL2_splitting} adaptative in the case $F_i=-\nR_i$, drawing inspiration from some deterministic Armijo backtrackings \cite{armijo,Rondepierre,Lyap_Theory_Bilel,Bilel_thesis}. To ease the reading, the complete presentation of some algorithms is sent back to appendix \ref{annexe_algo}, especially the backtrackings, the initializations, the RAGL prototype and RAGL.
 
 \subsection{The backtrackings}
-Firstly, let us begin by describing the backtrackings necessary to evaluate the bacth stiffness. Let us denote in the following $\epsilon_m$ the precision of the float representation ($\approx 10^{-16}$ for doubles in IEEE754). For simplification, we also denote by $g$ the update vector for one iteration: for example for the splitting \eqref{RAG_scheme}, it is $g_n^i$ (more generally the term in front of $\eta^i$). The gradient of batch $i$, namely $\nR_i$, is stored in the variable $g_i$. 
+Firstly, let us begin by describing the backtrackings necessary to evaluate the current batch stiffness. Let us denote by $\epsilon_m$ the precision of the float representation
+($\approx 10^{-16}$ for doubles in IEEE754). To ease the reading, we also denote by $g$ the update vector for one iteration: for example for the splitting \eqref{RAG_scheme}, it is $g_n^i$ (more generally the term in front of $\eta^i$). The gradient of batch $i$, namely $\nR_i$, is stored in the variable $g_i$. 
 
 \paragraph{Backtracking without interaction}
 ~~\\
@@ -842,7 +850,7 @@ The inequality between the dot prodct and $\|g\|^2$ makes it possible to guarant
 \begin{equation*}
 	\R(\theta-\eta g) - \R(\theta) \leq -\lambda \eta \|g\|^2 \leq -\lambda \eta g_i\cdot g.
 \end{equation*}
-Then, we remplace $\R$ by $\R_{i_{max}}$ where $i_{max}$ is the index of the stiffest batch (largest lipschitz constants of the gradients). Indeed, if we proceed to this linesearch on a little steep batch, we would underestimate the stiffness of $\R$: with the "worst" batch this can not happen. The inequality finally becomes:
+Then, we remplace $\R$ by $\R_{i_{max}}$ where $i_{max}$ is the index of the stiffest batch (largest Lipschitz constants of the gradients). Indeed, if we proceed to this linesearch on a little steep batch, we would underestimate the stiffness of $\R$: with the "worst" batch this can not happen. The inequality finally becomes:
 \begin{equation*}
 	\R_{i_{max}}(\theta-\eta g) - \R_{i_{max}}(\theta) \leq -\lambda \eta g_{i_{max}}\cdot g.
 \end{equation*}
@@ -854,32 +862,41 @@ Finally, the largest time step $\eta$ (between the two linesearches) is used to 
 ~~\\
 We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version of the splitting \eqref{RAG_scheme}. Let us explain below all the steps and sub-procedures:
 \begin{enumerate}
-	\item let us begin by the initialization procedure Init\_RAG described by algorithm \ref{algo_init}. The latter computes the full-batch gradient in the variable $g$ by accumulation, while evaluating lipschitz constants $L_1, \dots, L_m$ of 
-	$\nR_1,$ $\dots, \nR_m$ thanks to the linesearch without interaction. A possible lipschitz constant for $\nR$ is then obtained by $L=L_1+\dots L_m$. The time step is then computed as $2(1-\lambda)L^{-1}$ according to proposition 1 of \cite{Lyap_Theory_Bilel} and a GD step is done. Notice that for the rest of the epochs we define the time step as $2L^{-1}$ (neglect the factor $1-\lambda$) because this choice enables empirically to save time.
+	\item let us begin by the initialization procedure Init\_RAG described by algorithm \ref{algo_init}. The latter computes the full-batch gradient in the variable $g$ by accumulation, while evaluating Lipschitz constants $L_1, \dots, L_m$ of 
+	$\nR_1,$ $\dots, \nR_m$ thanks to the linesearch without interaction. A possible Lipschitz constant for $\nR$ is then obtained by $L=L_1+\dots+L_m$. The time step is then computed as $2(1-\lambda)L^{-1}$ according to proposition 1 of \cite{Lyap_Theory_Bilel} and a GD step is done. Notice that for the rest of the epochs we define the time step as $2L^{-1}$ (neglect the factor $1-\lambda$) because this choice enables empirically to save time.
 	\item The line 10 of RAG corresponds to the computation of $g_n^i$ \eqref{RAG_scheme}. For a neural network, given that a forward pass is necessary before a backpropagation, we have access to $\R_i$. At line 9, an estimation of $\R$ is computed in a similar way as the one for $\nR$:
 	\begin{equation}
-		\R_n^i = \sum_{j=1}^i \R_j\left(\theta_{n+(j-1)/m}\right)+\sum_{j=i+1}^m \R_j\left(\theta_{n-1+(j-1)/m}\right)
+		\R_n^i = \sum_{j=1}^i \R_j\left(\theta_{n+(j-1)/m}\right)+\sum_{j=i+1}^m \R_j\left(\theta_{n-1+(j-1)/m}\right).
 		\label{Rni}
 	\end{equation}
 	Then the variable $R_0$ at line 6 corresponds to this quantity at the beginning of the epoch. The comparison between $R$ and $R_0$ at the end of the epoch enables to determine if the objective function diminished since these quantities are supposed to approximate it in the long run. 
-	\item The lines from 12 to 23 are here to evaluate the lipschitz constants $L_i$ in the direction $g_i$ or $g$, as explained previously. A possible lipschitz constant for $\nR$ is then obtained at line 25 by summing the individual constants. $L_{max}$ corresponds to the largest lipschitz constant among the $m$ last gradients: have in mind that some of them have been evaluated at the running epoch $n+1$ and others at the previous epoch $n$.
-	\item This maximum is exploited for the memory effect (see \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}) at line 29. Here, the time step from which we start the next linesearch is taken as the learning rate corresponding to the stiffest batch multiplied by $f_2$. The idea follows the same as the one of the theorem 5.1 of \cite{Bilel_ICML} and theorem 2.5 of \cite{Bilel_thesis}. The idea is to create a recurrent relation between the admissible time steps of two successive epochs for the stiffest batch, in order to get a complexity (number of evaluations of $\R_i$) less dependent on the stiffness. Given that the other batches are less stiff, they require less evaluations. This is satisfied empirically in the section \ref{section_results}.
-	\item At line 31, the effective learning rate $\eta$ is computed from the estimation of the lipschitz constant of $\nR$ in the same way as in the initialization (factor $(1-\lambda)$ disregarded). The difference is the division by $2m-1$. Indeed, it is common in splitting operator theory to divide the time step by the number of operators involving in the splitting \cite{splitting_ode_review}. There are $m$ gradient operators $\left(\nR_j\right)_{1 \leq j \leq m}$ and also the $m-1$ delay operators for all $i \in \{1,\dots,m\}$ \eqref{RAG_scheme}:
+	\item The lines from 12 to 23 are here to evaluate the Lipschitz constants $L_i$ in the direction $g_i$ or $g$, as explained previously. A possible Lipschitz constant for $\nR$ is then obtained at line 25 by summing the individual constants. $L_{max}$ corresponds to the largest Lipschitz constant among the $m$ last gradients: have in mind that some of them have been evaluated at the running epoch $n+1$ and others at the previous epoch $n$.
+	\item This maximum is exploited for the memory effect (see \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}) at line 29. Here, the time step from
+          which we start the next linesearch is taken as the learning rate corresponding to the stiffest batch multiplied by $f_2$. The idea follows the same as the one of the
+          theorem 5.1 of \cite{Bilel_ICML} and theorem 2.5 of \cite{Bilel_thesis}. The idea is to create a recurrent relation between the admissible time steps of two successive
+          epochs for the stiffest batch, in order to get a complexity (number of evaluations of $\R_i$) less dependent on the stiffness. Given that the other batches are less
+          stiff, they require less evaluations. This is empirically verified in section \ref{section_results}.
+	\item At line 31, the effective learning rate $\eta$ is computed from the estimation of the Lipschitz constant of $\nR$ in the same way as in the initialization (factor $(1-\lambda)$ disregarded). The difference is the division by $2m-1$. Indeed, it is common in splitting operator theory to divide the time step by the number of operators involving in the splitting \cite{splitting_ode_review}. There are $m$ gradient operators $\left(\nR_j\right)_{1 \leq j \leq m}$ and also the $m-1$ delay operators for all $i \in \{1,\dots,m\}$ \eqref{RAG_scheme}:
 	\begin{equation*}
 		\left(\theta_{n+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j <i} \text{ and } \left(\theta_{n-1+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{i+1\leq j \leq m}.
 	\end{equation*}
 	That is why we have tested SGD, RRGD and the different splittings with learning rates divided by $3=2\times 2-1$ in the previous sections. At line 33, the time step is again divided by a factor $h$ related to the heuristic described later in the paper. The goal is to activate the heuristic when its application conditions are verified at least twice in a row: the only aim of this line is to limit the potential oscillations generated by the heuristic.
 	\item Now, let us deal with the Distance function described by algorithm \ref{algo_dist}. The product $\eta \|g\|$ corresponds to the exact distance between two successive iterates:
 	\begin{equation*}
-		\|\theta_{n+i/m}-\theta_{n+(i-1)/m}\|
+		\|\theta_{n+i/m}-\theta_{n+(i-1)/m}\|.
 	\end{equation*}
-	Given that the inverse of $\eta_1$ estimates the lipschitz constant of $\nR_i$ ($\eta_1$ is chosen in place of $\eta$ since we need the contribution of batch $i$ and not their interactions), it is possible to upper bound:
+	Given that the inverse of $\eta_1$ estimates the Lipschitz constant of $\nR_i$ ($\eta_1$ is chosen in place of $\eta$ since we need the contribution of batch $i$ and not their interactions), it is possible to upper bound:
 	\begin{equation*}
 		\|\nR_i\left(\theta_{n+i/m}\right)-\nR_i\left(\theta_{n+(i-1)/m}\right)\|
 	\end{equation*}
-	by the product $\frac{2(1-\lambda)}{\eta_1}\eta\|g\|$. Then this quantity gives the variations of the gradient of batch $i$ between two successive iterations. The variable $d$ is the sum of the variations associated to the $m$ last gradients. Smaller it is (little delays) and more accurate the estimator $g$ of $\nR$ is.
-	\item This explains the stopping criterion. It guarantees that $g$ is representative of the full-batch gradient under the fixed precision ($d/P<\epsilon$) and that in this case $g$ is small ($\|g\|/P<\epsilon$). This criterion is also exploited at line 38 to stop the algorithm during a epoch.   
-	\item It remains to detail the heuristic. Its aim is to accelerate the convergence of the algorithm in practice (it is possible to remove it to not take risks but the execution times are longer). If the estimation of $\R$ decreases during the epoch, we permit ourself to be less restrictive on the "CFL" condition $\frac{2}{op\times L}$: this goes through the reduction of the variable $op$ (default value $2m-1$ the number of operators) by a factor $h$. Even though the variable $\R$ is supposed to diminish in the long run, not taking into account "all the operators" might generate oscillations, since we do not come back if $\R$ increases (it would be necessary to supress an epoch). To restrain this unwelcome effect, the factor $h$ is adapted. Intuitively, we want to "ignore" the delay operators if $d$ (the variations related to the delays) influences a little the estimatation $g$ ($d\leq \|g\|$ even if it is rather $d\ll \|g\|$)): the iterates are "quasi mixed up" from the point of view of $\|g\|$. Then $h$ is increased or decreased linearly if we could ignore or not some operators. In the opposite case, we take into account all the operators without exception, in order to not take any risk if $\R$ increases. Despite being intuitive (heuristic), this part works well in practice. In the case where the number of batch is not important ($m<100$), this heuristic can be removed without major deceleration. 
+	by the product $\frac{2(1-\lambda)}{\eta_1}\eta\|g\|$. Then this quantity gives the variations of the gradient of batch $i$ between two successive iterations. The variable
+        $d$ is the sum of the variations associated to the $m$ last gradients. The smaller it is (the littlest the delays), the more accurate the estimator $g$ of $\nR$ is.
+	\item This explains the stopping criterion. It guarantees that $g$ is representative of the full-batch gradient under the fixed precision ($d/P<\epsilon$) and that in this
+          case $g$ is small ($\|g\|/P<\epsilon$). This criterion is also exploited at line 38 to stop the algorithm during an epoch.   
+	\item It remains to detail the heuristic. Its aim is to accelerate the convergence of the algorithm in practice (it is possible to remove it to not take risks but the
+          execution times are longer). If the estimation of $\R$ decreases during the epoch, we permit ourself to be less restrictive on the "CFL" condition $\frac{2}{op\times L}$:
+          this goes through the reduction of the variable $op$ (default value $2m-1$ the number of operators) by a factor $h$. Even though the variable $\R$ is supposed to diminish
+          in the long run, not taking into account "all the operators" might generate oscillations, since we do not come back if $\R$ increases (it would be necessary to suppress an epoch). To restrain this unwelcome effect, the factor $h$ is adapted. Intuitively, we want to "ignore" the delay operators if $d$ (the variations related to the delays) influences a little the estimation $g$ ($d\leq \|g\|$ even if it is rather $d\ll \|g\|$)): the iterates are "quasi mixed up" from the point of view of $\|g\|$. Then $h$ is increased or decreased linearly if we could ignore or not some operators. In the opposite case, we take into account all the operators without exception, in order to not take any risk if $\R$ increases. Despite being intuitive (heuristic), this part works well in practice. In the case where the number of batch is not important ($m<100$), this heuristic can be removed without major deceleration. 
 \end{enumerate}    
 
 \begin{algorithm}[h!]
@@ -974,7 +991,7 @@ We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version 
 
 \subsection{The RAGL optimizer: {\it Rebalanced Aggregated Gradient Light}}
 
-\paragraph{Présentation of the algorithm}
+\paragraph{Algorithm description}
 ~~\\
 Firstly, we present the adaptive implementation of the splitting formula \eqref{RAGL_splitting} described by algorithm \ref{algo_RAGL_proto} in order to reduce the memory cost of RAG. There are a lot of similarities with RAG and we only comment the differences:
 \begin{enumerate}
@@ -995,7 +1012,8 @@ Firstly, we present the adaptive implementation of the splitting formula \eqref{
 The RAGL algorithm \ref{algo_RAGL} implements the formula \eqref{RAGL2_splitting}. It is similar with the difference that the function \eqref{algo_comparaison} called at line 44 enables to store the point $\theta_2$ associated to the stiffest batch of the running epoch: $L_{max}$ is not necessary equal to $\tilde{L}_{max}$. Therefore at the end of an epoch, $\theta_2$ assigned to $\theta_1$, is the point associated to the stiffest batch of this epoch. \\
 
 \begin{remark}
-The goal of this article is to develop free-hyperparameters mini-batch algorithm. But aside from the heuristic, the algorithms RAG, RAGL, RAGL-prototype introduce three new hyperparameters $\lambda, f_1$ and $f_2$. As explained in \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}, they do not influence the convergence of the algorithm (contrary to $\eta$ for GD) but only the nature of the critical points found and the time complexity. It is also possible to estimate the number of evaluations of $\R$ (in the full-batch case). Theorem 2.5 of \cite{Bilel_thesis} and 5.1 of \cite{Bilel_ICML} stipulate that the mean number of evaluations is upper bounded by ($C_n$ the number of evaluations until the $n$-th epoch):
+  The goal of this article is to develop free-hyperparameters mini-batch algorithms. But aside from the heuristic, the algorithms RAG, RAGL, RAGL-prototype\footnote{\newG{Cet algo
+  n'est pas introduit dans le texte non? }} introduce three new hyperparameters $\lambda, f_1$ and $f_2$. As explained in \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}, they do not influence the convergence of the algorithm (contrary to $\eta$ for GD) but only the nature of the critical points found and the time complexity. It is also possible to estimate the number of evaluations of $\R$ (in the full-batch case). Theorem 2.5 of \cite{Bilel_thesis} and 5.1 of \cite{Bilel_ICML} stipulate that the mean number of evaluations is upper bounded by ($C_n$ the number of evaluations until the $n$-th epoch):
 \begin{equation}
 	\displaystyle{\limsup_{n\to \infty}}\dfrac{C_n}{n} \leq 1+\frac{\log(f_2)}{\log(f_1)}+p,
 	\label{complexity_law}
@@ -1005,13 +1023,14 @@ We will see later that this estimation is also verified empirically in the mini-
 \end{remark}
 
 \begin{remark}
-	When one sees the formula \eqref{RAGL_splitting}, is seemed appropriate to go all over the batches in decreasing order of the lipschitz constants of $\nR_i$ in order to limit the perturbation added to $g_n$, since the perturbation is a sum of variations of $\nR_i$. This can be done by permuting the batches (at the beginning of an epoch) using the array $LTab$ obtained at the last epoch. In practice, this trick does not improve the performances. We think that it is due to the fact that we have not really access to the decreasing order of the lipschitz constants of the running epoch since the permutation used gives the order for the previous epoch. This problem of "optimal" scheduling is intrinsically hard since it would be necessary to have a way of predicting how the updates will influence the future lipschitz constants.   
+	At first glance, with formula \eqref{RAGL_splitting}, it seems appropriate to go all over the batches in decreasing order of the Lipschitz constants of $\nR_i$ in order to limit the perturbation added to $g_n$, since the perturbation is a sum of variations of $\nR_i$. This can be done by permuting the batches (at the beginning of an epoch) using the array $LTab$ obtained at the last epoch. In practice, this trick does not improve the performances. We think that it is due to the fact that we have not really access to the decreasing order of the Lipschitz constants of the running epoch since the permutation used gives the order for the previous epoch. This problem of "optimal" scheduling is intrinsically hard since it would be necessary to have a way of predicting how the updates will influence the future Lipschitz constants.   
 \end{remark}
 
 \paragraph{A first test to skim off the best}
 ~~\\
 As explained in subsection \ref{new_splitting}, RAGL-prototype is not adapted to deal with stiff problems. We are going to confirm this fact on the stiffest analytical example that we have, namely \polyFive: $\R$ is a two variables polynomial, of degree total 10, with different degree of degeneracy. Although $m=2$ and the benchmark satisfies the interpolation condition, it is very difficult since $\R_1$ and $\R_2$ do not admit the same order of degeneracy around some critical points (for example $(-4,3)$): $\nnR_1$ is non-zero whereas the second and third order derivatives of $\R_2$ are zero. This may generate some important slow downs since around these points, two very different scales should be taken into account: it is the main reason behind the linesearch with interaction \ref{linesearch_batch2}. \\
-The table \ref{polyFive_ecreme} presents the number of divergent trajectories on \polyFive as well as the execution time for $28000$ trainings initialized uniformly on $[-5,5]^2$. RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL, with similar execution times. It is possible to completely supress the divergent trajectories by turning off the heuristic ($h_{max}=1$) but the execution time is $2.6$ times larger than RAGL. In fact on the ML benchmarks, the difference is more distinct (factor from 4 to 6). Therefore, we will only test RAG and RAGL in the following.
+The table \ref{polyFive_ecreme} presents the number of divergent trajectories on \polyFive as well as the execution time for $28000$ trainings initialized uniformly on $[-5,5]^2$.
+RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL, with similar execution times. It is possible to completely suppress the divergent trajectories by turning off the heuristic ($h_{max}=1$) but the execution time is $2.6$ times larger than RAGL. In fact on the ML benchmarks, the difference is more distinct (factor from 4 to 6). Therefore, we will only test RAG and RAGL in the following.
 
 
 \begin{table}[h!]
@@ -1036,7 +1055,7 @@ In this section, we have introduced new adaptive mini-batch optimizers based on 
 
 The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most famous stochastic optimizer in the Deep Learning litterature, namely RRAdam (called also Adam in the litterature \cite{Adam}). It is exactly described in appendix \ref{annexe_adam}. Another slight modification of RRAdam without the debiased steps (that we call RRAWB: Random Reshuffle Adam without bias steps) is sometimes tested to illustrate some instability phenomenons. They are also compared to new Armijo-like full-batch optimizers introduced in chapter 2 of \cite{Bilel_thesis} (see \cite{Lyap_Theory_Bilel} for an analysis): LC (Lyapunov control) and LCD (Lyapunov Control Dichotomy) since they have many good properties (stability for example).
 
-\subsection{Analytic benchmarks}
+\subsection{Analytic benchmarks \newG{comme ces bench ne sont pas communement acceptés... Les mettre en annexes? }}
 \label{test_analytic}
 
 First of all, we begin by the analytic benchmarks where all the information is available about the $\R_i$ and $\R$, in order to test the behaviors of the new optimizers in several configurations:
@@ -1054,7 +1073,7 @@ First of all, we begin by the analytic benchmarks where all the information is a
 		\item Some isolines are drawn in green to easily identify the minimums.
 	\end{itemize}
 	We also extend this map to the stochastic setting. In this case, there as many maps as minimums and each point is an initialization $\theta_0$. For each minimum $\theta^*$, the gradation of colors indicates the approximative probability to converge to $\theta^*$ in the knowledge that the initial point is $\theta_0$. An example of such a map is given by the figure \ref{RRAWB_polyThree} which is generated with $10000$ initial points and for each $\theta_0$, $100$ trajectories are simulated.
-	\item The management of the stiffness (\polyFive), especially when the functions $\R_i$ tackle distinct order of degeneracy. Informally, for \polyFive, $\R_1$ "sees" a quadratic function (possibly degenerated) while $\R_2$ "sees" a quadric one in the neighborhood of some minimums. Moreover, the estimation of the lipschitz constant of $\nR$ by $L_1+L_2$ is rough around some critical points of \polyFive, like $(-4,3)$ and $(4,-1)$ if we only employed the linesearch free of interaction. 
+	\item The management of the stiffness (\polyFive), especially when the functions $\R_i$ tackle distinct order of degeneracy. Informally, for \polyFive, $\R_1$ "sees" a quadratic function (possibly degenerated) while $\R_2$ "sees" a quadric one in the neighborhood of some minimums. Moreover, the estimation of the Lipschitz constant of $\nR$ by $L_1+L_2$ is rough around some critical points of \polyFive, like $(-4,3)$ and $(4,-1)$ if we only employed the linesearch free of interaction. 
 	\item The behavior in the neighborhood of saddle points especially the ones that are degenerated (comparison between \polyThree and \polyFive). Do RAG and RAGL achieve to escape them? This is relevant since some saddle points of $\R$ are global minimums for one of the $\R_i$ (one may see this as a "strong" interpolation property).
 \end{itemize}
 
@@ -1417,7 +1436,7 @@ The goal of this paper is to develop adaptive mini-batch optimizers in the event
 \end{itemize} 
 In a nutshell, we have suggested a \textbf{serious fourth path} (the first three ones are: stochastic gradients, reshuffle versions and variance reduction methods) \textbf{to develop mini-batch optimizers}. In future works, the following points should be handled:
 \begin{itemize}
-	\item prove the convergence of $\left(\nR(\theta_n)\right)_{n\in \mathbb{N}}$ for RAG/RAGL under the assumption that $\nR_i$ is locally lipschitz continuous. This will be particularly difficult regarded what it is commonly done in the litterature, given that the lipschitz constants are evaluated themselves with delays. Since in our simulations, the estimation of $\R$ decreases after some epochs, it is reasonable to think that it is judicious to introduce a Lyapunov function \cite{Bilel_ICML,polyak_momentum_stability,Lyapunov_Nesterov,variational_perspective} involving the terms:
+	\item prove the convergence of $\left(\nR(\theta_n)\right)_{n\in \mathbb{N}}$ for RAG/RAGL under the assumption that $\nR_i$ is locally Lipschitz continuous. This will be particularly difficult regarded what it is commonly done in the litterature, given that the Lipschitz constants are evaluated themselves with delays. Since in our simulations, the estimation of $\R$ decreases after some epochs, it is reasonable to think that it is judicious to introduce a Lyapunov function \cite{Bilel_ICML,polyak_momentum_stability,Lyapunov_Nesterov,variational_perspective} involving the terms:
 	\begin{equation*}
 		\R_n^i \coloneqq \sum_{j=1}^i \R_j\left(\theta_{n+(j-1)/m}\right)+\sum_{j=i+1}^m \R_j\left(\theta_{n-1+(j-1)/m}\right)
 	\end{equation*}
@@ -1427,7 +1446,7 @@ In a nutshell, we have suggested a \textbf{serious fourth path} (the first three
 	\end{equation*}
 	for $i\in \{1,\dots,m\}$.
 	\item Find a way to accelerate RAG/RAGL without the heuristic thay may generate oscillations. Knowing when taking into account all the operators (or not) is a complex question, depending both on the local geometry of the critical points and the covariance matrix (of gradients) in their neighbordhood. 
-	\item Investigate the "optimal" scheduling question of the batch in the non-convex case. We have tried orders based on gradient norms and lipschitz estimations $L_i$ but without effective enhancement.   
+	\item Investigate the "optimal" scheduling question of the batch in the non-convex case. We have tried orders based on gradient norms and Lipschitz estimations $L_i$ but without effective enhancement.   
 \end{itemize}  
 
 \section*{Data availibility and harware}
@@ -1559,7 +1578,7 @@ In this case:
 \section{Non-interpolating benchmarks}
 \label{annexe_non_interpolated}
 
-For each example, we present the functions $\R_i$ as well as the position $\theta$ of their global minimums (\mg) and local ones (\ml). For \exOne and \exTwo, the lipschitz constants of $\nR$ on $[-1,1]$ are computed.
+For each example, we present the functions $\R_i$ as well as the position $\theta$ of their global minimums (\mg) and local ones (\ml). For \exOne and \exTwo, the Lipschitz constants of $\nR$ on $[-1,1]$ are computed.
 
 \paragraph{Example \exOne}
 ~~\\
@@ -1571,7 +1590,7 @@ The functions are the following ($m=2$):
 \begin{equation*}
 	\R_2(\theta) = (2\theta-1)^2+1.
 \end{equation*}
-The lipschitz constants of the gradients on $[-1,1]$ are: $L_1=2$ and $L_2=8$.
+The Lipschitz constants of the gradients on $[-1,1]$ are: $L_1=2$ and $L_2=8$.
 
 \begin{table}[h!]
 	\centering
@@ -1597,7 +1616,7 @@ The functions $\R_i$ are the following:
 \begin{equation*}
 	\R_2(\theta) = 12\theta^4+4\theta^3-9\theta^2+4.
 \end{equation*}
-The lipschitz constants of the gradients on $[-1,1]$ are respectively: $L_1=22$ and $L_2=150$.
+The Lipschitz constants of the gradients on $[-1,1]$ are respectively: $L_1=22$ and $L_2=150$.
 
 \begin{table}[h!]
 	\centering

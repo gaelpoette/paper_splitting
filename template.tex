@@ -1399,17 +1399,21 @@ $(L_i)_{1\leq i \leq m}$ along the trajectories which seem to play a role in the
 
 \paragraph{Diamonds task}
 ~~\\
-The problem consists in predicting the price of diamonds from 9 caracteristics: number of carat, the color, the clarity, etc. The original file is available at the git deposit and it is uploadable at the \href{https://www.kaggle.com/datasets/shivam2503/diamonds}{\textcolor{cyan}{following adress}} \footnote{https://www.kaggle.com/datasets/shivam2503/diamonds}. The pre-treatments, presented in a jupyter lab are wthe following:
+The problem consists in predicting the price of diamonds from 9 caracteristics: number of carat, the color, the clarity, etc. The original file is available at the git deposit and
+it is uploadable at the \href{https://www.kaggle.com/datasets/shivam2503/diamonds}{\textcolor{cyan}{following adress}}
+\footnote{https://www.kaggle.com/datasets/shivam2503/diamonds}. The pre-treatments, presented in a jupyter lab\footnote{\newG{Lequel?}} are the following:
 \begin{itemize}
 	\item the train/test splitting is done with the train\_test\_split function of scikit-learn with test\_size$=0.3$ and random\_state$=7$, which results in \\ 37760/16183 training/testing points. 
 	\item All the categorical inputs are transformed via label-encoding. The inputs are standardized (mean 0 and variance 1). On the price, the transformation $x \mapsto \log_2(1+x)$ is performed followed by a min-max normalization. 
 \end{itemize}
 The architecture is 9-30(gelu)-30(gelu)-1(linear). Since $P=37760$ and $N=1261$, the network is under-parametrized and so the critical points are likely to be non-interpolating.
-The 100 initial points $\theta_0$ are sampled from the Xavier initializer and for each $\theta_0$, 10 trajectories are simulated. $\epsilon$ is set to $10^{-4}$ and $n_{max}=15000$.
+The 100 initial points $\theta_0$ are sampled from the Xavier initializer and for each $\theta_0$, 10 trajectories are simulated. $\epsilon$ is set to $10^{-4}$ and $n_{max}$ to $15000$.
 
 \paragraph{Diamonds results}
 ~~\\
-In the table \ref{Diamonds_epochs}, we observe that the maximal number of epochs is clearly sufficient because $n_{max}$ is at least $15$ times larger than the number of epochs necessary to guarantee the convergence of RAG/RAGL. Once more time, RRAdam never converges , which leads us to believe that the interpolation assumption is never satisfied (the distribution of full-batch gradients is not drawn but it is similar as Boston). The law \eqref{complexity_law} is again satisfied. 
+In table \ref{Diamonds_epochs}, first observe that the maximal number of epochs is clearly sufficient because $n_{max}$ is at least $15$ times larger than the number of epochs
+necessary to guarantee the convergence of RAG/RAGL. One more time, RRAdam never converges, which leads us to believe that the interpolation assumption is never satisfied (the
+distribution of full-batch gradients is not displayed but we checked and it is similar as the one of Boston). The law \eqref{complexity_law} is again satisfied. 
 
 \begin{table}[h!]
 	\centering
@@ -1426,7 +1430,7 @@ In the table \ref{Diamonds_epochs}, we observe that the maximal number of epochs
 	\label{Diamonds_epochs}
 \end{table}
 
-Now, let us comment the training costs on figure \ref{Diamonds_train}. The distributions of LCD and RAG/RAGL are concentrated around $10^{-3.5}$ which leads to an error of $4\%$ on the diamond prices (best performance of $3.4\%$). The Adam performances are slightly better and not scattered. However, there is a value of RAG that is far away from the center of the distribution without generating poor performances. The conclusions are globally the same for the test set on figure \ref{Diamonds_test}, except for the Adam distribution that is as scattered as LCD or RAGL. \\
+Now, let us comment on the training costs on figure \ref{Diamonds_train}. The distributions of LCD and RAG/RAGL are concentrated around $10^{-3.5}$ which leads to an error of $4\%$ on the diamond prices (best performance of $3.4\%$). The Adam performances are slightly better and not scattered. However, there is a value of RAG that is far away from the center of the distribution without generating poor performances. The conclusions are globally the same for the test set on figure \ref{Diamonds_test}, except for the Adam distribution that is as scattered as LCD or RAGL. \\
 Let us finish with the execution time on figure \ref{Diamonds_time}. Here, LCD is 2.5 times slower than Adam in median and is even more expensive in distribution. RAGL is globally 1.5 times more costly than Adam. In distribution, RAG is two times less expensive than Adam, except for some singular prohitive points (eight times more expensive). On this benchmark, the mini-batch optimizers are more efficient than their full-batch version (LCD) and RAG is more efficient than Adam.
 
 \begin{figure}[h!]

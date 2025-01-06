@@ -1093,8 +1093,9 @@ First of all, we begin by the analytic benchmarks where all the information is a
 ~~\\
 In the following, the hyperparameters are the following:
 \begin{itemize}
-	\item for RAG and RAGL, $f_1=30$, $f_2=1000$, $\lambda=0.5$ and $p=2$. 
-	\item Concerning RRAdam, the default values of Keras/Tensorflow and Pytorch are chosen: $\eta=10^{-3}$, $\betone=0.9$, $\bettwo=0.999$ and $\epsilon_a=10^{-7}$, unless otherwise specified. These are the most used values by the practitioners.
+	\item for RAG and RAGL, $f_1=30$, $f_2=1000$, $\lambda=0.5$ and $p=2$ are chosen. 
+	\item Concerning RRAdam, the default values of Keras/Tensorflow and Pytorch are chosen: $\eta=10^{-3}$, $\betone=0.9$, $\bettwo=0.999$ and $\epsilon_a=10^{-7}$, unless
+          otherwise specified. These are the most commonly used values by the practitioners.
 \end{itemize}
 
 \paragraph{One dimension benchmark}
@@ -1107,7 +1108,8 @@ soon as there is interpolation, "small" for \exThree and "large" for \exFour), w
 our stopping criterion seems sufficient. In fact, when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
 The global minimum is favored even facing interpolating minimums, except on \exHeight. Even not-mild setups like \exSix ("semi-interpolation": minimum of two functions among three) or \exThree (a local minimum is the intersection of the graphs of $\R_1$ and $\R_2$) do not promote local minimums. The singularity of \exHeight can not be explained by the interpolation condition since any of its minimums is interpolating. We think that this is due to the fact that in the neighborhood of the local minimum, the stiffnesses $L_i$ are uniform whereas the variations of the gradients around the global minimum are largely scattered. \\
 As a result, it is relevant to think that a critical point is not favored depending on their degree of interpolation but rather in accordance with a complex structure between its nature (global or local) and the covariance matrix around this point. In our eyes, it is critical that a minimum is not favored because of its interpolation condition since this property has no meaning from the point of view of the objective function. \\
-It is important to notice that in the litterature, the interpolation hypothesis is always considered on the whole set of critical points and there is no intermediary situation: critical points that are interpolating and others that are not, critical points that only vanish some of the $\nR_i$ but not the whole like in \exSix.     
+It is important to notice that in the litterature, the interpolation hypothesis is always considered on the whole set of critical points and there is no intermediary situation:
+here, we have interpolating critical points and others which are not, some critical points only vanish some of the $\nR_i$ but not all of them like in \exSix.     
 
 \begin{figure}[h!]
 	\centering
@@ -1129,7 +1131,8 @@ In order to be able to compare the optimizers, we have no choice but to compute 
 
 \paragraph{Stability}
 ~~\\
-In \cite{Bilel}, the authors argue that some full-batch algorithms like AWB (with $\eta=0.1$) on \polyThree, even if it converges suffers from Lyapunov instabilities. This issue even remains in the stochastic case. The figure \ref{RRAWB_polyThree} is a sensitivity map for RRAWB with $\eta=0.1$ on \polyThree. \\
+In \cite{Bilel}, the authors argue that some full-batch algorithms like AWB (with $\eta=0.1$) on \polyThree, even if it converges, suffers from Lyapunov instabilities. 
+In the next benchmark, we will see that this issue remains in the stochastic case. The figure \ref{RRAWB_polyThree} is a sensitivity map for RRAWB with $\eta=0.1$ on \polyThree. \\
 For instance, around $(0,-1)$ (the global minimum), RRAWB may converge to any of the four minimums (probability between 0.2 and 0.4 depending on $\theta_0$). Starting close to $(-2,1)$, the process converges "almost surely" to $(0,-1)$ (the worst local minimum). In the neighborhood of $(2,-1)$, RRAWB is likely to converge to $(2,-1)$ or $(0,1)$ (sometimes to $(0,-1)$). Therefore we find the \textbf{same instabilities as in the deterministic setting} (starting close to a global minimum, the optimizer may converge to a "bad" local minimum) with the additional difficulty that the probability distribution is shared between different far away minimums. \\
 The figure \ref{RAG_stabilite} is the sensitivity map for RAG and RAGL on \polyTwo and \polyThree. \textbf{They are Lyapunov stable in all the cases}. Concerning \polyTwo, the stability regions $E_{\theta^*}$ are connected. On \polyThree, the latter is not satisfied by the stability region of $(0,1)$ (purple area in the green one). 
 
@@ -1150,10 +1153,10 @@ The figure \ref{RAG_stabilite} is the sensitivity map for RAG and RAGL on \polyT
 
 \paragraph{Saddle points}
 ~~\\
-Now, we study the saddle points of \polyFive on the figures \ref{RRAdam_polyFive} and \ref{RAG_polyFive}. They look like the sensitivity maps but they only indicate the nature of the critical points and not the exact critical point to which the trajectories converge. They are produced with $28000$ initial points and concerning the stochastic case, for every $\theta_0$, $100$ trajectories are simulated.\\
+Now, we study the saddle points of benchmark \polyFive on the figures \ref{RRAdam_polyFive} and \ref{RAG_polyFive}. They look like the sensitivity maps but they only indicate the nature of the critical points and not the exact critical point to which the trajectories converge. They are produced with $28000$ initial points and concerning the stochastic case, for every $\theta_0$, $100$ trajectories are simulated.\\
 Let us first notice (figures \ref{RRAWB_polyThree} and \ref{RAG_stabilite}) that RRAWB (the same thing for RRAdam) RAG and RAGL do not converge to a saddle point of \polyTwo and \polyThree and let us recall that these saddle points are non-degenerated. It was already the case for the full-batch optimizers in chapter 2 of \cite{Bilel_thesis}. Therefore, with or without stochasticity, it is relatively easy to escape non-degenerate saddle points in two dimensions. \\
 In figure \ref{RRAdam_polyFive}, all the points initialized in the two brown stanting connected components converge almost surely to non-strict saddle points ($\approx$ 11\% of the trajectories). Let us recall that a saddle point is strict if there exists one strictly negative eigenvalue of the hessian at this point. In particular a non-strict saddle point is degenerated. Compared with \cite{Bilel}, the behavior of RRAdam is the same as in the deterministic setting: therefore in two dimensions, \textbf{the stochasticity is not a key element to escape saddle points}. Indeed, the deterministic process (Adam) already escapes strict saddle points and remains stuck around non-strict saddle points according to \cite{Bilel}. \\
-However, in figure \ref{RAG_polyFive}, the proportion of non-strict saddle points is very low (0.4\% of the trajectories) contrary to RRAdam. As a result, it seems that our new mini-batch optimizers (RAG and RAGL) escape more efficiently from saddle points than the classical stochastic optimizers.    
+However, in figure \ref{RAG_polyFive}, with RAG and RAGL, the proportion of obtained non-strict saddle points is very low (0.4\% of the trajectories) contrary to RRAdam. As a result, it seems that our new mini-batch optimizers (RAG and RAGL) escape more efficiently from saddle points than the classical stochastic optimizers.    
 
 \begin{figure}[h!]
 	\centering
@@ -1171,9 +1174,15 @@ However, in figure \ref{RAG_polyFive}, the proportion of non-strict saddle point
 
 \paragraph{Training speed}
 ~~\\
-The table \ref{poly_exec_sto} displays the necessary time to train \polyTwo, \polyThree and \polyFive  (for all the initializations) as well as the proportion of non-convergent trajectories. Given that for all stochastic optimizers, 100 trajectories are simulated per initialization, the execution times are divided automatically by 100 to make the comparison easier. \\
-On \polyTwo, RAG and RAGL are $\left[1500/250\right]=6$ to $\left[13500/250\right]=54$ times faster than RRGD, Adam or RRAdam although 5 times slower than LCD. On \polyThree, RRGD despite being divergent $70\%$ of the time (similar as GD) is less efficient than RRAdam and RRAWB for any choice of learning rates tested. With the default configuration, RRAdam is $\left[18371/(0.5\times(190+297)) \right] \approx 75$ times slower than RAG or RAGL. By increasing the learning rate to 0.1, it is possible to diminish this factor by 9. However, the proportion of global minimum decreases (not written here) from 8 to 4\%. About \polyFive, the differences are more distinct: RAG and RAGL are $\left[237700/(0.5\times(3600+5300))\right] \approx 53$ times faster than the stochastic version of Adam and even $\left[39000/(0.5\times (3600+5300))\right]\approx8.7$ times faster than its deterministic version. LCD is even more efficient. \\
-Finally, it is noteworthy that the factor of difference between RAG and RAGL is at most of 1.5, even though with constant learning rate, we would expect a factor 2, since at each iteration RAGL requires two evaluations of mini-batch gradient. One should also know that without the linesearch with interaction, the costs of RAG and RAGL on \polyFive would be prohibitive (the same order than RRAdam). In fact, in this case the necessary number of epochs to converge to $(-4,3)$ or $(4,-1)$ is too high (100000 compared to the 500 epochs of our actual versions). This can be explained by the fact that in the neighborhood of these points, the stiffnesses $L_1$ and $L_2$ differ by a factor $10^4$, if they are evaluated with the linesearch free of interaction. This difference is related to the fact that $\R_1$ and $\R_2$ have distinct degree of degeneracy around these points. 
+Table \ref{poly_exec_sto} displays the necessary time to train \polyTwo, \polyThree and \polyFive  (for all the initializations) as well as the proportion of non-convergent trajectories. Given that for all stochastic optimizers, 100 trajectories are simulated per initialization, the execution times are divided automatically by 100 to make the comparison easier. \\
+On \polyTwo, RAG and RAGL are $\left[1500/250\right]=6$ to $\left[13500/250\right]=54$ times faster than RRGD, Adam or RRAdam although 5 times slower than LCD. On \polyThree, RRGD,
+despite being divergent $70\%$ of the time (similar as GD), is less efficient than RRAdam and RRAWB for any choice of tested learning rates. With the default configuration, RRAdam
+is $\left[18371/(0.5\times(190+297)) \right] \approx 75$ times slower than RAG or RAGL. By increasing the learning rate to 0.1, it is possible to diminish this factor by 9.
+However, the proportion of global minimum decreases (not displayed here) from 8 to 4\%. On benchmark \polyFive, the differences are even more pronounced: RAG and RAGL are $\left[237700/(0.5\times(3600+5300))\right] \approx 53$ times faster than the stochastic version of Adam and even $\left[39000/(0.5\times (3600+5300))\right]\approx8.7$ times faster than its deterministic version. LCD is even more efficient. \\
+Finally, it is noteworthy that the factor of difference between RAG and RAGL is at most of 1.5, even though with constant learning rate, we would expect a factor 2, since at each
+iteration RAGL requires two evaluations of mini-batch gradient. One should also know that without the linesearch with interaction, the costs of RAG and RAGL on \polyFive would be
+prohibitive (the same order than RRAdam). In fact, in this case, \newG{with the interaction}, the necessary number of epochs to converge to $(-4,3)$ or $(4,-1)$ is too high (100000
+compared to the 500 epochs for our actual versions). This can be explained by the fact that in the neighborhood of these points, the stiffnesses $L_1$ and $L_2$ differ by a factor $10^4$, if they are evaluated with the linesearch free of interaction. This difference is related to the fact that $\R_1$ and $\R_2$ have distinct degree of degeneracy around these points. 
 
 \begin{table}[h!]
 	\centering
@@ -1223,7 +1232,7 @@ Finally, it is noteworthy that the factor of difference between RAG and RAGL is 
 In a nutshell, the analytic examples enable us to check the following aspects for RAG and RAGL:
 \begin{itemize}
 	\item the interpolation assumption is not necessary anymore to guarantee that all the mass of the stationary distribution is concentrated on the critical points of $\R$.
-	\item The stopping criterion is sufficient to be close to critical points of $\R$ and to guarantee $\|\nR(\theta)\|\leq \epsilon$.
+        \item The stopping criterion is sufficient to be close to critical points of $\R$ and to guarantee $\|\nR(\theta)\|\leq \epsilon$ and does {\em not} need an evaluation on a full batch.
 	\item The time step adaptivity seems to ensure the local Lyapunov stability as in \cite{Bilel,Bilel_thesis}.
 	\item It seems that RAG and RAGL escape the saddle points more efficiently than classical methods disregarded of their level of degeneracy.
 	\item On the benchmarks in two dimensions, the stochastic optimizers are very expensive compared to RAG/RAGL. 
@@ -1232,8 +1241,13 @@ In a nutshell, the analytic examples enable us to check the following aspects fo
 \subsection{ML benchmarks}
 \label{ML_benchs}
 
-From now on, we evaluate the practical performances of RAG and RAGL on ML tasks. These algorithms are mainly executed on three problems with several batch sizes. These problems are meticulously selected to discuss the interpolation condition. The latter is at the heart of mini-batch optimization, in the ML litterature. It is not possible to know analytically if this condition is satisfied. More the neural network is overparametrized and more likely this condition is satisfied. As a result, we mainly test three configurations: $N\gg P$, $N\approx P$ et $N\ll P$. \\
-These tests were also selected so that all the data fit into memory, in such a way the full-batch optimizers can be used as a standard. Although the aim to develop mini-batch optimizers is to overcome the RAM restriction, this choice does not change the relevance of the numerical results (since the values of $m$ are very scattered) and make the conclusions more thorough. Additional benchmarks will also be briefly tested.\\
+From now on, we evaluate the practical performances of RAG and RAGL on ML tasks. These algorithms are mainly executed on three problems with several batch sizes. These problems are
+meticulously selected to discuss the interpolation condition. The latter is at the heart of mini-batch optimization, in the ML litterature. For these benchmarks, it is not possible
+to know analytically if this condition is satisfied. But the more the neural network is overparametrized and the more likely this condition is satisfied. As a result, we mainly test three configurations: $N\gg P$, $N\approx P$ et $N\ll P$. \\
+These tests were also selected so that all the data fit into memory, in such a way, the full-batch optimizers can be used as a standard. Although the aim to develop mini-batch
+optimizers is to overcome the RAM restriction, this choice does not change the relevance of the numerical results (since the values of $m$ are very scattered) and make the
+conclusions more thorough. Additional benchmarks will also be briefly tested\footnote{\newG{Limite j'enlèverais bien cette phrase. Je comprends que tu l'aies mise compte tenu des
+retours qu'on a eu mais pour n'importe quel mec raisonable, la premiere phrase suffit.}}.\\
 The stopping criterion for stochastic methods is the same as for the analytical examples. In the following, RRAdam is often shortened by RRA in the figures. Adam denotes the full-batch version in what follows. \\
 For fully-connected networks, let us describe our convention for describing an architecture on an example: 2-15(tanh)-20(gelu)-3(linear). This means the following. The dimension of the input data is two and the dimension of the output data are three. Moreover, the network begins with a layer of $15$ neurons with tanh activation, followed by a layer of $20$ neurons with gelu activation \cite{gelu} and finishes with a layer of $3$. The number of parameters is therefore $N=15\times 2 + 15 + 20\times 15 + 20 + 3\times 20 + 3 = 428$.
 Among the different approximations of gelu proposed in the original paper \cite{gelu}, we choose the approximation using the sigmoid function $\sigma$:
@@ -1282,8 +1296,9 @@ Also have in mind that it is possible to proceed to two linesearches in the same
 
 Now, let us deal with the performances. First, all the trajectories of all the optimizers converge. To analyse the performances, we based on the box plots \ref{Sonar_train}, \ref{Sonar_test}, \ref{Sonar_time}. The plots \ref{Sonar_train} and \ref{Sonar_test} represent the distribution of well-classified points both in training and testing on the 1000 trajectories. The figure \ref{Sonar_time} presents the distribution of execution times. \\
 Let us begin by the training results on figure \ref{Sonar_train}. In median, all the optimizers classify correctly the whole set of signals. On rare occasions, RAG (b=4) and RAGL (b=8) could have poor performances ($\approx$ 50\%) although all the quartiles are concentrated around 100 \%. Nevertheless for RAGL (b=4), these singularities are more frequent since the first quartile is equal to 60\% even though the mediane and the third quartile remain concentrated around 100\%. When we see that RRAdam do not find any minimum that generates less than 100\% of recognition, it is valid to assume that RAG and RAGL have found non-interpolating minimums and that in this problem this kind of minimum is of lowest quality. It is sensitive to believe that the number of such minimums increases with $m$ ($m=13$ and $m=26$ for this test).\\
-Regarding the test performances, the conclusions are similar on figure \ref{Sonar_test}. This similarity between training and test should be highlighted in a ML context, where the practitioners use extensively early stopping to avoid overfitting. Here, it seems that the good training performances are equivalent to correct testing performances: since then early stopping would be a bad practice for this benchmark. \\
-Let us finish by the execution times displayed on figure \ref{Sonar_time}. LCD is 2 to 5 times faster than the mini-batch versions. RAG and RAGL are 3 to 10 times more efficient than RRAdam and 13 to 34 times more effective than Adam. These results are valid in distribution and not only for a particular trajectory, what it is commonly the case in ML.
+Regarding the test performances, the conclusions are similar on figure \ref{Sonar_test}. This similarity between training and test should be highlighted in a ML context, where the practitioners use extensively early stopping to avoid overfitting. Here, it seems that the good training performances are equivalent to correct testing performances:  early stopping would be a bad practice for this benchmark. \\
+Let us finish by the execution times displayed on figure \ref{Sonar_time}. LCD is 2 to 5 times faster than the mini-batch versions. RAG and RAGL are 3 to 10 times more efficient
+than RRAdam and 13 to 34 times more effective than Adam. These results are valid in distribution and not only for one particular trajectory. %, what it is commonly the case in ML.
 
 \begin{figure}[h!]
 	\centering

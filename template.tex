@@ -1323,12 +1323,19 @@ than RRAdam and 13 to 34 times more effective than Adam. These results are valid
 
 \paragraph{Boston description}
 ~~\\
-This task concerns the Boston Housing Dataset \footnote{\url{https://keras.io/api/datasets/boston_housing/}{data source}} after a standard normalization of the entries (mean $0$ and standard deviation $1$). The goal is to predict median value of owner-occupied homes in Boston from 13 variables like average number of rooms per dwelling, distances to five Boston employment centres,... We have 404/102 training/testing points with the architecture 13-15(tanh)-15(tanh)-1(linear). Here, $\epsilon=10^{-4}$ and $n_{max}=40000$. The $300$ initial points are sampled from the Xavier initializer and in the stochastic setting, 10 trajectories are simulated for each point $\theta_0$. For this model, $P=404$ and $N=466$.
+This task concerns the Boston Housing Dataset \footnote{\url{https://keras.io/api/datasets/boston_housing/}{data source}} after a standard normalization of the entries (mean $0$
+and standard deviation $1$). The goal is to predict median value of owner-occupied homes in Boston from 13 variables like average number of rooms per dwelling, distances to five
+Boston employment centres,... We have 404/102 training/testing points with the architecture 13-15(tanh)-15(tanh)-1(linear). Here, $\epsilon=10^{-4}$ and $n_{max}=40000$ are chosen. The $300$ initial points are sampled from the Xavier initializer and in the stochastic setting, 10 trajectories are simulated for each point $\theta_0$. For this model, $P=404$ and $N=466$.
 
 \paragraph{Boston results}
 ~~\\
-In the table \ref{Boston_epochs} is written the median of the number of epochs ($n$) and of $\frac{C_n}{mn}$. RRAdam with $b=4$ ($m=101$) and $b=101$ ($m=4$) do not converge. The number of epochs is given on an indicative basis in order to convince oneself that $n_{max}$ is sufficient, because $n_{max}$ is 6 to 13 times larger than the number of epochs necessary for RAG or RAGL to converge. Actually even by taking $n_{max}=200000$, the results seem similar: simulation launched during 5 days (not finished) contrary to one day for RAG/RAGL. Just like Sonar, the number of evaluations $C_n$ seem to confirm the rule \eqref{complexity_law}. \\
-Although RRAdam does not converge for $n_{max}$ epochs, it is logical to wonder if the gradient after $n_{max}$ epochs is close to the threshold $\epsilon$. The histogram \ref{Boston_grads} indicates the distribution of the full-batch gradient after $n_{max}$ epochs in logarithmic scale. In average and in median, the gradient is equal to $10^{-2.25}\approx 5.6e-3$ and globally varies between $10^{-3}$ and $10^{-1.5}\approx3.16e-2$. Therefore the gradient is far away from $10^{-4}$. 
+In table \ref{Boston_epochs} are displayed the median of the number of epochs ($n$) and of $\frac{C_n}{mn}$ for all the algorithm. RRAdam with $b=4$ ($m=101$) and $b=101$ ($m=4$)
+do not converge (cf. the $> n_{max}$ status in the table meaning that the stopping criterion has not been satisfied for the $n_{max}$ iterations). The number of epochs is given on
+an indicative basis in order to convince oneself that $n_{max}$ is sufficient: $n_{max}$ is 6 to 13 times larger than the number of epochs necessary for RAG or RAGL to converge.
+Actually when by taking $n_{max}=200000$, the results are similar (not displayed here).
+Just like Sonar, the number of evaluations $\frac{C_n}{nm}$ seem to confirm the rule \eqref{complexity_law}. \\
+Although RRAdam does not converge for $n_{max}$ epochs, it is logical to wonder if the gradient after $n_{max}$ epochs is close to the threshold $\epsilon$. The histogram
+\ref{Boston_grads} displays the distribution of the full-batch gradient after $n_{max}$ epochs in logarithmic scale. In average and in median, the gradient is equal to $10^{-2.25}\approx 5.6e-3$ and globally varies between $10^{-3}$ and $10^{-1.5}\approx3.16e-2$. Therefore the gradient is far away from $10^{-4}$. 
 
 \begin{table}[h!]
 	\centering
@@ -1356,8 +1363,18 @@ Although RRAdam does not converge for $n_{max}$ epochs, it is logical to wonder 
 \end{figure}
 
 Let us now discuss the quality of the regression. Firstly, let us tackle the training performances displayed on the figure \ref{Boston_train}. The distributions of LCD and RAG/RAGL for the two choices of $b$ are very close and the one for Adam is slightly better. In all the cases, the model reaches a training error of $2 \times 10^{-4}$ for the best weights. On the real problem, this leads to an error on the house prices between 1 and 4\%. \\
-The testing distributions are even more identical, see figure \ref{Boston_test}. The best performances guarantee an error between $1.5 \times 10^{-3}$ and $2 \times 10^{-3}$ for all the optimizers. On the real problem, this gives errors between $4$ and $10\%$ on the house prices. As a result, our splitting schemes manage to guarantee similar performances as full-batch optimizers for very different batch sizes and so for different noise structures. This fact goes against some ML statements \cite{sgd_escape1,sgd_escape2} saying that small $b$ increases stochasticity and so that the likelihood to escape saddle points or poor local minimums is increased (lead to better performances as a result).\\
-The figure \ref{Boston_time} provides information on execution times. In median, RAG and RAGL are 2 to 3.4 times slower than LCD (same for the quartiles) which is itself slower than Adam. There exists some minority points that are more costly (>1000s). We notice that optimization is more expensive with 4 batches ($b=101$) than with 101 batches ($b=4$). This may seem counter-intuitive because at first sight, the problem is more complicated when the number of batches rises. However, it is rather the distribution of $(L_i)_{1\leq i \leq m}$ along trajectories which seem to play a role in the convergence speed of RAG/RAGL.    
+The testing distributions are even more identical, see figure \ref{Boston_test}. The best performances guarantee an error between $1.5 \times 10^{-3}$ and $2 \times 10^{-3}$ for
+all the optimizers. On the real problem, this gives errors between $4$ and $10\%$ on the house prices. As a result, our splitting schemes manage to guarantee similar performances
+as full-batch optimizers for very different batch sizes and so for different noise structures\footnote{\newG{Necessaire apres le "and"? Comme on a pas trop introduit la notion de
+noise structure...}}. This fact goes against some 
+%ML statements 
+intuitions: in
+\cite{sgd_escape1,sgd_escape2} in which the authors assume that small $b$ may increase the stochasticity, leading to a better probability of escaping saddle points or poor local
+minimums  (hence leading to better performances).\\
+The figure \ref{Boston_time} provides information on execution times. In median, RAG and RAGL are 2 to 3.4 times slower than LCD (same for the quartiles) which is itself slower
+than Adam. There exists some minority of points which are more costly (>1000s). We notice that the optimization phase is more expensive with 4 batches ($b=101$) than with 101
+batches ($b=4$). This may seem counter-intuitive because at first sight, the problem is more complicated when the number of batches rises. However, it is rather the distribution of
+$(L_i)_{1\leq i \leq m}$ along the trajectories which seem to play a role in the convergence speed of RAG/RAGL.    
 
 \begin{figure}[h!]
 	\centering

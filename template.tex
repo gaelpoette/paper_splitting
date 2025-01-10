@@ -317,6 +317,7 @@ where every $\tilde{m}$ iterations, the estimation $g_n$ is the full batch gradi
 \item Let us now present variance reduction methods that do not need computation of $\nR$, tuning of a hyperparameter like $\tilde{m}$ or $\beta$, or the storage of $m$ gradients. The first method that fits into this setting is SCSG \cite{SCSG}. The update looks like the one for SARAH (we do not substract the evaluation of the last iterate but of the first of each epoch) by replacing the full-batch gradient by a stochastic gradient. Coupling variance reduction with random reshuffling, the authors of \cite{RR_SARAH} suggest very recently RR-SARAH: its memory cost involves $3N$ and not $mN$ and it does not need computation of the full-batch gradient $\nR$. To the best of our knowledge, it is the only optimizer that enjoys these properties. However, the analysis is limited to strongly convex functions under strong assumption on the noise. Besides, the numerical experiences are limited to the logistic regression (for only one initialization). 
 \end{itemize}
 
+
 \paragraph{Adaptive time steps}
 ~~\\
 So far, all the mini-batch optimizers mentioned above use decreasing or constant time step, so tuning is generally necessary to make the methods converge. In fact, there are very few works about adaptive learning rate (time step) mini-batch optimizers (algorithms that do not need tuning):
@@ -816,7 +817,10 @@ Some comments are necessary:
 	The application of one of the splittings above gives a fundamentally different update of STORM (variance reduction on Momentum). Therefore, the balanced splitting point of view might lead to some optimizers like SAG or RR-SARAH but it is really different of the variance reduction technique. The same difference appears for the variance reduction versions related to Adam: see Adam$^+$ \cite{adam_variance1} for example.
 \end{remark}
 
-In this section, we have highlighted the necessity of balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical points of $F$). Finally, we have suggested three balanced splitting formulas which differ by their memory complexity and their approximation of $F$.
+In this section, we have highlighted the necessity of balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
+points of $F$). Finally, we have suggested three balanced splitting formulas which differ by their memory complexity and their approximation of $F$. \\ \ \\
+
+\newG{COUPER LE PAPIER EN 2 ICI? Et l'algo prototype dans ce premier papier. Qu'en penses-tu Bilel? }
 
 \section{Adaptive optimizers}
 \label{section_optimizers}
@@ -1061,7 +1065,7 @@ In this section, we have introduced new adaptive mini-batch optimizers based on 
 The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most famous stochastic optimizer
 in the Deep Learning litterature, namely RRAdam (called also Adam in the litterature \cite{Adam}), described in appendix \ref{annexe_adam}. Another slight modification of RRAdam without the debiased steps (that we call RRAWB: Random Reshuffle Adam without bias steps) is sometimes tested to illustrate some instability phenomenons. They are also compared to new Armijo-like full-batch optimizers introduced in chapter 2 of \cite{Bilel_thesis} (see \cite{Lyap_Theory_Bilel} for an analysis): LC (Lyapunov control) and LCD (Lyapunov Control Dichotomy) since they have many good properties (stability for example).
 
-\subsection{Analytic benchmarks \newG{comme ces bench ne sont pas communement acceptés... Les mettre en annexes? }}
+\subsection{Analytic benchmarks}
 \label{test_analytic}
 
 First of all, we begin by the analytic benchmarks where all the information is available about the $\R_i$ and $\R$, in order to test the behaviors of the new optimizers in several configurations:
@@ -1181,7 +1185,7 @@ is $\left[18371/(0.5\times(190+297)) \right] \approx 75$ times slower than RAG o
 However, the proportion of global minimum decreases (not displayed here) from 8 to 4\%. On benchmark \polyFive, the differences are even more pronounced: RAG and RAGL are $\left[237700/(0.5\times(3600+5300))\right] \approx 53$ times faster than the stochastic version of Adam and even $\left[39000/(0.5\times (3600+5300))\right]\approx8.7$ times faster than its deterministic version. LCD is even more efficient. \\
 Finally, it is noteworthy that the factor of difference between RAG and RAGL is at most of 1.5, even though with constant learning rate, we would expect a factor 2, since at each
 iteration RAGL requires two evaluations of mini-batch gradient. One should also know that without the linesearch with interaction, the costs of RAG and RAGL on \polyFive would be
-prohibitive (the same order than RRAdam). In fact, in this case, \newG{with the interaction}, the necessary number of epochs to converge to $(-4,3)$ or $(4,-1)$ is too high (100000
+prohibitive (the same order than RRAdam). In fact, in this case, with the interaction, the necessary number of epochs to converge to $(-4,3)$ or $(4,-1)$ is too high (100000
 compared to the 500 epochs for our actual versions). This can be explained by the fact that in the neighborhood of these points, the stiffnesses $L_1$ and $L_2$ differ by a factor $10^4$, if they are evaluated with the linesearch free of interaction. This difference is related to the fact that $\R_1$ and $\R_2$ have distinct degree of degeneracy around these points. 
 
 \begin{table}[h!]

@@ -372,17 +372,17 @@ We expect their supports to be "centered" around the minimums of $\R$. We will s
 \subsection{Beyond the interpolation condition}
 \label{subsection_beyond_interpolation}
 
-\paragraph{Interpolating benchmarks}
-~~\\
-To evaluate the properties of the different optimizers (specifically their stability and speed), it is necessary to have some analytical benchmarks. In \cite{Bilel}, the authors build some toy neural networks in two dimensions with different properties. These examples are recalled in appendix \ref{annexe_polys} (their names are modified for pedagogical reasons) but we mention below some of their caracteristics:
-\begin{itemize}
-	\item the benchmark \polyTwo admits four global minimums of zero values and four non-degenerate saddle points. It is the most simple configuration presented in \cite{Bilel}.
-	\item The benchmark \polyThree presents one global minimum of zero value and three local minimums with different values. The saddle points are still non-degenerated but their values are differents.
-	\item The benchmark \polyFive is very stiff and possesses several mimimums with different orders of degeneracy. It also possesses degenerate saddle points. 
-\end{itemize}
-Despite their pertinence concerning the evaluation of full-batch optimizer, they are not sufficient for mini-batch optimization since they satisfy the interpolation condition. 
+%\paragraph{Interpolating benchmarks}
+%~~\\
+%To evaluate the properties of the different optimizers (specifically their stability and speed), it is necessary to have some analytical benchmarks. In \cite{Bilel}, the authors build some toy neural networks in two dimensions with different properties. These examples are recalled in appendix \ref{annexe_polys} (their names are modified for pedagogical reasons) but we mention below some of their caracteristics:
+%\begin{itemize}
+%	\item the benchmark \polyTwo admits four global minimums of zero values and four non-degenerate saddle points. It is the most simple configuration presented in \cite{Bilel}.
+%	\item The benchmark \polyThree presents one global minimum of zero value and three local minimums with different values. The saddle points are still non-degenerated but their values are differents.
+%	\item The benchmark \polyFive is very stiff and possesses several mimimums with different orders of degeneracy. It also possesses degenerate saddle points. 
+%\end{itemize}
+%Despite their pertinence concerning the evaluation of full-batch optimizer, they are not sufficient for mini-batch optimization since they satisfy the interpolation condition. 
 
-\paragraph{Non-interpolating benchmarks}
+%\paragraph{Non-interpolating benchmarks}
 ~~\\
 As highlighted in the introduction, the major part of the studies proving that constant step size SGD converges to critical point of $\R$ is based on the interpolation condition or
 the overparametrization of the network. As all the critical points of the above benchmarks satisfy the interpolation assumption, it is necessary to suggest new functions taking
@@ -406,7 +406,7 @@ Succintly, we present their caracteristics below:
 \paragraph{Graph description}
 ~~\\
 Here, we numerically compute the stationary distributions of SGD/RRGD by Monte Carlo simulations on \exOne and \exTwo. These simulations are performed until time $t_f=10$, large
-enough in practice, in order for the distributions to reach stationarity (visual verification). 10000 particles are sampled uniformly on $[-1,1]$ for each batch $i\in \{1,2\}$. The position of the particles after the time $t_f$ enables to build the densities $u^1$ and $u^2$. Here $u^1$ denotes the stationary distribution with the following initial condition (the second coordinate refers to the batch number):
+enough in practice for the distributions to reach stationarity (visual verification). 10000 particles are sampled uniformly on $[-1,1]$ for each batch $i\in \{1,2\}$. The position of the particles after the time $t_f$ enables to build the densities $u^1$ and $u^2$. Here $u^1$ denotes the stationary distribution with the following initial condition (the second coordinate refers to the batch number):
 \begin{equation*}
 	u^1_0(\theta) = \left(\frac{1}{4} \mathds{1}_{[-1,1]}(\theta),1\right).
 \end{equation*}
@@ -454,19 +454,19 @@ On the graphs a) and c) of figure \ref{sgd_ex1} a Dirac comb appears with a lot 
 other words, several stationary states have nothing to do with the minimums of the $\R_i$ or $\R$. By decreasing the time step (graphs b) and d)), we get closer to a gaussian
 distribution but it is not really centered on the global minimum. For RRGD, the behavior is completely different, see figure \ref{RRGD_ex1}. When the time step decreases, the distribution gets closer to a Dirac centered at the global minimum but for intermediary learning rates (graphs a) and b)) the second Dirac is located at the minimum of $\R_2$, that is to say $\theta=0.5$. It is true that the behavior of RRGD is less troubling than the one of SGD but it is still problematic because the convergence (existence of a stationary distribution) does not imply to find a minimum of $\R$. \\
 Concerning \exTwo (figure \ref{sgd_ex2}), for any time step, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. Unfortunately, it seems that SGD favors interpolating minimums without taking into account their quality even for time steps sufficiently small. Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not neglected even for an intermediary value of the time step (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
-
-About SGD, even by decreasing the learning rate, the stationary distributions are not satisfactory: the gaussian-like distribution is not well-centered (\exOne) or interpolating
+Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the gaussian-like distribution is not well-centered (\exOne) or interpolating
 local minimum are largely favored.
 
 \paragraph{}
-In this section, we have built new benchmarks to analyse the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble catching non-interpolating critical points. Even worse, SGD creates artificial stationary states in the sense that they are not critical points of the invidual functions $\R_i$ or of the sum function $\R$.   
+In this section, we built new benchmarks to analyse the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble catching non-interpolating critical points. Even worse, SGD creates artificial stationary states in the sense that they are not critical points of the invidual functions $\R_i$ or of the sum function $\R$.   
 
 \section{Splitting schemes}
 \label{section_splitting_schemes}
 
 The goal of this section is to explain the previous behaviors of SGD and RRGD and to suggest numerical schemes which correct their defects. 
 
-Usually, in the litterature, the behaviors of SGD are explained by seeing SGD as a discretization of a brownian differential equation \cite{SDE_comparison,SDE_modified,SDE_edp,malladi_adam,hu2018diffusion,flat_minima_exponential,yang2020fast,sgd_implicit_regularisation,sgd_implicit_regularisation2}. Here, we turn this point of view around by interpreting RRGD (rather its deterministic version) as a particular discretization of the classical gradient flow $\theta'(t)=-\nR(\theta(t))$. This goes through operator splitting. Let us remember the principle on the following Cauchy problem:
+Usually, in the litterature, the behaviors of SGD are explained by seeing SGD as a discretization of a brownian differential equation \cite{SDE_comparison,SDE_modified,SDE_edp,malladi_adam,hu2018diffusion,flat_minima_exponential,yang2020fast,sgd_implicit_regularisation,sgd_implicit_regularisation2}. 
+Here, we turn this point of view around by interpreting RRGD (rather its deterministic version) as a particular discretization, {\em via} operator splitting, of the classical gradient flow $\theta'(t)=-\nR(\theta(t))$. Let us remember the principle on the following Cauchy problem:
 \begin{equation}
 	\left\{
 	\begin{array}{ll}
@@ -490,9 +490,10 @@ can be solved exactly (to make it simpler)  with solution $\phi_{\eta}^i(y_0)$ a
 	\chi_{\eta} = \phi_{\eta}^m \circ \dots \phi_{\eta}^2 \circ \phi_{\eta}^1.
 	\label{splitting_lie_trotter}
 \end{equation} 
-Then the integrator $\chi$ satisfies $\chi_{\eta}(y_0) = \phi_{\eta}(y_0) + \mathcal{O}(\eta^2)$. Then $\chi_{\eta}$ is an order one approximation of $\phi_{\eta}$, the solution of \eqref{Cauchy_problem}. A splitting method is then made up of:
+Then the integrator $\chi$ satisfies $\chi_{\eta}(y_0) = \phi_{\eta}(y_0) + \mathcal{O}(\eta^2)$. In other words, $\chi_{\eta}$ is an order one approximation of $\phi_{\eta}$, the solution of \eqref{Cauchy_problem}. A splitting method is then made up of:
 \begin{itemize}
-	\item the choice of operators $F_i$: in the resolution of an ODE or a PDE, these are selectioned in order to represent the different scales or stiffnesses of a physical phenomenon (for example convection-diffusion). In our case, this choice is imposed by the decomposition of the dataset into $m$ batches. We do not do our best to balance the batches in this paper.
+	\item the choice of operators $F_i$: in the resolution of an ODE or a PDE, they often represent the different scales or stiffnesses of a physical phenomenon (for example convection-diffusion). In our case, this choice is imposed by the decomposition of the dataset into $m$ batches. 
+          These batches may be strongly unbalanced. We do not make any assumptions on how well balanced or not they might be in this paper.
 	\item Solve exactly or approximately the ODE $y'(t)=F_i(y(t))$.
 	\item Put the different solutions together in order to build a solution for \eqref{Cauchy_problem}. 
 \end{itemize}
@@ -506,7 +507,7 @@ In the same way as for SGD and RRGD, we plot the stationary distributions of IG 
 \begin{equation*}
 	u_0(\theta) = \frac{1}{2} \mathds{1}_{[-1,1]}(\theta).
 \end{equation*}
-On the figure \ref{IG_ex1}, if the learning rate is not small enough (graphs a) and b)), the Delta Dirac function is centered at the minimum of $\R_1$. On the graph d), $\eta$ is reduced enough in order for the Dirac to be centered at the minimum of $\R$. On the figure \ref{IG_ex2}, the proportion of global minimum prevails over the local one even with an intermediary learning rate (graph a)), which is not the case for RRGD where a reduction of $\eta$ was required. Globally, the asymptotic behavior (when $\eta \to 0$) of IG is the same as RRGD in the long run. As a result, the pre-eminence of RRGD over SGD is not related to a different random sampling but to the splitting.
+On the figure \ref{IG_ex1}, if the learning rate is not small enough (graphs a) and b)), the Delta Dirac function is centered at the minimum of $\R_1$. On the graph d), $\eta$ is reduced enough for the Dirac to be centered at the minimum of $\R$. On the figure \ref{IG_ex2}, the proportion of global minimum prevails over the local one even with an intermediary learning rate (graph a)), which is not the case for RRGD where a reduction of $\eta$ was required. Globally, the asymptotic behavior (when $\eta \to 0$) of IG is the same as RRGD in the long run. As a result, the pre-eminence of RRGD over SGD is not related to a different random sampling but to the splitting.
 
 \begin{figure}[h!]
 	\centering
@@ -528,8 +529,8 @@ The most natural idea to improve IG is then to apply a Strang splitting: in fact
 	\chi_{\eta} = \phi_{\eta/2}^1 \circ \phi_{\eta}^2 \circ \phi_{\eta/2}^1,
 \end{equation*}
 where each $\phi_{\eta}^i$ is an Euler explicit scheme with step $\eta$ applied to $\theta'(t) = -\nR_i(\theta(t))$.
-The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the stationary distributions of this scheme for \exOne and \exTwo. On the figure \ref{Strang_ex2}, the rise
-of the order does not change anything for the values of $\eta$ used on \exTwo. On the figure \ref{Strang_ex1}, we get closer to the stationary state faster when $\eta \to 0$ on
+The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the stationary distributions of this scheme for \exOne and \exTwo. From the results of figure
+\ref{Strang_ex2}, we can see that increasing the accuracy of the scheme does not change much, at least for the values of $\eta$ used on \exTwo. On the figure \ref{Strang_ex1}, we get closer to the stationary state faster when $\eta \to 0$ on
 \exOne. However, there still exists undesirable stationary states in the sense they do not correspond to a minimization of $\R$. 
 
 \begin{figure}[h!]
@@ -578,7 +579,7 @@ Let us begin by the two cases where this splitting makes it possible to retrieve
 	\item if $A^{-1}a=B^{-1}b$ (interpolation) then $y_{\infty}$ is the stationary state of each $F_i$.
 	\item If $A$ and $B$ commute then for every $\eta>0$, $e^{(A+B)\eta}=e^{B\eta}e^{A\eta}$. Therefore the splitting is exact and the stationary state $y_{\infty}$ is recovered asymptotically. 
 \end{itemize}
-In the general case, the Taylor developement \eqref{Taylor_split} suggests that the local error introduced by a first order splitting is $\mathcal{O}(\eta^2)$ in the neighborhood of $y_{\infty}$:
+In the general case, the Taylor development \eqref{Taylor_split} suggests that the local error introduced by a first order splitting is $\mathcal{O}(\eta^2)$ in the neighborhood of $y_{\infty}$:
 \begin{equation*}
 	\left[e^{(A+B)\eta}-e^{B\eta}e^{A\eta}\right]y_{\infty} \approx \frac{\eta^2}{2}\left[B,A\right]y_{\infty}.
 \end{equation*}
@@ -728,7 +729,7 @@ Both on \exOne and \exTwo, the stationary distributions of \eqref{RAG_2batch} ar
 	\label{IAG_ex2}
 \end{figure}
 
-For $m$ operators \eqref{RAG_2batch} extends to the form:
+For $m$ operators, \eqref{RAG_2batch} extends to the form:
 \begin{equation}
 	y_{n+i/m} = y_{n+(i-1)/m}+\eta^i g_n^i,
 	\label{RAG_scheme}
@@ -754,6 +755,7 @@ for all $i \in \{1,\dots,m\}$ and $n\geq 1$. It is possible to initialize the sc
 		\end{array}
 		\right.
 	\end{equation*}
+        In practice, this can be easily done by setting the learning rate to zero only at the first epoch for example. 
 \end{itemize}
 In the case $F_i=-\nR_i$, \eqref{RAG_scheme} is equivalent to IAG (SAG without random permutation). \\
 The issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Now, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
@@ -780,7 +782,9 @@ The scheme is initialized at $n=0$ with:
 \begin{equation*}
 	y_{n+i/m} = y_0 + \eta \mathds{1}_{i=m} g_0 \text{ with } g_0 = F(y_0),
 \end{equation*}
-for all $i \in \{1,\dots,m\}$. The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). The scheme \eqref{RAGL_splitting} is well-balanced	since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
+for all $i \in \{1,\dots,m\}$. 
+%The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
+The scheme \eqref{RAGL_splitting} is well-balanced	since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
 The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. We are going to see that this formula can be implemented with a storage involving $3N$.
 
 \paragraph{Trade-off between balancing and memory cost}
@@ -801,8 +805,8 @@ Here, we suggest an intuitive way to reduce this perturbation and empirically co
 where $g_n$ and the initialization are defined in the same way as \eqref{RAGL_splitting}. We are going to see that it is possible to implement \eqref{RAGL2_splitting} with a memory cost involving $5N$.
 Some comments are necessary:
 \begin{itemize}
-	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to supress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
-	\item When the time step is adaptative, we imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
+	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to suppress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
+        \item \newG{ICI} When the time step is adaptative, we imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
           iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$.
 \end{itemize} 
 
@@ -815,11 +819,219 @@ Some comments are necessary:
 			-\frac{\bbetone}{m} v-\nR_i(\theta)
 		\end{pmatrix}.
 	\end{equation*}
-	The application of one of the splittings above gives a fundamentally different update of STORM (variance reduction on Momentum). Therefore, the balanced splitting point of view might lead to some optimizers like SAG or RR-SARAH but it is really different of the variance reduction technique. The same difference appears for the variance reduction versions related to Adam: see Adam$^+$ \cite{adam_variance1} for example.
+	The application of one of the splittings above gives a fundamentally different update of STORM (variance reduction on Momentum). Therefore, the balanced splitting point of
+        view might lead to some optimizers like SAG or RR-SARAH but it is by construction different of the variance reduction technique. The same difference appears for the variance reduction versions related to Adam: see Adam$^+$ \cite{adam_variance1} for example.
 \end{remark}
 
 In this section, we have highlighted the necessity of balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
 points of $F$). Finally, we have suggested three balanced splitting formulas which differ by their memory complexity and their approximation of $F$. \\ \ \\
+
+\section{Algorithm description: RAG for {\it Rebalanced Aggregated Gradient}}
+
+We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version of the splitting \eqref{RAG_scheme}. Let us explain below all the steps and sub-procedures:
+\begin{enumerate}
+	\item let us begin by the initialization procedure Init\_RAG described by algorithm \ref{algo_init}. The latter computes the full-batch gradient in the variable $g$ by accumulation, while evaluating Lipschitz constants $L_1, \dots, L_m$ of 
+	$\nR_1,$ $\dots, \nR_m$ thanks to the linesearch without interaction. A possible Lipschitz constant for $\nR$ is then obtained by $L=L_1+\dots+L_m$. The time step is then computed as $2(1-\lambda)L^{-1}$ according to proposition 1 of \cite{Lyap_Theory_Bilel} and a GD step is done. Notice that for the rest of the epochs we define the time step as $2L^{-1}$ (neglect the factor $1-\lambda$) because this choice enables empirically to save time.
+	\item The line 10 of RAG corresponds to the computation of $g_n^i$ \eqref{RAG_scheme}. For a neural network, given that a forward pass is necessary before a backpropagation, we have access to $\R_i$. At line 9, an estimation of $\R$ is computed in a similar way as the one for $\nR$:
+	\begin{equation}
+		\R_n^i = \sum_{j=1}^i \R_j\left(\theta_{n+(j-1)/m}\right)+\sum_{j=i+1}^m \R_j\left(\theta_{n-1+(j-1)/m}\right).
+		\label{Rni}
+	\end{equation}
+	Then the variable $R_0$ at line 6 corresponds to this quantity at the beginning of the epoch. The comparison between $R$ and $R_0$ at the end of the epoch enables to determine if the objective function diminished since these quantities are supposed to approximate it in the long run. 
+	\item The lines from 12 to 23 are here to evaluate the Lipschitz constants $L_i$ in the direction $g_i$ or $g$, as explained previously. A possible Lipschitz constant for $\nR$ is then obtained at line 25 by summing the individual constants. $L_{max}$ corresponds to the largest Lipschitz constant among the $m$ last gradients: have in mind that some of them have been evaluated at the running epoch $n+1$ and others at the previous epoch $n$.
+	\item This maximum is exploited for the memory effect (see \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}) at line 29. Here, the time step from
+          which we start the next linesearch is taken as the learning rate corresponding to the stiffest batch multiplied by $f_2$. The idea follows the same as the one of the
+          theorem 5.1 of \cite{Bilel_ICML} and theorem 2.5 of \cite{Bilel_thesis}. The idea is to create a recurrent relation between the admissible time steps of two successive
+          epochs for the stiffest batch, in order to get a complexity (number of evaluations of $\R_i$) less dependent on the stiffness. Given that the other batches are less
+          stiff, they require less evaluations. This is empirically verified in section \ref{section_results}.
+	\item At line 31, the effective learning rate $\eta$ is computed from the estimation of the Lipschitz constant of $\nR$ in the same way as in the initialization (factor $(1-\lambda)$ disregarded). The difference is the division by $2m-1$. Indeed, it is common in splitting operator theory to divide the time step by the number of operators involving in the splitting \cite{splitting_ode_review}. There are $m$ gradient operators $\left(\nR_j\right)_{1 \leq j \leq m}$ and also the $m-1$ delay operators for all $i \in \{1,\dots,m\}$ \eqref{RAG_scheme}:
+	\begin{equation*}
+		\left(\theta_{n+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j <i} \text{ and } \left(\theta_{n-1+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{i+1\leq j \leq m}.
+	\end{equation*}
+	That is why we have tested SGD, RRGD and the different splittings with learning rates divided by $3=2\times 2-1$ in the previous sections. At line 33, the time step is again divided by a factor $h$ related to the heuristic described later in the paper. The goal is to activate the heuristic when its application conditions are verified at least twice in a row: the only aim of this line is to limit the potential oscillations generated by the heuristic.
+	\item Now, let us deal with the Distance function described by algorithm \ref{algo_dist}. The product $\eta \|g\|$ corresponds to the exact distance between two successive iterates:
+	\begin{equation*}
+		\|\theta_{n+i/m}-\theta_{n+(i-1)/m}\|.
+	\end{equation*}
+	Given that the inverse of $\eta_1$ estimates the Lipschitz constant of $\nR_i$ ($\eta_1$ is chosen in place of $\eta$ since we need the contribution of batch $i$ and not their interactions), it is possible to upper bound:
+	\begin{equation*}
+		\|\nR_i\left(\theta_{n+i/m}\right)-\nR_i\left(\theta_{n+(i-1)/m}\right)\|
+	\end{equation*}
+	by the product $\frac{2(1-\lambda)}{\eta_1}\eta\|g\|$. Then this quantity gives the variations of the gradient of batch $i$ between two successive iterations. The variable
+        $d$ is the sum of the variations associated to the $m$ last gradients. The smaller it is (the littlest the delays), the more accurate the estimator $g$ of $\nR$ is.
+	\item This explains the stopping criterion. It guarantees that $g$ is representative of the full-batch gradient under the fixed precision ($d/P<\epsilon$) and that in this
+          case $g$ is small ($\|g\|/P<\epsilon$). This criterion is also exploited at line 38 to stop the algorithm during an epoch.   
+	\item It remains to detail the heuristic. Its aim is to accelerate the convergence of the algorithm in practice (it is possible to remove it to not take risks but the
+          execution times are longer). If the estimation of $\R$ decreases during the epoch, we permit ourself to be less restrictive on the "CFL" condition $\frac{2}{op\times L}$:
+          this goes through the reduction of the variable $op$ (default value $2m-1$ the number of operators) by a factor $h$. Even though the variable $\R$ is supposed to diminish
+          in the long run, not taking into account "all the operators" might generate oscillations, since we do not come back if $\R$ increases (it would be necessary to suppress an epoch). To restrain this unwelcome effect, the factor $h$ is adapted. Intuitively, we want to "ignore" the delay operators if $d$ (the variations related to the delays) influences a little the estimation $g$ ($d\leq \|g\|$ even if it is rather $d\ll \|g\|$)): the iterates are "quasi mixed up" from the point of view of $\|g\|$. Then $h$ is increased or decreased linearly if we could ignore or not some operators. In the opposite case, we take into account all the operators without exception, in order to not take any risk if $\R$ increases. Despite being intuitive (heuristic), this part works well in practice. In the case where the number of batch is not important ($m<100$), this heuristic can be removed without major deceleration. 
+\end{enumerate}    
+
+\begin{algorithm}[h!]
+	\caption{Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$)}
+	\label{algo_dist}
+	\begin{algorithmic}
+		\STATE $d \leftarrow d-dTab[i]$
+		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
+		\STATE $dTab[i] \leftarrow \frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
+		\ELSE
+		\STATE $dTab[i] \leftarrow 0$
+		\ENDIF
+		\STATE $d \leftarrow d+dTab[i]$
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h!]
+	\caption{Heuristic($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $op_{max}$)}
+	\label{algo_heuris}
+	\begin{algorithmic}
+		\IF{$d<\|g\|$}
+		\STATE $h \leftarrow (h+h_{max})/2$	
+		\ELSE
+		\STATE $h \leftarrow (1+h_{max})/2$	
+		\ENDIF
+		
+		\IF{$R<R_0$}
+		\STATE $op \leftarrow op/h$	
+		\ELSE
+		\STATE $op \leftarrow op_{max}$	
+		\ENDIF
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h!]
+	\caption{RAG}
+	\label{algo_RAG}
+	\begin{algorithmic}[1]
+		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_2=1000$, $\eta_{init}=0.1$ 
+		\STATE $g \leftarrow 0$, $R \leftarrow 0$
+		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 2m-1$
+		\STATE $gTab$, $RTab$, $dTab$ (initialized at 0) and $LTab$ arrays of size $m$
+		\STATE Init\_RAG ($\theta$, $\eta$, $g$, $R$, $gTab$, $RTab$, $LTab$, $\eta_{init}$, $\epsilon$)
+		
+		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
+		\STATE $R_0 \leftarrow R$
+		
+		\FOR{i=1,...,m}
+		
+		\STATE $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
+		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
+		\STATE $g\leftarrow g-gTab[i]$, $g \leftarrow g+g_i$, $gTab[i] \leftarrow g_i$
+		
+		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$
+		\STATE $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$)
+		\STATE $i_{max} \leftarrow \argmax(LTab)$
+		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
+		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), \STATE $\eta \leftarrow \max(\eta_1,\eta_2)$
+		\ELSE
+		\STATE $\eta \leftarrow \eta_1$
+		\ENDIF
+		
+		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
+		\STATE $LTab[i] \leftarrow 0$
+		\ELSE
+		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
+		\ENDIF
+		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
+		
+		\IF{$L<\epsilon_m$}
+		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
+		\ELSE
+		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
+		\IF{$op==2m-1$}
+		\STATE $\eta \leftarrow \frac{2}{op \times L}$
+		\ELSE
+		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
+		\ENDIF
+		\ENDIF
+		
+		\STATE $\theta \leftarrow \theta - \eta g$
+		\STATE Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$)
+		
+		\STATE Stopping if $\|g\|/P<\epsilon$ and $d/P<\epsilon$
+		
+		\ENDFOR
+		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $2m-1$)
+		\ENDWHILE
+		\RETURN $\theta$
+	\end{algorithmic}
+\end{algorithm} 
+
+
+\section{Numerical results}
+\label{section_results}
+
+The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most famous stochastic optimizer
+in the Deep Learning litterature, namely RRAdam (called also Adam in the litterature \cite{Adam}), described in appendix \ref{annexe_adam}. Another slight modification of RRAdam without the debiased steps (that we call RRAWB: Random Reshuffle Adam without bias steps) is sometimes tested to illustrate some instability phenomenons. They are also compared to new Armijo-like full-batch optimizers introduced in chapter 2 of \cite{Bilel_thesis} (see \cite{Lyap_Theory_Bilel} for an analysis): LC (Lyapunov control) and LCD (Lyapunov Control Dichotomy) since they have many good properties (stability for example).
+
+\subsection{Analytic benchmarks}
+\label{test_analytic}
+
+First of all, we begin by the analytic benchmarks where all the information is available about the $\R_i$ and $\R$, in order to test the behaviors of the new optimizers in several configurations:
+\begin{itemize}
+	\item the examples in dimension one, \exOne to \exHeight, are necessary to know if our algorithms can handle the interpolation deficiency \eqref{interpolation}. Let us remember that the stochastic optimizers used by the ML community, namely SGD and RRGD (the same for RRAdam) are not able of this, even in the simple setups of \exOne and \exTwo. 
+	\item The question now is: are the minimizations of \polyTwo and \polyThree stable with RAG and RAGL as they are with the Armijo-like algorithms in chapter 2 of \cite{Bilel_thesis}. In \cite{Bilel}, the authors show that it is crucial to develop Lyapunov stable optimizers for ML. Let us recall what a Lyapunov stable dynamical system means: if the initialization $\theta_0$ is close to a critical point, all the trajectory remains close to this critical point. In \cite{Bilel}, the authors empirically evaluate the stability of a given deterministic optimizer, for $N=2$, by a map (called sensitivity map) drawn as follows:
+	\begin{itemize}
+		\item the localization of a point on the plane is the value of $\theta_0$.
+		\item The color of the point (see the legend of figure \ref{RAG_stabilite} which is generated with 10000 initializations) corresponds to the convergent point of a given algorithm. More precisely, for a minimum $\theta^*$ a color covers the set:
+		\begin{equation*}
+			E_{\theta^*} = \{ \theta_0, \|\theta_n(\theta_0)-\theta^*\| < 10^{-3} \},
+		\end{equation*}
+		where the value $10^{-3}$ is an arbitrary threshold to decide on which critical point is the closest of $\theta_n$.
+		\item The red points refers to values of $\theta_0$ such that the algorithm does not converge.
+		\item Some isolines are drawn in green to easily identify the minimums.
+	\end{itemize}
+	We also extend this map to the stochastic setting. In this case, there are as many maps as minimums and each point is an initialization $\theta_0$. For each minimum
+        $\theta^*$, the gradation of colors indicates the approximative probability to converge to $\theta^*$ from initial point $\theta_0$. An example of such a map is given by
+        the figure \ref{RRAWB_polyThree} which is generated with $10000$ initial points.  For each initial points $\theta_0$, $100$ trajectories are simulated and used to estimate
+        the probability of ending in the vicinities of the different critical points.
+	\item The next benchmark also allows studying the management of the stiffness (\polyFive) by RAG and RAGL, especially when the functions $\R_i$ tackle distinct order of
+          degeneracy. Informally, for \polyFive, $\R_1$ "sees" a quadratic function (possibly degenerated) while $\R_2$ "sees" a quadric one in the neighborhood of some minimums.
+          Moreover, the estimation of the Lipschitz constant of $\nR$ by $L_1+L_2$ is coarse in the vicinities of some critical points of \polyFive, like $(-4,3)$ and $(4,-1)$,
+          especially if the linesearch free of interactioni is used. 
+	\item Finally, with the next benchmarks, the behavior in the neighborhood of saddle points is studied, especially the ones that are degenerated (comparison between \polyThree and \polyFive). Do RAG and RAGL escape them? This is relevant since some saddle points of $\R$ are global minimums for one of the $\R_i$ (one may see this as a "strong" interpolation property).
+\end{itemize}
+
+\paragraph{Hyperparameters}
+~~\\
+In the following, the hyperparameters are the following:
+\begin{itemize}
+	\item for RAG and RAGL, $f_1=30$, $f_2=1000$, $\lambda=0.5$ and $p=2$ are chosen. 
+	\item Concerning RRAdam, the default values of Keras/Tensorflow and Pytorch are chosen: $\eta=10^{-3}$, $\betone=0.9$, $\bettwo=0.999$ and $\epsilon_a=10^{-7}$, unless
+          otherwise specified. These are the most commonly used values by the practitioners.
+\end{itemize}
+
+\paragraph{One dimension benchmark}
+~~\\
+In the same way as in the section \ref{section_splitting_schemes}, we represent the final distribution of the points $\theta$ on the eight benchmarks using $10000$ points in the Monte-Carlo simulation. Here, we do not stop the algorithm for a time $t_f$ large enough, but we use our stopping criterion with $\epsilon=10^{-4}$ and $n_{max}=200000$: this makes it possible to evaluate its relevancy. 
+\\
+The figures \ref{RAG_exs} and \ref{RAGL_exs} present the eight distributions, both for RAG and RAGL. The below comments concern the two algorithms given that their distributions are exactly the same.\\
+In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
+soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. This also points out that
+our stopping criterion seems sufficient. In fact, when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
+The global minimum is favored even facing interpolating minimums, except on \exHeight. Even not-mild setups like \exSix ("semi-interpolation": minimum of two functions among three) or \exThree (a local minimum is the intersection of the graphs of $\R_1$ and $\R_2$) do not promote local minimums. The singularity of \exHeight can not be explained by the interpolation condition since any of its minimums is interpolating. We think that this is due to the fact that in the neighborhood of the local minimum, the stiffnesses $L_i$ are uniform whereas the variations of the gradients around the global minimum are largely scattered. \\
+As a result, it is relevant to think that a critical point is not favored depending on their degree of interpolation but rather in accordance with a complex structure between its nature (global or local) and the covariance matrix around this point. In our eyes, it is critical that a minimum is not favored because of its interpolation condition since this property has no meaning from the point of view of the objective function. \\
+It is important to notice that in the litterature, the interpolation hypothesis is always considered on the whole set of critical points and there is no intermediary situation:
+here, we have interpolating critical points and others which are not, some critical points only vanish some of the $\nR_i$ but not all of them like in \exSix.     
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.45}{\input{chapitre5_img/RAG_exs.pgf}}
+	\caption{Final distributions of RAG on: a) \exOne, b) \exTwo, c) \exThree, d) \exFour, e) \exFive, f) \exSix, g) \exSeven, h) \exHeight. The green vertical straight lines represent the positions of the global minimums of $\R$ (sometimes mix with the black peak) and the blue ones refer to the local minimums.}
+	\label{RAG_exs}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.45}{\input{chapitre5_img/RAGL_exs.pgf}}
+	\caption{Final distributions of RAGL on: a) \exOne, b) \exTwo, c) \exThree, d) \exFour, e) \exFive, f) \exSix, g) \exSeven, h) \exHeight. The green vertical straight lines represent the positions of the global minimums of $\R$ (sometimes mix with the black peak) and the blue ones refer to the local minimums.}
+	\label{RAGL_exs}
+\end{figure}
+
+\paragraph{}
+Now, we focus on the benchmarks \polyTwo, \polyThree and \polyFive in dimension 2 introduced in \cite{Bilel} ($m=2$) to analyse the stability, the behavior of the saddle points and the speed of convergence. The threshold is fixed to $\epsilon=10^{-4}$ and $n_{max}=200000$. Let us remember that these benchmarks satisfy the interpolation condition for all the critical points. \\
+In order to be able to compare the optimizers, we have no choice but to compute the full-batch gradient at the end of every epoch for RRGD, RRAWB and RRAdam in the rest of the paper, since there are no stopping criteria for the stochastic optimizers. Of course, this choice increases the running time of these algorithms, but it is the only manner to be fairly comparable.
+
 
 \section{Conclusion}
 \label{section_conclusion}
@@ -858,120 +1070,120 @@ The authors declare that they have no conflict of interest.
 
 \appendix
 
-\section{Interpolating benchmarks}
-\label{annexe_polys}
-
-Here we recall the benchmarks of \cite{Bilel}. They are made up of one neuron with a polynomial activation function $g$ (architecture $1(g)$). For $\theta=(w,b)$, the functions are of the form:
-\begin{equation*}
-	\R(w,b)=\frac{1}{4}\left[g(b)^2+g(w+b)^2\right].
-\end{equation*}
-Each activation function makes the training more complex.
-
-\paragraph{Table description}
-~~\\
-Each caracteristic of the benchmarks is described in tables \ref{polyTwo_example}, \ref{polyThree_example}, \ref{polyFive_example1} and \ref{polyFive_example2}. 
-The term "order of dominating terms" refers to the order of the first non-zero term in the asymptotic development of $\mathcal{R}(\theta)-\mathcal{R}(\theta^*)$ in the neighborhood of a critical point $\theta^*$. 
-The values of the critical points $\theta^*$, in other words $\R(\theta^*)$, appear in the same order than the minimums.
-The critical points can be global minimum (\mg), local one (\ml) or saddle point (\ps).
-
-\paragraph{{\it Benchmark} \polyTwo}
-~~\\
-
-The activation is simply defined by:
-\begin{equation}
-	g(z)=z^2-1.
-	\label{def_polyTwo}
-\end{equation}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \polyTwo}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}1\end{bf} & \begin{bf}2\end{bf} \\ \midrule
-		
-		\begin{bf}Nature \end{bf} & \mg & \ps \\ \midrule
-		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & invertible\\ \midrule
-		\begin{bf}Order of dominating terms \end{bf} & 2 & 2 \\ \midrule
-		\begin{bf}Set of points\end{bf} & (-2,1); (2,-1) & (-1,0); (1,0)\\ 
-		& (0,-1); (0,1) & (1,-1); (-1,1)\\ \midrule
-		\begin{bf}Values\end{bf} & 0; 0 & 0.5; 0.5 \\ 
-		& 0; 0 & 0.5; 0.5 \\ \bottomrule
-	\end{tabular}
-	\label{polyTwo_example}
-\end{table}
-
-\paragraph{{\it Benchmark} \polyThree}
-~~\\
-In this case:
-\begin{equation}
-	g(z)=2z^3-3z^2+5.
-	\label{def_polyThree}
-\end{equation}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \polyThree}
-	\begin{tabular}{llll}
-		\toprule
-		
-		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}1\end{bf} & \begin{bf}2\end{bf} & \begin{bf}3\end{bf} \\ \midrule
-		
-		\begin{bf}Nature \end{bf} & \ml & \mg & \ps \\ \midrule
-		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & invertible & invertible \\ \midrule 
-		\begin{bf}Order of dominating terms \end{bf} & 2 & 2 & 2 \\ \midrule 
-		\begin{bf}Set of points\end{bf} & (-2,1); (2,-1) & (0,-1) & (-1,0); (1,0) \\ 
-		& (0,1) & & (-1,1); (1,-1) \\ \midrule
-		\begin{bf}Values \end{bf} & 4; 4 & 0 & 6.25; 10.25 \\ 
-		& 8 & & 10.25; 6.25 \\ \bottomrule 
-	\end{tabular}
-	\label{polyThree_example}
-\end{table}
-
-\paragraph{{\it Benchmark} \polyFive}
-~~\\
-In this case:
-\begin{equation}
-	g(z)=z^5-4z^4+2z^3+8z^2-11z-12.
-	\label{def_polyFive}
-\end{equation}.
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \polyFive (part 1)}
-	\begin{tabular}{lllll}
-		
-		\toprule
-		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}1\end{bf} & \begin{bf}2\end{bf} & \begin{bf}3\end{bf} & \begin{bf}4\end{bf}  \\
-		\midrule
-		
-		\begin{bf}Nature\end{bf} & \mg & \mg & \ml & \mg \\ \midrule
-		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & singular & singular & zero \\ \midrule
-		\begin{bf}Order of dominating terms\end{bf} & 2 & 2 & 2 & 4 \\ \midrule
-		\begin{bf}Set of points\end{bf} & (0,3) & (-4,3); (4,-1) & (2,1); (-2,3) & (0,-1) \\ \midrule
-		\begin{bf}Values\end{bf} & 0 & 0; 0 & 64; 64 & 0 \\ \bottomrule
-	\end{tabular}
-	\label{polyFive_example1}
-\end{table}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \polyFive (part 2)}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}5\end{bf} & \begin{bf}6\end{bf} \\
-		\midrule
-		
-		\begin{bf}Nature\end{bf} & \ps & \ps \\ \midrule
-		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & zero \\ \midrule
-		\begin{bf}Order of dominating terms\end{bf} & 2 & 3 \\ \midrule
-		\begin{bf}Set of points\end{bf} & (4/5,11/5); (-4/5,3) & (-2,1); (2,-1); (0,1) \\ \midrule
-		\begin{bf}Values\end{bf} & 84.2; 84.2 & 64; 64; 128 \\ \bottomrule
-	\end{tabular}
-	\label{polyFive_example2}
-\end{table}
+%\section{Interpolating benchmarks}
+%\label{annexe_polys}
+%
+%Here we recall the benchmarks of \cite{Bilel}. They are made up of one neuron with a polynomial activation function $g$ (architecture $1(g)$). For $\theta=(w,b)$, the functions are of the form:
+%\begin{equation*}
+%	\R(w,b)=\frac{1}{4}\left[g(b)^2+g(w+b)^2\right].
+%\end{equation*}
+%Each activation function makes the training more complex.
+%
+%\paragraph{Table description}
+%~~\\
+%Each caracteristic of the benchmarks is described in tables \ref{polyTwo_example}, \ref{polyThree_example}, \ref{polyFive_example1} and \ref{polyFive_example2}. 
+%The term "order of dominating terms" refers to the order of the first non-zero term in the asymptotic development of $\mathcal{R}(\theta)-\mathcal{R}(\theta^*)$ in the neighborhood of a critical point $\theta^*$. 
+%The values of the critical points $\theta^*$, in other words $\R(\theta^*)$, appear in the same order than the minimums.
+%The critical points can be global minimum (\mg), local one (\ml) or saddle point (\ps).
+%
+%\paragraph{{\it Benchmark} \polyTwo}
+%~~\\
+%
+%The activation is simply defined by:
+%\begin{equation}
+%	g(z)=z^2-1.
+%	\label{def_polyTwo}
+%\end{equation}
+%
+%\begin{table}[h!]
+%	\centering
+%	\caption{Description of benchmark \polyTwo}
+%	\begin{tabular}{lll}
+%		
+%		\toprule
+%		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}1\end{bf} & \begin{bf}2\end{bf} \\ \midrule
+%		
+%		\begin{bf}Nature \end{bf} & \mg & \ps \\ \midrule
+%		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & invertible\\ \midrule
+%		\begin{bf}Order of dominating terms \end{bf} & 2 & 2 \\ \midrule
+%		\begin{bf}Set of points\end{bf} & (-2,1); (2,-1) & (-1,0); (1,0)\\ 
+%		& (0,-1); (0,1) & (1,-1); (-1,1)\\ \midrule
+%		\begin{bf}Values\end{bf} & 0; 0 & 0.5; 0.5 \\ 
+%		& 0; 0 & 0.5; 0.5 \\ \bottomrule
+%	\end{tabular}
+%	\label{polyTwo_example}
+%\end{table}
+%
+%\paragraph{{\it Benchmark} \polyThree}
+%~~\\
+%In this case:
+%\begin{equation}
+%	g(z)=2z^3-3z^2+5.
+%	\label{def_polyThree}
+%\end{equation}
+%
+%\begin{table}[h!]
+%	\centering
+%	\caption{Description of benchmark \polyThree}
+%	\begin{tabular}{llll}
+%		\toprule
+%		
+%		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}1\end{bf} & \begin{bf}2\end{bf} & \begin{bf}3\end{bf} \\ \midrule
+%		
+%		\begin{bf}Nature \end{bf} & \ml & \mg & \ps \\ \midrule
+%		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & invertible & invertible \\ \midrule 
+%		\begin{bf}Order of dominating terms \end{bf} & 2 & 2 & 2 \\ \midrule 
+%		\begin{bf}Set of points\end{bf} & (-2,1); (2,-1) & (0,-1) & (-1,0); (1,0) \\ 
+%		& (0,1) & & (-1,1); (1,-1) \\ \midrule
+%		\begin{bf}Values \end{bf} & 4; 4 & 0 & 6.25; 10.25 \\ 
+%		& 8 & & 10.25; 6.25 \\ \bottomrule 
+%	\end{tabular}
+%	\label{polyThree_example}
+%\end{table}
+%
+%\paragraph{{\it Benchmark} \polyFive}
+%~~\\
+%In this case:
+%\begin{equation}
+%	g(z)=z^5-4z^4+2z^3+8z^2-11z-12.
+%	\label{def_polyFive}
+%\end{equation}.
+%
+%\begin{table}[h!]
+%	\centering
+%	\caption{Description of benchmark \polyFive (part 1)}
+%	\begin{tabular}{lllll}
+%		
+%		\toprule
+%		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}1\end{bf} & \begin{bf}2\end{bf} & \begin{bf}3\end{bf} & \begin{bf}4\end{bf}  \\
+%		\midrule
+%		
+%		\begin{bf}Nature\end{bf} & \mg & \mg & \ml & \mg \\ \midrule
+%		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & singular & singular & zero \\ \midrule
+%		\begin{bf}Order of dominating terms\end{bf} & 2 & 2 & 2 & 4 \\ \midrule
+%		\begin{bf}Set of points\end{bf} & (0,3) & (-4,3); (4,-1) & (2,1); (-2,3) & (0,-1) \\ \midrule
+%		\begin{bf}Values\end{bf} & 0 & 0; 0 & 64; 64 & 0 \\ \bottomrule
+%	\end{tabular}
+%	\label{polyFive_example1}
+%\end{table}
+%
+%\begin{table}[h!]
+%	\centering
+%	\caption{Description of benchmark \polyFive (part 2)}
+%	\begin{tabular}{lll}
+%		
+%		\toprule
+%		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}5\end{bf} & \begin{bf}6\end{bf} \\
+%		\midrule
+%		
+%		\begin{bf}Nature\end{bf} & \ps & \ps \\ \midrule
+%		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & zero \\ \midrule
+%		\begin{bf}Order of dominating terms\end{bf} & 2 & 3 \\ \midrule
+%		\begin{bf}Set of points\end{bf} & (4/5,11/5); (-4/5,3) & (-2,1); (2,-1); (0,1) \\ \midrule
+%		\begin{bf}Values\end{bf} & 84.2; 84.2 & 64; 64; 128 \\ \bottomrule
+%	\end{tabular}
+%	\label{polyFive_example2}
+%\end{table}
 
 
 \section{Non-interpolating benchmarks}

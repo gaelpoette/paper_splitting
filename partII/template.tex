@@ -215,6 +215,7 @@ grestore
 \maketitle
 
 \begin{abstract}
+  TODO: A MODIFIER!
 	Mini batch optimizers are at the center of neural network training. 
         These are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
         In practice, these optimizers need an extensive tuning of the hyperparameters (learning rate, batch size,...) to converge and exhibit expected behaviours. %give appropriate performances. 
@@ -230,6 +231,20 @@ grestore
 \section{Introduction}
 \label{intro}
 
+A faire:
+
+ 1) Intro: repartir du précedent en faisant un rappel de ce qui a été fait.
+
+ 2) enlever cette intro jusqu'à ``Adaptive time steps''
+
+ 3) légèrement retoucher ``Objectives''
+
+ 4) organisation du papier
+
+ 5) rajouter un paragraphe pour rappeler les notations (et avoir les équations référencées)
+
+ 6) Lisser les rappels aux sections jusqu'à 4) (qui sont dans la première partie).
+ 
 Deep Learning tasks \cite{image_recognition,language_recognition,plasma} imply the resolution of highly non-convex optimization problems \cite{DL_opti}:
 \begin{equation*}
 \displaystyle{\min_{\theta \in \Rb^N}} \R(\theta).
@@ -554,6 +569,8 @@ Firstly, we present the adaptive implementation of the splitting formula \eqref{
 	\item The line 43 evaluates $d$ (as RAG). The difference is that on batch $i$, $d$ corresponds to the variations of the $i$ last gradients: here we wait for $d$ to accumulate the variations of the last $m$ gradients (no "early" stopping). In fact, in the meantime, $g$ is a perturbed approximation of $\nR$, see formula \eqref{RAGL_splitting}.
 \end{enumerate}
 The RAGL algorithm \ref{algo_RAGL} implements the formula \eqref{RAGL2_splitting}. It is similar with the difference that the function \eqref{algo_comparaison} called at line 44 enables to store the point $\theta_2$ associated to the stiffest batch of the running epoch: $L_{max}$ is not necessary equal to $\tilde{L}_{max}$. Therefore at the end of an epoch, $\theta_2$ assigned to $\theta_1$, is the point associated to the stiffest batch of this epoch. \\
+
+TODO: expliquer la différence entre RAGL-prototype et RAGL!
 
 \begin{remark}
   The goal of this article is to develop free-hyperparameters mini-batch algorithms. But aside from the heuristic, the algorithms RAG, RAGL, RAGL-prototype\footnote{\newG{Cet algo
@@ -1020,6 +1037,9 @@ The best performances on MNIST with Lenet1 is 98.3\%. RAG and RAGL achieve the s
 \section{Conclusion}
 \label{section_conclusion}
 
+TODO: enlever ce qui relève de la première partie (reformuler le côté équilibré tout de même).
+A partir de l'algorithme présenté dans la première partie, qui est une méthode équilibrée, on développe une méthode adaptative efficace...
+
 The goal of this paper is to develop adaptive mini-batch optimizers, mandatory when the dataset to learn exceeds the RAM memory. We have tackled the following points:
 \begin{itemize}
 	\item the interpolation hypothesis was largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new stationary states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
@@ -1054,437 +1074,7 @@ The authors declare that they have no conflict of interest.
 
 \appendix
 
-\section{Interpolating benchmarks}
-\label{annexe_polys}
 
-Here we recall the benchmarks of \cite{Bilel}. They are made up of one neuron with a polynomial activation function $g$ (architecture $1(g)$). For $\theta=(w,b)$, the functions are of the form:
-\begin{equation*}
-	\R(w,b)=\frac{1}{4}\left[g(b)^2+g(w+b)^2\right].
-\end{equation*}
-Each activation function makes the training more complex.
-
-\paragraph{Table description}
-~~\\
-Each caracteristic of the benchmarks is described in tables \ref{polyTwo_example}, \ref{polyThree_example}, \ref{polyFive_example1} and \ref{polyFive_example2}. 
-The term "order of dominating terms" refers to the order of the first non-zero term in the asymptotic development of $\mathcal{R}(\theta)-\mathcal{R}(\theta^*)$ in the neighborhood of a critical point $\theta^*$. 
-The values of the critical points $\theta^*$, in other words $\R(\theta^*)$, appear in the same order than the minimums.
-The critical points can be global minimum (\mg), local one (\ml) or saddle point (\ps).
-
-\paragraph{{\it Benchmark} \polyTwo}
-~~\\
-
-The activation is simply defined by:
-\begin{equation}
-	g(z)=z^2-1.
-	\label{def_polyTwo}
-\end{equation}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \polyTwo}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}1\end{bf} & \begin{bf}2\end{bf} \\ \midrule
-		
-		\begin{bf}Nature \end{bf} & \mg & \ps \\ \midrule
-		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & invertible\\ \midrule
-		\begin{bf}Order of dominating terms \end{bf} & 2 & 2 \\ \midrule
-		\begin{bf}Set of points\end{bf} & (-2,1); (2,-1) & (-1,0); (1,0)\\ 
-		& (0,-1); (0,1) & (1,-1); (-1,1)\\ \midrule
-		\begin{bf}Values\end{bf} & 0; 0 & 0.5; 0.5 \\ 
-		& 0; 0 & 0.5; 0.5 \\ \bottomrule
-	\end{tabular}
-	\label{polyTwo_example}
-\end{table}
-
-\paragraph{{\it Benchmark} \polyThree}
-~~\\
-In this case:
-\begin{equation}
-	g(z)=2z^3-3z^2+5.
-	\label{def_polyThree}
-\end{equation}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \polyThree}
-	\begin{tabular}{llll}
-		\toprule
-		
-		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}1\end{bf} & \begin{bf}2\end{bf} & \begin{bf}3\end{bf} \\ \midrule
-		
-		\begin{bf}Nature \end{bf} & \ml & \mg & \ps \\ \midrule
-		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & invertible & invertible \\ \midrule 
-		\begin{bf}Order of dominating terms \end{bf} & 2 & 2 & 2 \\ \midrule 
-		\begin{bf}Set of points\end{bf} & (-2,1); (2,-1) & (0,-1) & (-1,0); (1,0) \\ 
-		& (0,1) & & (-1,1); (1,-1) \\ \midrule
-		\begin{bf}Values \end{bf} & 4; 4 & 0 & 6.25; 10.25 \\ 
-		& 8 & & 10.25; 6.25 \\ \bottomrule 
-	\end{tabular}
-	\label{polyThree_example}
-\end{table}
-
-\paragraph{{\it Benchmark} \polyFive}
-~~\\
-In this case:
-\begin{equation}
-	g(z)=z^5-4z^4+2z^3+8z^2-11z-12.
-	\label{def_polyFive}
-\end{equation}.
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \polyFive (part 1)}
-	\begin{tabular}{lllll}
-		
-		\toprule
-		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}1\end{bf} & \begin{bf}2\end{bf} & \begin{bf}3\end{bf} & \begin{bf}4\end{bf}  \\
-		\midrule
-		
-		\begin{bf}Nature\end{bf} & \mg & \mg & \ml & \mg \\ \midrule
-		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & singular & singular & zero \\ \midrule
-		\begin{bf}Order of dominating terms\end{bf} & 2 & 2 & 2 & 4 \\ \midrule
-		\begin{bf}Set of points\end{bf} & (0,3) & (-4,3); (4,-1) & (2,1); (-2,3) & (0,-1) \\ \midrule
-		\begin{bf}Values\end{bf} & 0 & 0; 0 & 64; 64 & 0 \\ \bottomrule
-	\end{tabular}
-	\label{polyFive_example1}
-\end{table}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \polyFive (part 2)}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Properties}{Behaviors} \end{bf} & \begin{bf}5\end{bf} & \begin{bf}6\end{bf} \\
-		\midrule
-		
-		\begin{bf}Nature\end{bf} & \ps & \ps \\ \midrule
-		\begin{bf}$\nnR(\theta^*)$ invertible/zero ?\end{bf} & invertible & zero \\ \midrule
-		\begin{bf}Order of dominating terms\end{bf} & 2 & 3 \\ \midrule
-		\begin{bf}Set of points\end{bf} & (4/5,11/5); (-4/5,3) & (-2,1); (2,-1); (0,1) \\ \midrule
-		\begin{bf}Values\end{bf} & 84.2; 84.2 & 64; 64; 128 \\ \bottomrule
-	\end{tabular}
-	\label{polyFive_example2}
-\end{table}
-
-
-\section{Non-interpolating benchmarks}
-\label{annexe_non_interpolated}
-
-For each example, we present the functions $\R_i$ as well as the position $\theta$ of their global minimums (\mg) and local ones (\ml). For \exOne and \exTwo, the Lipschitz constants of $\nR$ on $[-1,1]$ are computed.
-
-\paragraph{Example \exOne}
-~~\\
-
-The functions are the following ($m=2$):
-\begin{equation*}
-	\R_1(\theta) = \theta^2+1,
-\end{equation*}
-\begin{equation*}
-	\R_2(\theta) = (2\theta-1)^2+1.
-\end{equation*}
-The Lipschitz constants of the gradients on $[-1,1]$ are: $L_1=2$ and $L_2=8$.
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \exOne}
-	\begin{tabular}{ll}
-		
-		\toprule
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} \\ \midrule
-		
-		\begin{bf}$\R_1$\end{bf} &  0   \\ \midrule
-		\begin{bf}$\R_2$\end{bf} &  0.5 \\ \midrule
-		\begin{bf}$\R$\end{bf}   &  0.4 \\ \bottomrule
-	\end{tabular}
-	\label{ex1_example}
-\end{table}
-
-\paragraph{Example \exTwo}
-~~\\
-The functions $\R_i$ are the following:
-\begin{equation*}
-	\R_1(\theta) = 2\theta^4-\theta^2+1,
-\end{equation*}
-\begin{equation*}
-	\R_2(\theta) = 12\theta^4+4\theta^3-9\theta^2+4.
-\end{equation*}
-The Lipschitz constants of the gradients on $[-1,1]$ are respectively: $L_1=22$ and $L_2=150$.
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \exTwo}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
-		\midrule
-		
-		\begin{bf}$\R_1$\end{bf} & 0.5 & -0.5  \\ \midrule
-		\begin{bf}$\R_2$\end{bf} & 0.5 & -0.75 \\ \midrule
-		\begin{bf}$\R$\end{bf}   & -0.71 & 0.5 \\ \bottomrule
-	\end{tabular}
-	\label{ex2_example}
-\end{table}
-
-\paragraph{Example \exThree}
-~~\\
-The benchmark is described by the functions ($m=2$):
-\begin{equation*}
-	\R_1(\theta) = 12\theta^{10}-4\theta^9+5\theta^8+\theta^6-3\theta^5-2\theta^4-\theta^3+\theta^2-\theta+1,
-\end{equation*}
-\begin{equation*}
-	\R_2(\theta) = \theta^6-\theta^5-\theta^3+\theta+1.
-\end{equation*}
-Let us notice that at the minimum $\theta=0$: $\R_1(0)=\R_2(0)$. The function $\R$ is quasi-constant between $\theta=0$ and $\theta=0.229$ where it varies between $1$ and $1.01$. The global minimums of $\R_1$ and $\R$ are close.
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \exThree}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
-		\midrule
-		
-		\begin{bf}$\R_1$\end{bf} & 0.707 &   \\ \midrule
-		\begin{bf}$\R_2$\end{bf} & -0.463 & 1.124 \\ \midrule
-		\begin{bf}$\R$\end{bf}   & 0.721 &  0 \\ \bottomrule
-	\end{tabular}
-	\label{ex3_example}
-\end{table}
-
-\paragraph{Example \exFour}
-~~\\
-The functions are of the form ($m=2$):
-\begin{equation*}
-	\R_1(\theta) = \theta^6+\theta^5+\theta^3-2\theta^2+9,
-\end{equation*}
-\begin{equation*}
-	\R_2(\theta) = \theta^6-\theta^5-\theta^3+\theta+1.
-\end{equation*}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \exFour}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
-		\midrule
-		
-		\begin{bf}$\R_1$\end{bf} & -1.364 & 0.624  \\ \midrule
-		\begin{bf}$\R_2$\end{bf} & -0.463 & 1.124 \\ \midrule
-		\begin{bf}$\R$\end{bf}   & -0.812 &  0.677 \\ \bottomrule
-	\end{tabular}
-	\label{ex4_example}
-\end{table}
-
-\paragraph{Example \exFive}
-~~\\
-The three functions are:
-\begin{equation*}
-	\R_1(\theta) = \theta^2+1,
-\end{equation*}
-\begin{equation*}
-	\R_2(\theta) = (2\theta-1)^2+1,
-\end{equation*}
-and
-\begin{equation*}
-	\R_3(\theta) = (2\theta+3)^2+1.
-\end{equation*}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \exFive}
-	\begin{tabular}{ll}
-		
-		\toprule
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} \\ \midrule
-		
-		\begin{bf}$\R_1$\end{bf} & 0 \\ \midrule
-		\begin{bf}$\R_2$\end{bf} & 0.5  \\ \midrule
-		\begin{bf}$\R_3$\end{bf} & -1.5  \\ \midrule
-		\begin{bf}$\R$\end{bf}   & -0.444  \\ \bottomrule
-	\end{tabular}
-	\label{ex5_example}
-\end{table}
-
-\paragraph{Example \exSix}
-~~\\
-The three functions are described by the following expressions:
-\begin{equation*}
-	\R_1(\theta) = 2\theta^4-\theta^2+1,
-\end{equation*}
-\begin{equation*}
-	\R_2(\theta) = 12\theta^4+4\theta^3-9\theta^2+4,
-\end{equation*}
-and
-\begin{equation*}
-	\R_3(\theta) = 4\theta^6+\frac{14}{5}\theta^5-\frac{7}{4}\theta^4-\theta^3+1.
-\end{equation*}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \exSix}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
-		\midrule
-		
-		\begin{bf}$\R_1$\end{bf} & 0.5 & -0.5  \\ \midrule
-		\begin{bf}$\R_2$\end{bf} & 0.5 & -0.75 \\ \midrule
-		\begin{bf}$\R_3$\end{bf} & -0.75; 0.5  &  \\ \midrule
-		\begin{bf}$\R$\end{bf}   & -0.718 &  0.5 \\ \bottomrule
-	\end{tabular}
-	\label{ex6_example}
-\end{table}
-
-\paragraph{Example \exSeven}
-~~\\
-The three functions are described by:
-\begin{equation*}
-	\R_1(\theta) = \theta^6+\theta^5+\theta^3-2\theta^2+9,
-\end{equation*}
-\begin{equation*}
-	\R_2(\theta) = \theta^6-\theta^5-\theta^3+\theta+1,
-\end{equation*}
-and
-\begin{equation*}
-	\R_3(\theta) = \theta^6+\frac{\theta^5}{2}+2\theta^3+2.
-\end{equation*}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \exSeven}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
-		\midrule
-		
-		\begin{bf}$\R_1$\end{bf} & -1.364 & 0.624  \\ \midrule
-		\begin{bf}$\R_2$\end{bf} & -0.462 & 1.125 \\ \midrule
-		\begin{bf}$\R_3$\end{bf} & -1.159 &  \\ \midrule
-		\begin{bf}$\R$\end{bf}   & -0.912 &   \\ \bottomrule
-	\end{tabular}
-	\label{ex7_example}
-\end{table}
-
-\paragraph{Example \exHeight}
-~~\\
-
-Here, there are $m=4$ batches with functions:
-\begin{equation*}
-	\R_1(\theta) = \theta^6+\theta^5+\theta^3-2\theta^2+9,
-\end{equation*}
-\begin{equation*}
-	\R_2(\theta) = \theta^6-\theta^5-\theta^3+\theta+1,
-\end{equation*}
-\begin{equation*}
-	\R_3(\theta) = \theta^6+\frac{\theta^5}{2}+2\theta^3+2,
-\end{equation*}
-and
-\begin{equation*}
-	\R_4(\theta) = \theta^3+\theta^2-2\theta+1.
-\end{equation*}
-
-\begin{table}[h!]
-	\centering
-	\caption{Description of benchmark \exHeight}
-	\begin{tabular}{lll}
-		
-		\toprule
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
-		\midrule
-		
-		\begin{bf}$\R_1$\end{bf} & -1.364 & 0.624  \\ \midrule
-		\begin{bf}$\R_2$\end{bf} & -0.463 & 1.124 \\ \midrule
-		\begin{bf}$\R_3$\end{bf} & -1.159 &  \\ \midrule
-		\begin{bf}$\R_4$\end{bf} & 0.548 &   \\ \midrule
-		\begin{bf}$\R$\end{bf} & -0.870 & 0.413 \\ \bottomrule
-	\end{tabular}
-	\label{ex8_example}
-\end{table}
-
-\section{Classical algorithms}
-\label{annexe_adam}
-
-In this section, we recall the stochastic optimizers used in this paper, since there exists many versions of a same algorithm. 
-
-\begin{algorithm}[h!]
-	\caption{{\it Stochastic Gradient Descent}: SGD}
-	\begin{algorithmic}
-		\REQUIRE initial values $\theta$ and $\eta$.
-		
-		\FOR{$n=0, \dots, mn_{max}-1$}
-		\STATE $i \leftarrow$ uniformly sampled in $\{1,\dots,m\}$
-		\STATE $\theta \leftarrow \theta-\eta \nR_i(\theta)$
-		\ENDFOR
-		
-		\RETURN $\theta$
-	\end{algorithmic}
-	\label{algo_sgd}
-\end{algorithm} 
-
-\begin{algorithm}[h!]
-	\caption{{\it Random Reshuffle Gradient Descent}: RRGD}
-	\begin{algorithmic}
-		\REQUIRE initial values $\theta$ and $\eta$.
-		
-		\FOR{$n=0, \dots, n_{max}-1$}
-		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
-		\FOR{$i=1, \dots, m$}
-		\STATE $\theta \leftarrow \theta-\eta \nR_{\Pi(i)}(\theta)$
-		\ENDFOR
-		\ENDFOR
-		\RETURN $\theta$
-	\end{algorithmic}
-	\label{algo_RRGD}
-\end{algorithm} 
-
-\begin{algorithm}[h!]
-	\caption{{\it Random Reshuffle AWB}: RRAWB}
-	\begin{algorithmic}
-		\REQUIRE initial values $\theta$, $\eta$, $\betone$, $\bettwo$ and $\epsilon_a$.
-		\STATE $v\leftarrow 0$, $s\leftarrow 0$
-		\FOR{$n=0, \dots, n_{max}-1$}
-		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
-		\FOR{$i=1, \dots, m$}
-		\STATE $v \leftarrow(1-\betone)v + \betone \nR_{\Pi(i)}(\theta)$
-		\STATE $s \leftarrow (1-\bettwo)s + \bettwo \nR_{\Pi(i)}(\theta)^2$
-		\STATE $\theta \leftarrow \theta -\eta \dfrac{v}{\epsilon_a+\sqrt{s}}$
-		\ENDFOR
-		\ENDFOR
-		\RETURN $\theta$
-	\end{algorithmic}
-	\label{algo_RRAWB}
-\end{algorithm} 
-
-\begin{algorithm}[h!]
-	\caption{{\it Random Reshuffle Adam}: RRAdam}
-	\begin{algorithmic}
-		\REQUIRE initial values $\theta$, $\eta$, $\betone$, $\bettwo$ and $\epsilon_a$.
-		\STATE $v\leftarrow 0$, $s\leftarrow 0$
-		\FOR{$n=0, \dots, n_{max}-1$}
-		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
-		\FOR{$i=1, \dots, m$}
-		\STATE $v \leftarrow(1-\betone)v + \betone \nR_{\Pi(i)}(\theta)$
-		\STATE $s \leftarrow (1-\bettwo)s + \bettwo \nR_{\Pi(i)}(\theta)^2$
-		\STATE $\theta \leftarrow \theta -\eta \dfrac{\sqrt{1-\bettwo^{n+1}}}{1-\betone^{n+1}} \dfrac{v}{\epsilon_a+\sqrt{s}}$
-		\ENDFOR
-		\ENDFOR
-		\RETURN $\theta$
-	\end{algorithmic}
-	\label{algo_RRAdam}
-\end{algorithm} 
-
-\begin{remark}
-	We have written above the stochastic algorithms with the classical stopping criterion, namely the maximal number of epochs. All through the sections \ref{section_stationary}, \ref{section_splitting_schemes}, \ref{section_results}, they are implemented with different criteria: maximal time $t_f$ and full-batch gradient $\|\nR(\theta)\|/P \leq \epsilon$.
-\end{remark}
 
 \section{Splitting algorithms}
 \label{annexe_algo}

@@ -1065,8 +1065,6 @@ In this section, we have introduced new adaptive mini-batch optimizers based on 
 The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most famous stochastic optimizer
 in the Deep Learning litterature, namely RRAdam (called also Adam in the litterature \cite{Adam}), described in appendix \ref{annexe_adam}. Another slight modification of RRAdam without the debiased steps (that we call RRAWB: Random Reshuffle Adam without bias steps) is sometimes tested to illustrate some instability phenomenons. They are also compared to new Armijo-like full-batch optimizers introduced in chapter 2 of \cite{Bilel_thesis} (see \cite{Lyap_Theory_Bilel} for an analysis): LC (Lyapunov control) and LCD (Lyapunov Control Dichotomy) since they have many good properties (stability for example).
 
-\subsection{Analytic benchmarks}
-\label{test_analytic}
 
 First of all, we begin by the analytic benchmarks where all the information is available about the $\R_i$ and $\R$, in order to test the behaviors of the new optimizers in several configurations:
 \begin{itemize}

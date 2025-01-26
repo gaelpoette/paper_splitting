@@ -1011,6 +1011,7 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
     axes = fig.subplots(nrows=4,ncols=2)
 
     for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2), ("ex5",3), ("ex6",3), ("ex7",3), ("ex8",4)]:
+        print(typeR)
         for p in range(nbParticules):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
@@ -1019,7 +1020,9 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
             #x, epoch = RAG_L(x0,m,lr_init,eps,maxEpoch,typeR)
 
             if(x>a and x<b):
-                u[int(nbPoints*(x-a)/(b-a)),0]+=u0(x0,typeCI)
+                #print(x) 
+                #print(u[int(nbPoints*(x[0]-a)/(b-a)),0])
+                u[int(nbPoints*(x[0]-a)/(b-a)),0]+=u0(x0,typeCI)
         u/=nbParticules
 
         if(typeR=="ex1"):

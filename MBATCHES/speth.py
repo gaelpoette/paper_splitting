@@ -395,6 +395,7 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
     plt.gcf().subplots_adjust(wspace=0.2,hspace=0.57)
     axes = fig.subplots(nrows=4,ncols=2)
 
+    #for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2)]:
     for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2), ("ex5",3), ("ex6",3), ("ex7",3), ("ex8",4)]:
     #for (typeR,m) in [("ex1",2)]:
 
@@ -457,6 +458,7 @@ N=1
 nbPoints=1000
 nbParticules=10000
 lr_init=0.1
+lr_init=0.01
 eps=10**(-4); maxEpoch=1000
 
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

@@ -330,7 +330,8 @@ This recap of the mini-batch litterature encourages us to require the six follow
 	\item If possible, we do not want to store $m$ gradients. For example, the optimizers that do not need such a storage are:  SGD, RRGD, IG, SVRG, SNVRG, SPIDER, SARAH, SSRGD, PAGE, SCSG et RR-SARAH.
 	\item We absolutely need a \textbf{stopping criterion} that ensures that the full-batch gradient is smaller than a fixed arbitrary precision. All the mentionned
           optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge).
-        \item Finally, we absolutely want an \textbf{adaptive time step method} since the main goal of this paper is to avoid tuning hyperparameters. In this case, all the methods that do not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. \\
+        \item Finally, we absolutely want an \textbf{adaptive time step method}. 
+          One of the main goal of these papers is to avoid tuning hyperparameters. In an adaptive context, all the methods of the litterature that do not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. \\
           This last point deserves its own paper, which is the purpose of part II.
 \end{enumerate}
 Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented). Therefore the goal of this paper is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies all these criteria}. This is a crucial step in order to develop smaller machine learning models. 
@@ -347,7 +348,8 @@ To reach such a construction, the paper is organized as follows:
 	\item In section \ref{num_res}, the two newly developed methods are tested on analytical benchmarks. 
 \end{itemize}
 
-The balanced strategy developed here serves as an excellent starting point for the adaptive extension (sixth criterion) which is discussed in part II.
+The balanced strategy developed here serves as an excellent starting point for the adaptive extension (sixth criterion) which is discussed in part II \newG{$+$ dire que les bench
+ML sont plutot dans la part II? Genre: This same part II also contains many numerical results on some classical ML tasks.}.
 
 \section{Stationary distributions of SGD}
 \label{section_stationary}
@@ -403,7 +405,7 @@ The same for $u^2$ with the initial condition:
 Let us denote by $L_1$ and $L_2$ the Lipschitz constants of $\nR_1$ and $\nR_2$ on $[-1,1]$ respectively. The figure \ref{sgd_ex1} corresponds to the applications of SGD on \exOne
 for four different values of the time steps: $\frac{1}{\max(L_1,L_2)}$ is the associated time step related to the stiffest batch whereas $\frac{1}{L_1+L_2}$ is an estimation of
 $\frac{1}{L}$, that is to say the stiffness of $\R$ (where $L$ denotes the Lipschitz constant of $\nR$), since $L \leq L_1+L_2$. At each time, the third of these time steps is also
-considered in order to test a smaller value: the factor 3 could seem arbitrary for the moment but it will be explained in the section \ref{section_optimizers}. The figures
+considered in order to test a smaller value: the factor 3 could seem arbitrary for the moment but it will be explained in part II. The figures
 \ref{sgd_ex2}, \ref{RRGD_ex1} and \ref{RRGD_ex2} correspond respectively to \exTwo with SGD, \exOne with RRGD and \exTwo with RRGD, for the same choices of time steps ($L_1,L_2$ depends on the benchmark). 
 
 \begin{figure}[!h]

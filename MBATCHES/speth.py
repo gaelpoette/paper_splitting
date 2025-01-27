@@ -396,8 +396,13 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
     axes = fig.subplots(nrows=4,ncols=2)
 
     #for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2)]:
-    for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2), ("ex5",3), ("ex6",3), ("ex7",3), ("ex8",4)]:
+    #for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2), ("ex5",3), ("ex6",3), ("ex7",3), ("ex8",4)]:
+    #for (typeR,m,L1,L2) in [("ex1",2, 2, 8), ("ex2",2, 22, 150), ("ex3",2, 100, 100), ("ex4",2, 20, 20), ]:
+    for (typeR,m,L1,L2) in [("ex1",2, 2, 8), ("ex2",2, 22, 150), ("ex3",2, 1000, 0), ("ex4",2, 20, 20), ("ex5",3, 20, 20), ("ex6",3, 100, 0), ("ex7",3, 100, 0), ("ex8",4, 20, 20 )]:
+
     #for (typeR,m) in [("ex1",2)]:
+
+        lr_init = 1./ (L1+L2)
 
         print(typeR)
         for p in range(nbParticules):
@@ -458,7 +463,9 @@ N=1
 nbPoints=1000
 nbParticules=10000
 lr_init=0.1
-lr_init=0.01
+#lr_init=0.1/3.
+#lr_init=0.1/3.
+#lr_init=0.01
 eps=10**(-4); maxEpoch=1000
 
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

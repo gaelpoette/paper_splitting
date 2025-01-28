@@ -232,22 +232,23 @@ def DGD(x0,m,lr_init,eps,maxEpoch,typeR):
     epoch=0
     P=m
     x    = x0
-    eta  = 0.
-    g    = 0. 
+    eta  = lr_init
+    g = 0.
     grad = 0.
-    grad_tab =np.zeros(m)
     gNorm = 1000
 
     while epoch < maxEpoch and gNorm/P > eps:
        
-      #print(eta, x) 
-      x_prec=x0
+      print(epoch, eta, x) 
+      g = 0.
       for i in range(m):
-        grad=gradR(x,i,typeR) 
-        x=x_prec-eta*grad
-        x_prec = x
+        #J = np.random.randint(0,1)
+        J = i
+        grad=gradR(x0,J,typeR) 
+        g+=grad
+        x=x0-eta*grad
+        x0 = x
 
-      x0 = x
       epoch+=1
       gNorm=np.linalg.norm(g)
 
@@ -434,8 +435,8 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
             #x,epoch = RAG  (x0,m,lr_init,eps,maxEpoch,typeR)
-            x,epoch = speth(x0,m,lr_init,eps,maxEpoch,typeR)
-            #x,epoch = DGD  (x0,m,lr_init,eps,maxEpoch,typeR)
+            #x,epoch = speth(x0,m,lr_init,eps,maxEpoch,typeR)
+            x,epoch = DGD  (x0,m,lr_init,eps,maxEpoch,typeR)
 
 
             if(x>a and x<b):
@@ -489,7 +490,7 @@ typeCI="uniform"
 N=1
 nbPoints=1000
 nbParticules=10000
-lr_init=0.1
+lr_init=0.01
 #lr_init=0.1/3.
 #lr_init=0.1/3.
 #lr_init=0.01

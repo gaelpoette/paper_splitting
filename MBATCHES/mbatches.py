@@ -1015,9 +1015,10 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         for p in range(nbParticules):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
-            x,epoch = RAG(x0,m,lr_init,eps,maxEpoch,typeR)
-
+            #x,epoch = RAG(x0,m,lr_init,eps,maxEpoch,typeR)
             #x, epoch = RAG_L(x0,m,lr_init,eps,maxEpoch,typeR)
+            x, epoch = GD_estim(x0,m,lr_init,eps,maxEpoch,typeR)
+
 
             if(x>a and x<b):
                 #print(x) 

@@ -821,12 +821,16 @@ points of $F$). Finally, we have suggested three balanced splitting formulas whi
 \section{Numerical results}
 \label{num_res}
 
+Here, tuning of the time step for speth (figure \ref{SPETH_exs}). Figure \ref{SGD_exs} is obtained with the same lr as the one for speth of figure \ref{SPETH_exs}. 
+Figure \ref{SGD_exs_001} is obtained with SGD with a time step $100$ times smaller than the one used for Speth. 
+Blbala todo
+
 \begin{figure}[h!]
 	\centering
 	%\scalebox{0.45}{\input{chapitre5_img/DGD_exs_1.pgf}}
         \scalebox{0.45}{\input{chapitre5_img/SGD_exs_1.pgf}}
 	\caption{RRGD meme dt speth}
-	\label{DGD_exs}
+	\label{SGD_exs}
 \end{figure}
 
 \begin{figure}[h!]
@@ -834,7 +838,7 @@ points of $F$). Finally, we have suggested three balanced splitting formulas whi
 	%\scalebox{0.45}{\input{chapitre5_img/DGD_exs_001.pgf}}
 	\scalebox{0.45}{\input{chapitre5_img/SGD_exs_001.pgf}}
 	\caption{RRGD dt 100 fois plus petit que speth}
-	\label{DGD_exs}
+	\label{SGD_exs_001}
 \end{figure}
 
 

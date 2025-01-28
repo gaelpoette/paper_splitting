@@ -483,13 +483,13 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
     
     #fig.show()
     plt.show()
-    plt.savefig('SPETH_exs.pgf')
+    plt.savefig('DGD_exs.pgf')
 
 typeCI="uniform"
 N=1
 nbPoints=1000
 nbParticules=10000
-lr_init=1
+lr_init=0.1
 #lr_init=0.1/3.
 #lr_init=0.1/3.
 #lr_init=0.01

@@ -794,8 +794,10 @@ where $g_n$ and the initialization are defined in the same way as \eqref{RAGL_sp
 Some comments are necessary:
 \begin{itemize}
 	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to suppress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
-        \item \newG{ICI} When the time step is adaptative, we imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
-          iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$.
+        \item When the time step is adaptative, see part II, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
+          iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$. \\
+\newG{The latter strategy assumes one is able to identify the stiffest batch (the having the larger Lipshitz constant) amongst the $m$ ones. 
+In practice, an generalisation of Armijo's rule, see \cite{Bilel_thesis}, precious for adaptiveness, gives an estimation. For this reason, this point will be developed in part II of this paper. }
 \end{itemize} 
 
 \begin{remark}

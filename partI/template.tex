@@ -282,7 +282,7 @@ In practice, the reshuffle versions are prefered to classical ones \cite{RR_use1
 
 \paragraph{Variance reduction}  
 ~~\\
-Despite being not used in practice, variance reduction optimizers have been extensively studied by ML researchers this last decade, since they can converge with constant learning rate. In broad outline, the aim is to conceive methods that ensure that the variance does not vanish asymptotically:
+Despite not being used in practice, variance reduction optimizers have been extensively studied by ML researchers this last decade, since they can converge with constant learning rate. In broad outline, the aim is to conceive methods that ensure that the variance does not vanish asymptotically:
 \begin{equation*}
 	\displaystyle{\sum_{i=1}^m}\left[\|\nR(\theta_n)/m-\nR_i(\theta_n)\|^2\right] \to 0.
 \end{equation*}
@@ -298,11 +298,11 @@ Now, we will present some of these methods describing their principal features:
 		\left\{
 		\begin{array}{ll}
 			\nR_i(\theta_n) \text{ if } i=i_n, \\
-			y_i^{n-1} \text{ else}.
+			y_i^{n-1} \text{ otherwise}.
 		\end{array}
 		\right.
 	\end{equation*}
-It is interesting to see that this algorithm is a random version of a former deterministic optimizer called IAG \cite{IAG_first}: Incremental Aggregated Gradient Descent. We will come back to this algorithm later. This optimizer needs to store the $m$ last gradients ($m$ is the number of batches). Then the memory cost involves the product $mN$ that may be big.
+It is interesting to see that this algorithm is a random version of a former deterministic optimizer called IAG \cite{IAG_first}: Incremental Aggregated Gradient Descent. We will come back to this algorithm later. This optimizer needs to store the last $m$ gradients ($m$ is the number of batches). Then the memory cost involves the product $mN$ that may be large.
 \item From now on, $i_n$ denotes a uniform sample in $\{1,\dots,m\}$ at iteration $n$. In order to reduce the memory cost, the authors of \cite{SVRG_first} suggest SVRG: Stochastic Variance Reduced Gradient which is the basis of many other methods. Let us imagine that we keep a weight $\tilde{\theta}$ every $\tilde{m}$ iterations. The SVRG update is:
 \begin{equation*}
 	\theta_{n+1} = \theta_n -\eta \left[\nR_{i_n}(\theta_n)-\nR_{i_n}(\tilde{\theta})+\nR(\tilde{\theta})\right].
@@ -310,21 +310,21 @@ It is interesting to see that this algorithm is a random version of a former det
 Let us note two important facts: the introduction of a new hyperparameter $\tilde{m}$ representing the frequence of full-batch gradient evaluation and the computation of such a
     gradient. This is typical of many variance reduction methods, but it is an issue in our case because we want to avoid evaluation of $\R$ or $\nR$ because of the storage
     requirement. Based on the same ideas, we could mention SAGA \cite{SAGA_first} or SNVRG \cite{SNVRG_first}. For bounded variance noise, this algorithm admits a complexity that
-    may be "better" than GD for large $b$. 
+    may be better than GD for large $b$. 
 \item There are also methods called recursive variance reduction gradients . The prototype of these methods is SARAH \cite{SARAH_first}. The idea is to obtain recursively an estimation $g_n$ of $\nR$ without storing previous gradients:
 \begin{equation*}
 	g_n = \nR_{i_n}(\theta_n)-\nR_{i_n}(\theta_{n-1})+g_{n-1}
 \end{equation*}
 where every $\tilde{m}$ iterations, the estimation $g_n$ is the full batch gradient $\nR$. In the same family we find GEOM-SARAH \cite{GEOM_SARAH}, ZERO-SARAH (no computation of $\nR$ but introduction of a new hyperparameter and similar storage as SAG) \cite{ZERO_SARAH}, STORM (add an inertial hyperparameter $\beta$ to tune) \cite{STORM_first}, SPIDER (variance reduction on normalized gradient) \cite{SPIDER_first}, SSRGD (mix between SARAH and perturbed GD in order to escape more efficiently to saddle points) \cite{SSRGD}, PAGE (alternating between SARAH and SGD with some probability) \cite{PAGE}, Katyusha (acceleration on strongly convex functions) \cite{Katyusha}. 
-\item Let us now present variance reduction methods that do not need computation of $\nR$, tuning of a hyperparameter like $\tilde{m}$ or $\beta$, or the storage of $m$ gradients. The first method that fits into this setting is SCSG \cite{SCSG}. The update looks like the one for SARAH (we do not substract the evaluation of the last iterate but of the first of each epoch) by replacing the full-batch gradient by a stochastic gradient. Coupling variance reduction with random reshuffling, the authors of \cite{RR_SARAH} suggest very recently RR-SARAH: its memory cost involves $3N$ and not $mN$ and it does not need computation of the full-batch gradient $\nR$. To the best of our knowledge, it is the only optimizer that enjoys these properties. However, the analysis is limited to strongly convex functions under strong assumption on the noise. Besides, the numerical experiences are limited to the logistic regression (for only one initialization). 
+\item Let us now present variance reduction methods that do not need computation of $\nR$, tuning of a hyperparameter like $\tilde{m}$ or $\beta$, or the storage of $m$ gradients. The first method that fits into this setting is SCSG \cite{SCSG}. The update looks like the one for SARAH (we do not substract the evaluation of the last iterate but of the first of each epoch) by replacing the full-batch gradient by a stochastic gradient. Coupling variance reduction with random reshuffling, the authors of \cite{RR_SARAH} suggest very recently RR-SARAH: its memory cost involves $3N$ and not $mN$ and it does not need computation of the full-batch gradient $\nR$. To the best of our knowledge, it is the only optimizer that enjoys these properties. However, the analysis is limited to strongly convex functions under strong assumption on the noise. Besides, the numerical experiments are limited to the logistic regression (for only one initialization). 
 \end{itemize}
 
 \paragraph{Objectives}
 ~~\\
-This recap of the mini-batch litterature encourages us to require the six following properties in the conception of a mini-batch optimizer, suitable for any networks (even for under-parametrized model/network):
+This recap of the mini-batch litterature encourages us to require the six following properties in the conception of a mini-batch optimizer, suitable for any network (even for under-parametrized model/network):
 \begin{enumerate}
 	\item ideally, we want to \textbf{avoid assumptions on the batch distribution}. Firstly, the bounded variance hypothesis is not reasonable 
-          since it is not even satisfied by a linear regression. Moreover, the major part of stochastic optimizers need interpolation condition (then over-parametrized models) to be used with constant learning rate. At the best of our knowledge, the only optimizers that get rid of these conditions are IAG and DIAG \cite{DIAG}.
+          since it is not even satisfied by a linear regression. Moreover, the major part of stochastic optimizers need interpolation condition (hence over-parametrized models) to be used with constant learning rate. To the best of our knowledge, the only optimizers that get rid of these conditions are IAG and DIAG \cite{DIAG}.
 	\item It is essential that the optimizers can achieve an arbitrary precision (concerning the gradient) without requiring decreasing time steps. This is only verified by variance reduction methods. 
 	\item The algorithms can not use the full-batch gradient, at any stage, due to storage requirement. The ones that fit into this category are: SGD, RRGD, IG, IAG, SAG, ZERO-SARAH, STORM, SCSG et RR-SARAH.
 	\item If possible, we do not want to store $m$ gradients. For example, the optimizers that do not need such a storage are:  SGD, RRGD, IG, SVRG, SNVRG, SPIDER, SARAH, SSRGD, PAGE, SCSG et RR-SARAH.
@@ -348,8 +348,7 @@ To reach such a construction, the paper is organized as follows:
 	\item In section \ref{num_res}, the two newly developed methods are tested on analytical benchmarks. 
 \end{itemize}
 
-The balanced strategy developed here serves as an excellent starting point for the adaptive extension (sixth criterion) which is discussed in part II \newG{$+$ dire que les bench
-ML sont plutot dans la part II? Genre: This same part II also contains many numerical results on some classical ML tasks.}.
+The balanced strategy developed here serves as an excellent starting point for the adaptive extension (sixth criterion) which is discussed in part II. Let us emphasize the fact that only the final (adaptive) algorithms are tested on classical ML tasks in part II. In this part, numerical experiments are ment to explain the behavior of the methods described therein.
 
 \section{Stationary distributions of SGD}
 \label{section_stationary}
@@ -373,8 +372,9 @@ We expect their supports to be "centered" around the minimums of $\R$. We will s
 %\paragraph{Non-interpolating benchmarks}
 ~~\\
 As highlighted in the introduction, the major part of the studies proving that constant step size SGD converges to critical point of $\R$ is based on the interpolation condition or
-the overparametrization of the network. As all the critical points of the above benchmarks satisfy the interpolation assumption, it is necessary to suggest new functions taking
-into account all the possible setups in the non-interpolated case, in one dimension. These examples are presented in detail in appendix \ref{annexe_non_interpolated}. 
+the overparametrization of the network. It is therefore necessary to suggest new benchmarks taking
+into account all the possible setups in the non-interpolated case, in one dimension. Even though one dimensional exemples are very simple, we will see that they are nonetheless sufficient to highlight some undesirable behaviors.
+These examples are presented in detail in appendix \ref{annexe_non_interpolated}. 
 We have tried to give them a name related to game theory, the reason will be explicited with the descriptions of the benchmarks. 
 Succintly, we present their caracteristics below:
 \begin{itemize}
@@ -394,7 +394,7 @@ Succintly, we present their caracteristics below:
 \paragraph{Graph description}
 ~~\\
 Here, we numerically compute the stationary distributions of SGD/RRGD by Monte Carlo simulations on \exOne and \exTwo. These simulations are performed until time $t_f=10$, large
-enough in practice for the distributions to reach stationarity (visual verification). 10000 particles are sampled uniformly on $[-1,1]$ for each batch $i\in \{1,2\}$. The position of the particles after the time $t_f$ enables to build the densities $u^1$ and $u^2$. Here $u^1$ denotes the stationary distribution with the following initial condition (the second coordinate refers to the batch number):
+enough in practice for the distributions to reach stationarity (visual verification). 10000 particles are uniformly sampled on $[-1,1]$ for each batch $i\in \{1,2\}$. The position of the particles after the time $t_f$ enables to build the densities $u^1$ and $u^2$. Here $u^1$ denotes the stationary distribution with the following initial condition (the second coordinate refers to the batch number):
 \begin{equation*}
 	u^1_0(\theta) = \left(\frac{1}{4} \mathds{1}_{[-1,1]}(\theta),1\right).
 \end{equation*}
@@ -680,7 +680,7 @@ Despite its benefits, the Speth splitting suffers from two drawbacks in our cont
 
 \paragraph{Adjustment of the Speth splitting}
 ~~\\
-Then, we suggest the following scheme where the "balance" vector is slightly modified from one to another step:
+We therefore suggest the following scheme where the "balance" vector is slightly modified from one to another step:
 \begin{equation}
 	\left\{
 	\begin{array}{ll}

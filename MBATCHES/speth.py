@@ -482,7 +482,7 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         ax.legend()
     
     #fig.show()
-    plt.show()
+    #plt.show()
     plt.savefig('SPETH_exs.pgf')
 
 typeCI="uniform"

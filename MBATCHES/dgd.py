@@ -239,10 +239,13 @@ def DGD(x0,m,lr_init,eps,maxEpoch,typeR):
 
     while epoch < maxEpoch and gNorm/P > eps:
        
-      print(epoch, eta, x) 
+      #print(epoch, eta, x) 
       g = 0.
-      for i in range(m):
-        #J = np.random.randint(0,1)
+      batches = [0,1]
+      np.random.shuffle(batches)
+      for i in batches:
+        #J = np.random.randint(0,2)
+        #print(J)
         J = i
         grad=gradR(x0,J,typeR) 
         g+=grad
@@ -483,13 +486,20 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         ax.legend()
     
     #fig.show()
-    plt.show()
-    plt.savefig('DGD_exs.pgf')
+    #plt.show()
+    plt.savefig('SGD_exs_'+str(lr_init0)+'.pgf')
 
 typeCI="uniform"
 N=1
 nbPoints=1000
 nbParticules=10000
+lr_init=1
+#lr_init=0.1/3.
+#lr_init=0.1/3.
+#lr_init=0.01
+eps=10**(-4); maxEpoch=1000
+
+exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)
 lr_init=0.01
 #lr_init=0.1/3.
 #lr_init=0.1/3.

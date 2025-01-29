@@ -405,7 +405,7 @@ Succintly, we present their caracteristics below:
 \paragraph{Graph description}
 ~~\\
 Here, we numerically compute the stationary distributions of SGD/RRGD by Monte Carlo simulations on \exOne and \exTwo. These simulations are performed until time $t_f=10$, large
-enough in practice, in order for the distributions to reach stationarity (visual verification). 10000 particles are sampled uniformly on $[-1,1]$ for each batch $i\in \{1,2\}$. The position of the particles after the time $t_f$ enables to build the densities $u^1$ and $u^2$. Here $u^1$ denotes the stationary distribution with the following initial condition (the second coordinate refers to the batch number):
+enough in practice for the distributions to reach stationarity (visual verification). 10000 particles are sampled uniformly on $[-1,1]$ for each batch $i\in \{1,2\}$. The position of the particles after the time $t_f$ enables to build the densities $u^1$ and $u^2$. Here $u^1$ denotes the stationary distribution with the following initial condition (the second coordinate refers to the batch number):
 \begin{equation*}
 	u^1_0(\theta) = \left(\frac{1}{4} \mathds{1}_{[-1,1]}(\theta),1\right).
 \end{equation*}
@@ -422,28 +422,28 @@ considered in order to test a smaller value: the factor 3 could seem arbitrary f
 \begin{figure}[!h]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/sgd_ex1.pgf}}
-	\caption{Stationary distributions of SGD for different time steps on \exOne: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
+	\caption{Stationary distributions of SGD for different time steps on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
 	\label{sgd_ex1}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/RRGD_ex1.pgf}}
-	\caption{Stationary distributions of RRGD for different time steps on \exOne: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
+	\caption{Stationary distributions of RRGD for different time steps on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
 	\label{RRGD_ex1}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/sgd_ex2.pgf}}
-	\caption{Stationary distributions of SGD for different time steps on \exTwo: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
+	\caption{Stationary distributions of SGD for different time steps on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
 	\label{sgd_ex2}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/RRGD_ex2.pgf}}
-	\caption{Stationary distributions of RRGD for different time steps on \exTwo: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
+	\caption{Stationary distributions of RRGD for different time steps on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
 	\label{RRGD_ex2}
 \end{figure}
 
@@ -453,19 +453,19 @@ On the graphs a) and c) of figure \ref{sgd_ex1} a Dirac comb appears with a lot 
 other words, several stationary states have nothing to do with the minimums of the $\R_i$ or $\R$. By decreasing the time step (graphs b) and d)), we get closer to a gaussian
 distribution but it is not really centered on the global minimum. For RRGD, the behavior is completely different, see figure \ref{RRGD_ex1}. When the time step decreases, the distribution gets closer to a Dirac centered at the global minimum but for intermediary learning rates (graphs a) and b)) the second Dirac is located at the minimum of $\R_2$, that is to say $\theta=0.5$. It is true that the behavior of RRGD is less troubling than the one of SGD but it is still problematic because the convergence (existence of a stationary distribution) does not imply to find a minimum of $\R$. \\
 Concerning \exTwo (figure \ref{sgd_ex2}), for any time step, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. Unfortunately, it seems that SGD favors interpolating minimums without taking into account their quality even for time steps sufficiently small. Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not neglected even for an intermediary value of the time step (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
-
-About SGD, even by decreasing the learning rate, the stationary distributions are not satisfactory: the gaussian-like distribution is not well-centered (\exOne) or interpolating
+Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the gaussian-like distribution is not well-centered (\exOne) or interpolating
 local minimum are largely favored.
 
 \paragraph{}
-In this section, we have built new benchmarks to analyse the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble catching non-interpolating critical points. Even worse, SGD creates artificial stationary states in the sense that they are not critical points of the invidual functions $\R_i$ or of the sum function $\R$.   
+In this section, we built new benchmarks to analyse the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble catching non-interpolating critical points. Even worse, SGD creates artificial stationary states in the sense that they are not critical points of the invidual functions $\R_i$ or of the sum function $\R$.   
 
-\section{Splitting schemes}
+\section{SGD revisited as a splitting scheme and issues}
 \label{section_splitting_schemes}
 
 The goal of this section is to explain the previous behaviors of SGD and RRGD and to suggest numerical schemes which correct their defects. 
 
-Usually, in the litterature, the behaviors of SGD are explained by seeing SGD as a discretization of a brownian differential equation \cite{SDE_comparison,SDE_modified,SDE_edp,malladi_adam,hu2018diffusion,flat_minima_exponential,yang2020fast,sgd_implicit_regularisation,sgd_implicit_regularisation2}. Here, we turn this point of view around by interpreting RRGD (rather its deterministic version) as a particular discretization of the classical gradient flow $\theta'(t)=-\nR(\theta(t))$. This goes through operator splitting. Let us remember the principle on the following Cauchy problem:
+Usually, in the litterature, the behaviors of SGD are explained by seeing SGD as a discretization of a brownian differential equation \cite{SDE_comparison,SDE_modified,SDE_edp,malladi_adam,hu2018diffusion,flat_minima_exponential,yang2020fast,sgd_implicit_regularisation,sgd_implicit_regularisation2}. 
+Here, we turn this point of view around by interpreting RRGD (rather its deterministic version) as a particular discretization, {\em via} operator splitting, of the classical gradient flow $\theta'(t)=-\nR(\theta(t))$. Let us remember the principle on the following Cauchy problem:
 \begin{equation}
 	\left\{
 	\begin{array}{ll}
@@ -489,9 +489,10 @@ can be solved exactly (to make it simpler)  with solution $\phi_{\eta}^i(y_0)$ a
 	\chi_{\eta} = \phi_{\eta}^m \circ \dots \phi_{\eta}^2 \circ \phi_{\eta}^1.
 	\label{splitting_lie_trotter}
 \end{equation} 
-Then the integrator $\chi$ satisfies $\chi_{\eta}(y_0) = \phi_{\eta}(y_0) + \mathcal{O}(\eta^2)$. Then $\chi_{\eta}$ is an order one approximation of $\phi_{\eta}$, the solution of \eqref{Cauchy_problem}. A splitting method is then made up of:
+Then the integrator $\chi$ satisfies $\chi_{\eta}(y_0) = \phi_{\eta}(y_0) + \mathcal{O}(\eta^2)$. In other words, $\chi_{\eta}$ is an order one approximation of $\phi_{\eta}$, the solution of \eqref{Cauchy_problem}. A splitting method is then made up of:
 \begin{itemize}
-	\item the choice of operators $F_i$: in the resolution of an ODE or a PDE, these are selectioned in order to represent the different scales or stiffnesses of a physical phenomenon (for example convection-diffusion). In our case, this choice is imposed by the decomposition of the dataset into $m$ batches. We do not do our best to balance the batches in this paper.
+	\item the choice of operators $F_i$: in the resolution of an ODE or a PDE, they often represent the different scales or stiffnesses of a physical phenomenon (for example convection-diffusion). In our case, this choice is imposed by the decomposition of the dataset into $m$ batches. 
+          These batches may be strongly unbalanced. We do not make any assumptions on how well balanced or not they might be in this paper.
 	\item Solve exactly or approximately the ODE $y'(t)=F_i(y(t))$.
 	\item Put the different solutions together in order to build a solution for \eqref{Cauchy_problem}. 
 \end{itemize}
@@ -505,19 +506,19 @@ In the same way as for SGD and RRGD, we plot the stationary distributions of IG 
 \begin{equation*}
 	u_0(\theta) = \frac{1}{2} \mathds{1}_{[-1,1]}(\theta).
 \end{equation*}
-On the figure \ref{IG_ex1}, if the learning rate is not small enough (graphs a) and b)), the Delta Dirac function is centered at the minimum of $\R_1$. On the graph d), $\eta$ is reduced enough in order for the Dirac to be centered at the minimum of $\R$. On the figure \ref{IG_ex2}, the proportion of global minimum prevails over the local one even with an intermediary learning rate (graph a)), which is not the case for RRGD where a reduction of $\eta$ was required. Globally, the asymptotic behavior (when $\eta \to 0$) of IG is the same as RRGD in the long run. As a result, the pre-eminence of RRGD over SGD is not related to a different random sampling but to the splitting.
+On the figure \ref{IG_ex1}, if the learning rate is not small enough (graphs a) and b)), the Delta Dirac function is centered at the minimum of $\R_1$. On the graph d), $\eta$ is reduced enough for the Dirac to be centered at the minimum of $\R$. On the figure \ref{IG_ex2}, the proportion of global minimum prevails over the local one even with an intermediary learning rate (graph a)), which is not the case for RRGD where a reduction of $\eta$ was required. Globally, the asymptotic behavior (when $\eta \to 0$) of IG is the same as RRGD in the long run. As a result, the pre-eminence of RRGD over SGD is not related to a different random sampling but to the splitting.
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/IG_ex1.pgf}}
-	\caption{Stationary distributions of IG for different time steps on \exOne: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
+	\caption{Stationary distributions of IG for different time steps on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
 	\label{IG_ex1}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/IG_ex2.pgf}}
-	\caption{Stationary distributions of IG for different time steps on \exTwo: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
+	\caption{Stationary distributions of IG for different time steps on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
 	\label{IG_ex2}
 \end{figure}
 
@@ -527,21 +528,21 @@ The most natural idea to improve IG is then to apply a Strang splitting: in fact
 	\chi_{\eta} = \phi_{\eta/2}^1 \circ \phi_{\eta}^2 \circ \phi_{\eta/2}^1,
 \end{equation*}
 where each $\phi_{\eta}^i$ is an Euler explicit scheme with step $\eta$ applied to $\theta'(t) = -\nR_i(\theta(t))$.
-The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the stationary distributions of this scheme for \exOne and \exTwo. On the figure \ref{Strang_ex2}, the rise
-of the order does not change anything for the values of $\eta$ used on \exTwo. On the figure \ref{Strang_ex1}, we get closer to the stationary state faster when $\eta \to 0$ on
+The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the stationary distributions of this scheme for \exOne and \exTwo. From the results of figure
+\ref{Strang_ex2}, we can see that increasing the accuracy of the scheme does not change much, at least for the values of $\eta$ used on \exTwo. On the figure \ref{Strang_ex1}, we get closer to the stationary state faster when $\eta \to 0$ on
 \exOne. However, there still exists undesirable stationary states in the sense they do not correspond to a minimization of $\R$. 
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/Strang_ex1.pgf}}
-	\caption{Stationary distributions of the Strang splitting for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical straight line represents the position of the global minimum of $\R$.}
+	\caption{Stationary distributions of the Strang splitting for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical straight line represents the position of the global minimum of $\R$.}
 	\label{Strang_ex1}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/Strang_ex2.pgf}}
-	\caption{Stationary distributions of the Strang splitting for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
+	\caption{Stationary distributions of the Strang splitting for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
 	\label{Strang_ex2}
 \end{figure} 
 
@@ -577,7 +578,7 @@ Let us begin by the two cases where this splitting makes it possible to retrieve
 	\item if $A^{-1}a=B^{-1}b$ (interpolation) then $y_{\infty}$ is the stationary state of each $F_i$.
 	\item If $A$ and $B$ commute then for every $\eta>0$, $e^{(A+B)\eta}=e^{B\eta}e^{A\eta}$. Therefore the splitting is exact and the stationary state $y_{\infty}$ is recovered asymptotically. 
 \end{itemize}
-In the general case, the Taylor developement \eqref{Taylor_split} suggests that the local error introduced by a first order splitting is $\mathcal{O}(\eta^2)$ in the neighborhood of $y_{\infty}$:
+In the general case, the Taylor development \eqref{Taylor_split} suggests that the local error introduced by a first order splitting is $\mathcal{O}(\eta^2)$ in the neighborhood of $y_{\infty}$:
 \begin{equation*}
 	\left[e^{(A+B)\eta}-e^{B\eta}e^{A\eta}\right]y_{\infty} \approx \frac{\eta^2}{2}\left[B,A\right]y_{\infty}.
 \end{equation*}
@@ -660,19 +661,19 @@ The figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distrib
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/Speth_ex1.pgf}}
-	\caption{Stationary distributions of the Speth splitting for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum of $\R$.}
+	\caption{Stationary distributions of the Speth splitting for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum of $\R$.}
 	\label{speth_ex1}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/Speth_ex2.pgf}}
-	\caption{Stationary distributions of the Speth splitting for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
+	\caption{Stationary distributions of the Speth splitting for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
 	\label{speth_ex2}
 \end{figure}
 
 \begin{remark}
-	To finish this subsection, let us cite some connected works:
+	To finish this section, let us cite some connected works:
 	\begin{itemize}
 		\item In \cite{splitting_sgd}, the authors interpret SGD (in fact RRGD) as a Lie-Trotter splitting. As an application, the same splitting is conserved by replacing the Euler explicit scheme by a Dormand\&Prince scheme (default integrator of the Scipy library). This process tested on linear and logistic regression problems improves the performances of SGD. However, there is no mention of the essential notion of equilibrium and of stationary distribution. 
 		\item For the composite problems where $\R=f+g$ with $f$ a differentiable function and $g$ a non-smooth convex function, there exists a litterature about splitting methods \cite{splitting_proximal}. At first glance, no link was developed (until recently) between these methods and splitting schemes for ODE/PDE. The recent article \cite{splitting_proximal_ode} reinterprets the forward-backward, Douglas-Rachford and ADMM methods as splitting schemes on specific ODE.   
@@ -716,18 +717,18 @@ Both on \exOne and \exTwo, the stationary distributions of \eqref{RAG_2batch} ar
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/IAG_ex1.pgf}}
-	\caption{Stationary distributions of \eqref{RAG_2batch} for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum of $\R$.}
+	\caption{Stationary distributions of \eqref{RAG_2batch} for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum of $\R$.}
 	\label{IAG_ex1}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/IAG_ex2.pgf}}
-	\caption{Stationary distributions of \eqref{RAG_2batch} for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L2)}$, b) $\eta=\frac{1}{3\max(L_1,L2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
+	\caption{Stationary distributions of \eqref{RAG_2batch} for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
 	\label{IAG_ex2}
 \end{figure}
 
-For $m$ operators \eqref{RAG_2batch} extends to the form:
+For $m$ operators, \eqref{RAG_2batch} extends to the form:
 \begin{equation}
 	y_{n+i/m} = y_{n+(i-1)/m}+\eta^i g_n^i,
 	\label{RAG_scheme}
@@ -753,6 +754,7 @@ for all $i \in \{1,\dots,m\}$ and $n\geq 1$. It is possible to initialize the sc
 		\end{array}
 		\right.
 	\end{equation*}
+        In practice, this can be easily done by setting the learning rate to zero only at the first epoch for example. 
 \end{itemize}
 In the case $F_i=-\nR_i$, \eqref{RAG_scheme} is equivalent to IAG (SAG without random permutation). \\
 The issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Now, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
@@ -1065,8 +1067,6 @@ In this section, we have introduced new adaptive mini-batch optimizers based on 
 The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most famous stochastic optimizer
 in the Deep Learning litterature, namely RRAdam (called also Adam in the litterature \cite{Adam}), described in appendix \ref{annexe_adam}. Another slight modification of RRAdam without the debiased steps (that we call RRAWB: Random Reshuffle Adam without bias steps) is sometimes tested to illustrate some instability phenomenons. They are also compared to new Armijo-like full-batch optimizers introduced in chapter 2 of \cite{Bilel_thesis} (see \cite{Lyap_Theory_Bilel} for an analysis): LC (Lyapunov control) and LCD (Lyapunov Control Dichotomy) since they have many good properties (stability for example).
 
-\subsection{Analytic benchmarks}
-\label{test_analytic}
 
 First of all, we begin by the analytic benchmarks where all the information is available about the $\R_i$ and $\R$, in order to test the behaviors of the new optimizers in several configurations:
 \begin{itemize}

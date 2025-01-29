@@ -748,6 +748,8 @@ for all $i \in \{1,\dots,m\}$ and $n\geq 1$. It is possible to initialize the sc
 In the case $F_i=-\nR_i$, \eqref{RAG_scheme} is equivalent to IAG (SAG without random permutation). \\
 The issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Now, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
 
+\newG{TO DO mettre un algorithme ici? En insistant sur le fait que ça s'applique à tous les optimizers}
+
 \begin{remark}
 	The splitting scheme we suggest in this paper can be applied to any differential equation $y'(t)=F(y(t))$. For example in the case of the Momentum/Heavy-Ball equation \cite{momentum_sutskever_RNN,Polyak,polyak_momentum_stability,continuous_general} a natural decomposition of the vector field is given by:
 	\begin{equation*}

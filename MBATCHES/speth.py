@@ -225,7 +225,8 @@ def speth(x0,m,lr_init,eps,maxEpoch,typeR):
       x0 = x
       epoch+=1
       gNorm=np.linalg.norm(g)
-
+    if epoch == maxEpoch:
+        print("max epoch reached")
     return x, epoch
 
 def DGD(x0,m,lr_init,eps,maxEpoch,typeR):
@@ -493,6 +494,6 @@ lr_init=1
 #lr_init=0.1/3.
 #lr_init=0.1/3.
 #lr_init=0.01
-eps=10**(-4); maxEpoch=1000
+eps=10**(-4); maxEpoch=10000
 
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

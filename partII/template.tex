@@ -377,59 +377,6 @@ To reach such a construction, the paper is organized as follows:
           RRAdam (Random Reshuffle Adam), which seems to be the favorite optimizer of the practitioners.   
 \end{itemize}
 
-\paragraph{Reduction of the memory cost}
-\newG{Bon, je pense que ce paragraphe devrait être en part II finalement}
-~~\\
-Then, we suggest the following balanced splitting for $n\geq 1$:
-\begin{multline}
-	y_{n+i/m} = y_{n+(i-1)/m} \\
-	+\eta^i
-	\left\{
-	\begin{array}{ll}
-		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
-		g_{n+1} \text{ if } i=m,
-	\end{array}
-	\right.
-	\label{RAGL_splitting}
-\end{multline}
-where:
-\begin{equation*}
-	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right).
-\end{equation*}
-The scheme is initialized at $n=0$ with:
-\begin{equation*}
-	y_{n+i/m} = y_0 + \eta \mathds{1}_{i=m} g_0 \text{ with } g_0 = F(y_0),
-\end{equation*}
-for all $i \in \{1,\dots,m\}$. 
-%The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
-The scheme \eqref{RAGL_splitting} is well-balanced	since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
-The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. We are going to see that this formula can be implemented with a storage involving $3N$.
-
-\paragraph{Trade-off between balancing and memory cost}
-~~\\
-The perturbation added to $g_n$, the estimator of $F$, may grow if the number of batches become large or if one batch is stiffer than the others (every term in the sum is an increase of $F_j$): in fact, the contributions of the previous epoch (hidden in $g_n$) remain since we only substract the vector fields of the epoch $n+1$ \eqref{RAGL_splitting}. \\ 
-Here, we suggest an intuitive way to reduce this perturbation and empirically confirm its interest in the following section. For simplicity, let us assume that for $i\in \{1,\dots,m\}$, $F_i$ is $L_i$-Lipschitz continuous and let us denote by $i_{max} = \displaystyle{\argmax_{1 \leq i \leq m}} (L_i)$ the index of the stiffest batch. We then define the following splitting:
-\begin{multline}
-	y_{n+i/m} = y_{n+(i-1)/m} \\
-	+\eta^i
-	\left\{
-	\begin{array}{ll}
-		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n-1+(i_{max}-1)/m}\right)\right] \text{ if } 1\leq i<m,\\
-		g_{n+1} \text{ if } i=m,
-	\end{array}
-	\right.
-	\label{RAGL2_splitting}
-\end{multline}
-where $g_n$ and the initialization are defined in the same way as \eqref{RAGL_splitting}. We are going to see that it is possible to implement \eqref{RAGL2_splitting} with a memory cost involving $5N$.
-Some comments are necessary:
-\begin{itemize}
-	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to suppress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
-        \item When the time step is adaptative, see part II, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
-          iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$. \\
-\newG{The latter strategy assumes one is able to identify the stiffest batch (the having the larger Lipshitz constant) amongst the $m$ ones. 
-In practice, an generalisation of Armijo's rule, see \cite{Bilel_thesis}, precious for adaptiveness, gives an estimation. For this reason, this point will be developed in part II of this paper. }
-\end{itemize} 
-
 
 \section{Adaptive optimizers}
 \label{section_optimizers}

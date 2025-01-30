@@ -768,21 +768,96 @@ points of $F$). Finally, we have suggested a balanced splitting formula which di
 due to its particular approximation of $F$. 
 \ \\ \ \\
 
-\newG{En virant la partie sur les $L_i$ et la reduction de memoire, j'ai un peu peur qu'on retombe sur un des algo cité dans l'intro... Il faut que je vérifie. C'est sûr que c'est
-nouveau sur toutes les autres adaptation d'optimisers a part GD... Mais dans ce cas il faut insister sur le fait que la nouveauté est de mettre en evidence un pb et de revisiter
-les optimisers en questions comme des extensions de speth... j'aimerais pas qu'on nous demande de tous (speth-momentum, speth rms etc.) les tester...}
+\paragraph{Reduction of the memory cost}
+~~\\
+Then, we suggest the following balanced splitting for $n\geq 1$:
+\begin{multline}
+	y_{n+i/m} = y_{n+(i-1)/m} \\
+	+\eta^i
+	\left\{
+	\begin{array}{ll}
+		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
+		g_{n+1} \text{ if } i=m,
+	\end{array}
+	\right.
+	\label{RAGL_splitting}
+\end{multline}
+where:
+\begin{equation*}
+	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right).
+\end{equation*}
+The scheme is initialized at $n=0$ with:
+\begin{equation*}
+	y_{n+i/m} = y_0 + \eta \mathds{1}_{i=m} g_0 \text{ with } g_0 = F(y_0),
+\end{equation*}
+for all $i \in \{1,\dots,m\}$. 
+%The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
+The scheme \eqref{RAGL_splitting} is well-balanced	since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
+The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. We are going to see that this formula can be implemented with a storage involving $3N$.
+
+\paragraph{Trade-off between balancing and memory cost}
+~~\\
+The perturbation added to $g_n$, the estimator of $F$, may grow if the number of batches become large or if one batch is stiffer than the others (every term in the sum is an increase of $F_j$): in fact, the contributions of the previous epoch (hidden in $g_n$) remain since we only substract the vector fields of the epoch $n+1$ \eqref{RAGL_splitting}. \\ 
+Here, we suggest an intuitive way to reduce this perturbation and empirically confirm its interest in the following section. For simplicity, let us assume that for $i\in \{1,\dots,m\}$, $F_i$ is $L_i$-Lipschitz continuous and let us denote by $i_{max} = \displaystyle{\argmax_{1 \leq i \leq m}} (L_i)$ the index of the stiffest batch. We then define the following splitting:
+\begin{multline}
+	y_{n+i/m} = y_{n+(i-1)/m} \\
+	+\eta^i
+	\left\{
+	\begin{array}{ll}
+		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n-1+(i_{max}-1)/m}\right)\right] \text{ if } 1\leq i<m,\\
+		g_{n+1} \text{ if } i=m,
+	\end{array}
+	\right.
+	\label{RAGL2_splitting}
+\end{multline}
+where $g_n$ and the initialization are defined in the same way as \eqref{RAGL_splitting}. We are going to see that it is possible to implement \eqref{RAGL2_splitting} with a memory cost involving $5N$.
+Some comments are necessary:
+\begin{itemize}
+	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to suppress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
+        \item When the time step is adaptative, see part II, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
+          iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$. \\
+\newG{The latter strategy assumes one is able to identify the stiffest batch (the having the larger Lipshitz constant) amongst the $m$ ones. 
+In practice, an generalisation of Armijo's rule, see \cite{Bilel_thesis}, precious for adaptiveness, gives an estimation. For this reason, this point will be developed in part II of this paper. }
+\end{itemize} 
+
 
 \section{Numerical results}
 \label{num_res}
 
-In this section, we suggest applying the new splitting previously described to the 
-analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. 
+\newG{TODO: j'appelle ça Speth-GD etc. mais c'est IAG ou SAG...  ou un autre... A vérifier... Il suffira de faire une recherche sur "Speth-GD" et changer}
 
+\newG{TODO: stopping criterion!}
 
+In this section, we suggest applying the new previously described splitting to the 
+analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}.\\ 
+
+The extension of Speth's splitting we suggest in this first part still needs the tuning of the hyperparameters of the deterministic optimiser it is based on: for Speth-GD (i.e.
+$F_i(\theta)=-\nR_i(\theta)$), the only hyperparameter is the
+learning rate.  But Speth-Momentum or Speth-Adam would need to tune other hyperparameters (classically denoted by $\beta_1,\beta_2, \epsilon_a$ in the litterature, see
+\cite{Bilel_thesis}). 
+The purpose of this paper being putting forward the priority to have resort to a well-balanced splitting, we suggest focusing on Speth-GD and SGD as they only have one
+hyperparameter to tune, namely the learning rate. \\
+
+Figure \ref{SPETH_exs} presents the results obtained with Speth-GD on the eight examples described in section \ref{subsection_beyond_interpolation}. 
+The results are of the same type as the one of all the previous figures (but only \exOne and \exTwo were tackled in the latter): the final distributions of the weights are
+displayed at a final $t_f$, for some learning rates $\eta$ (the values will detailed later on).  
+In practice, the final time $t_f$ is not explicitly calculated as it is either obtained when the stopping criterion \eqref{} is fulfiled or when the maximum number of iteration is reached
+$n_{max} = 10000$.  
+Note that for Speth-GD, the final time always corresponds to the activation of the stopping criterion \eqref{}, representative of the full gradient being smaller than $\epsilon =
+10^{-4}$ here. We remind the reader that stopping criterion \eqref{} never needs the estimation on the full batch: it is estimated {\em on-the-fly} during the successive
+epochs/batches.  
 \ \\ \ \\
 TODO Here, tuning of the time step for speth (figure \ref{SPETH_exs}). Figure \ref{SGD_exs} is obtained with the same lr as the one for speth of figure \ref{SPETH_exs}. 
 Figure \ref{SGD_exs_001} is obtained with SGD with a time step $100$ times smaller than the one used for Speth. 
 Blbala todo
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.45}{\input{chapitre5_img/SPETH_exs.pgf}}
+	\caption{SPETH}
+	\label{SPETH_exs}
+\end{figure}
+
 
 \begin{figure}[h!]
 	\centering
@@ -800,13 +875,6 @@ Blbala todo
 	\label{SGD_exs_001}
 \end{figure}
 
-
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.45}{\input{chapitre5_img/SPETH_exs.pgf}}
-	\caption{SPETH}
-	\label{SPETH_exs}
-\end{figure}
 
 
 

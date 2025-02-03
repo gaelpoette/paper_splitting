@@ -222,6 +222,7 @@ grestore
         This condition is closely related to the overparametrization of the network. 
         In this first part, we investigate numerically the non-interpolating case and highlight some new undesirable behaviors for the stationary distributions of the most popular stochastic optimizers. 
         Moreover, we exploit the notion of balanced splitting to explain such behavior and to build new mini-batch optimizers.
+        \newG{The optimizer IG-SARAH is a special case of the strategy we suggest. }
         A second part is dedicated to adaptiveness.
         %which work without tuning and without interpolation assumption. 
         %These new algorithms are rigorously tested on a set of analytic and Machine Learning benchmarks where they outperform the famous Adam algorithm.
@@ -945,6 +946,9 @@ $\eta = 2.5 \times 10^{-2}$ for \exHeight.
 As can be seen on figure \ref{SPETH_exs}, the distributions obtained with Speth-GD are all peaked on the different local and global minima, for the eight benchmarks, with learning
 rates which are tractable. Note that on example \exHeight, figure \ref{SPETH_exs} (f), the Speth-GD optimiser does not find the global minimum and remains stuck on the local one:
 we will see in part II of this paper that adaptivity is necessary in order to capture this stiff global minima.  
+In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
+soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. This also points out that
+our stopping criterion seems sufficient. In fact, when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
 \begin{figure}[h!]
 	\centering
 	%\scalebox{0.45}{\input{chapitre5_img/DGD_exs_001.pgf}}

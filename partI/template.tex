@@ -962,7 +962,6 @@ we will see in part II of this paper that adaptivity is necessary in order to ca
 \end{figure}
 
 
-
 Figure \ref{SGD_exs} is obtained in the previous configurations of learning rates and maximum of epochs, the same as the ones of figure \ref{SPETH_exs} for Speth-GD, but with RRGD. 
 On \exTwo, the results are satisfactory. But they are far from being acceptable for all the other benchmarks: for \exOne, \exThree, \exFour, \exFive, \exSeven and \exHeight,
 artificial minima are captured. These artificial minima can be quite fare from the true ones, see \exFour, \exSeven, \exHeight.    
@@ -970,8 +969,11 @@ Very often, the distributions are not veru peaked on the vicinities of the minim
 On the last benchmarks, \exHeight, neither the local nor the global minima are captured. 
 The first hypothesis coming to mind to obtain better results would be to decrease the learning rate: figure \ref{SGD_exs_001} is obtained in exactly the same configurations but
 with learning rates $100$ times smaller than for figures \ref{SPETH_exs} and \ref{SGD_exs}. 
-For \exOne, it does fix the problem: the unique global minimum of $\R$ is recovered. 
-However, for all the other benchmarks, this is far from being enough:
+For benchmarks \exOne and \exFour, it does mitigate the problem: the minima of $\R$ are recovered with good probabilities. 
+However, for all the other benchmarks, this is far from being enough: on benchmark \exTwo, i.e. on figure \ref{SGD_exs_001} (b), the distribution is not anymore
+converged in the same that if the learning rate is $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
+On \exThree, the local and global minima are now in the support of the distribution, but their probabilities of occurrence remain low.
+For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from being captured even if an improvement is noticeable. 
 
 
 

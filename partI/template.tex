@@ -757,12 +757,27 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
 	\begin{equation*}
 		F_i(\theta,v) = 
 		\begin{pmatrix}
-                  -frac{v}{m} \\
-                        -{\bbetone}\frac{v}+\nR_i(\theta)
+                  -\frac{v}{m} \\
+                        -{\bbetone}\frac{v}{m}+\nR_i(\theta)
 		\end{pmatrix}.
 	\end{equation*}
 	The application of one of our extension of Speth's splitting above gives a fundamentally different update of STORM (variance reduction on Momentum). Therefore, the balanced splitting point of
         view might lead to some optimizers like SAG or RR-SARAH but it is by construction different of the variance reduction technique. The same difference appears for the variance reduction versions related to Adam: see Adam$^+$ \cite{adam_variance1} for example.
+\begin{figure}[!h]
+	\centering
+	\scalebox{0.45}{\input{chapitre5_img/mom_exs.pgf}}
+        \caption{Stationary distributions of Momentum for time step $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
+	\label{mom_ex1_ex2}
+\end{figure}
+\begin{figure}[!h]
+	\centering
+	\scalebox{0.45}{\input{chapitre5_img/speth_mom_exs.pgf}}
+        \caption{Stationary distributions of Speth-Momentum for time step $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
+	\label{speth_mom_ex1_ex2}
+\end{figure}
+
+
+
 \end{remark}
 
 In this section, we have highlighted the necessity of balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical

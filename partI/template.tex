@@ -334,7 +334,9 @@ This recap of the mini-batch litterature encourages us to require the six follow
           One of the main goal of these papers is to avoid tuning hyperparameters. In an adaptive context, all the methods of the litterature that do not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. \\
           This last point deserves its own paper, which is the purpose of part II.
 \end{enumerate}
-Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented). Therefore the goal of this paper is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies all these criteria}. This is a crucial step in order to develop smaller machine learning models. 
+Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented). 
+Therefore the goal of this paper is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies all these criteria}. This is a crucial step in order to develop smaller machine learning models. 
+\newG{Ici dire qu'on peut facilement modifier IG SARAH  pour qu'il verifie les 5 premiers et ensuite on ira vers la part II. }
 
 \paragraph{Organization of the paper}
 ~~\\
@@ -755,8 +757,8 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
 	\begin{equation*}
 		F_i(\theta,v) = 
 		\begin{pmatrix}
-			\frac{v}{m} \\
-			-\frac{\bbetone}{m} v-\nR_i(\theta)
+                  -frac{v}{m} \\
+                        -{\bbetone}\frac{v}+\nR_i(\theta)
 		\end{pmatrix}.
 	\end{equation*}
 	The application of one of our extension of Speth's splitting above gives a fundamentally different update of STORM (variance reduction on Momentum). Therefore, the balanced splitting point of
@@ -827,6 +829,8 @@ In practice, an generalisation of Armijo's rule, see \cite{Bilel_thesis}, precio
 \newG{TODO: j'appelle ça Speth-GD etc. mais c'est IAG ou SAG...  ou un autre... A vérifier... Il suffira de faire une recherche sur "Speth-GD" et changer}
 
 \newG{TODO: stopping criterion!}
+
+\newG{TODO: time step <--> learning rate}
 
 In this section, we suggest applying the new previously described splitting to the 
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}.\\ 

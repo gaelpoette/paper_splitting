@@ -750,7 +750,7 @@ for all $i \in \{1,\dots,m\}$ and $n\geq 1$. It is possible to initialize the sc
 In the case $F_i=-\nR_i$, \eqref{RAG_scheme} is equivalent to IAG (SAG without random permutation). \\
 The issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Now, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
 
-\newG{TO DO mettre un algorithme ici? En insistant sur le fait que ça s'applique à tous les optimizers}
+\newG{TO DO mettre un algorithme ici?}
 
 \begin{remark}
 	The splitting scheme we suggest in this paper can be applied to any differential equation $y'(t)=F(y(t))$. For example in the case of the Momentum/Heavy-Ball equation \cite{momentum_sutskever_RNN,Polyak,polyak_momentum_stability,continuous_general} a natural decomposition of the vector field is given by:
@@ -761,21 +761,38 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
                         -{\bbetone}\frac{v}{m}+\nR_i(\theta)
 		\end{pmatrix}.
 	\end{equation*}
-	The application of one of our extension of Speth's splitting above gives a fundamentally different update of STORM (variance reduction on Momentum). Therefore, the balanced splitting point of
-        view might lead to some optimizers like SAG or RR-SARAH but it is by construction different of the variance reduction technique. The same difference appears for the variance reduction versions related to Adam: see Adam$^+$ \cite{adam_variance1} for example.
+        Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with Momentum. 
+        The learning rate is chosen as $\eta=0.125$, which is larger than the most restrictive stability condition dictated by the Lipschitz constants for GD for these benchmarks:
+        Momentum is indeed stabler than GD for example, at least on these benchmarks. 
+        The distributions are displayed at two epochs: for epoch $n=20$, stationarity is not yet reached with Momentum, for epoch $n=2000$, it is.  
+        %In such conditions, the distributions obtained with Momentum have not yet reached stationarity as testifies figure \ref{mom_ex1_ex2}.
+        At epoch $n=20$, the (local and global) mimima seem to be within the supports of the distributions, for both benchmarks. This 
+        is qualitatively better than the results obtained with GD. 
+        But at epoch $n=20$, the results are not yet converged and  
 \begin{figure}[!h]
 	\centering
-	\scalebox{0.45}{\input{chapitre5_img/mom_exs.pgf}}
-        \caption{Stationary distributions of Momentum for time step $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
+        \rotatebox{90}{\quad \quad epoch=20}  \scalebox{0.45}{\input{chapitre5_img/mom_exs.pgf}}
+	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.45}{\input{chapitre5_img/mom_long_exs.pgf}}
+        \caption{Stationary distributions of Momentum for time step $\eta=0.125$ on \exOne: a) and \exTwo: b), for epoch number $20$ (stationarity is not reached) and epoch number $2000$ (stationarity is reached). The green straight line represents the position of the global minimum of $\R$.}
 	\label{mom_ex1_ex2}
 \end{figure}
+  on the last line of figure \ref{mom_ex1_ex2}, at epoch $n=2000$, stationarity is reached and Momentum captures respectively
+  $x=0.40533333$ instead of the unique global minimum $0.4$ of \exOne. 
+  \newG{ex2: $-0.72457792$ au lieu de 0.71}
+
+  On another hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with Speth-Momentum, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
 \begin{figure}[!h]
 	\centering
-	\scalebox{0.45}{\input{chapitre5_img/speth_mom_exs.pgf}}
+	\rotatebox{90}{\quad \quad epoch=20}  \scalebox{0.45}{\input{chapitre5_img/speth_mom_exs.pgf}}
+	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.45}{\input{chapitre5_img/speth_mom_long_exs.pgf}}
         \caption{Stationary distributions of Speth-Momentum for time step $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
 	\label{speth_mom_ex1_ex2}
 \end{figure}
+For the Speth-Momentum optimizer, stationarity is very close to being reached with only $20$ epochs: the supports of the obtained distributions are way tighter arounf the local and
+global minima of $\R$. 
 
+	The application of one of our extension of Speth's splitting above gives a fundamentally different update of STORM (variance reduction on Momentum). Therefore, the balanced splitting point of
+        view might lead to some optimizers like SAG or RR-SARAH but it is by construction different of the variance reduction technique. The same difference appears for the variance reduction versions related to Adam: see Adam$^+$ \cite{adam_variance1} for example.
 
 
 \end{remark}

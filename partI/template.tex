@@ -221,9 +221,10 @@ grestore
         In theory, many stochastic algorithms used in this setting rely on the interpolation condition for convergence. 
         This condition is closely related to the overparametrization of the network. 
         In this first part, we investigate numerically the non-interpolating case and highlight some new undesirable behaviors for the stationary distributions of the most popular stochastic optimizers. 
-        Moreover, we exploit the notion of balanced splitting to explain such behavior and to build new mini-batch optimizers.
-        \newG{The optimizer IG-SARAH is a special case of the strategy we suggest. }
-        A second part is dedicated to adaptiveness.
+        Moreover, we exploit the notion of balanced splitting to explain such behavior.
+        The combination of balanced splittings and classical optimizers (GD, Momentum, RMSProp etc.) leads to the construction of 
+        new mini-batch optimizers (and even allow revisiting some known ones as special cases of the suggested strategy, namely IG-SARAH).
+        A second part of this paper is dedicated to adaptiveness.
         %which work without tuning and without interpolation assumption. 
         %These new algorithms are rigorously tested on a set of analytic and Machine Learning benchmarks where they outperform the famous Adam algorithm.
 \keywords{Non-convex optimization \and Mini-batch algorithms \and Splitting schemes}
@@ -283,9 +284,11 @@ In practice, the reshuffle versions are prefered to classical ones \cite{RR_use1
 
 \paragraph{Variance reduction}  
 ~~\\
-Despite not being used in practice, variance reduction optimizers have been extensively studied by ML researchers this last decade, since they can converge with constant learning rate. In broad outline, the aim is to conceive methods that ensure that the variance does not vanish asymptotically:
+Despite not being used in practice, variance reduction optimizers have been extensively studied by ML researchers this last decade, since they can converge with constant learning
+rate. In broad outline, the aim is to conceive methods that ensure that the variance does not\footnote{\newG{does ou does not? Ambigu ici... Et $\to$ c'est quand $m\to \infty$ je
+suppose}} vanish asymptotically:
 \begin{equation*}
-	\displaystyle{\sum_{i=1}^m}\left[\|\nR(\theta_n)/m-\nR_i(\theta_n)\|^2\right] \to 0.
+  \displaystyle{\sum_{i=1}^m}\left[\|\nR(\theta_n)/m-\nR_i(\theta_n)\|^2\right] \newG{\underset{m\to \infty}{\longrightarrow}} 0.
 \end{equation*}
 Now, we will present some of these methods describing their principal features:
 \begin{itemize}
@@ -326,32 +329,36 @@ This recap of the mini-batch litterature encourages us to require the six follow
 \begin{enumerate}
 	\item ideally, we want to \textbf{avoid assumptions on the batch distribution}. Firstly, the bounded variance hypothesis is not reasonable 
           since it is not even satisfied by a linear regression. Moreover, the major part of stochastic optimizers need interpolation condition (hence over-parametrized models) to be used with constant learning rate. To the best of our knowledge, the only optimizers that get rid of these conditions are IAG and DIAG \cite{DIAG}.
-	\item It is essential that the optimizers can achieve an arbitrary precision (concerning the gradient) without requiring decreasing time steps. This is only verified by variance reduction methods. 
+	\item It is essential that the optimizers can achieve an arbitrary precision (concerning the gradient) without requiring decreasing learning rates. This is only verified by variance reduction methods. 
 	\item The algorithms can not use the full-batch gradient, at any stage, due to storage requirement. The ones that fit into this category are: SGD, RRGD, IG, IAG, SAG, ZERO-SARAH, STORM, SCSG et RR-SARAH.
 	\item If possible, we do not want to store $m$ gradients. For example, the optimizers that do not need such a storage are:  SGD, RRGD, IG, SVRG, SNVRG, SPIDER, SARAH, SSRGD, PAGE, SCSG et RR-SARAH.
-	\item We absolutely need a \textbf{stopping criterion} that ensures that the full-batch gradient is smaller than a fixed arbitrary precision. All the mentionned
+        \item We absolutely need a \textbf{stopping criterion} that ensures that the full-batch gradient is smaller than a fixed arbitrary precision (without resorting to a full
+          batch evaluation for the sake of memory consumption). 
+          We will see that the family of mini-batch optimizers we design in this paper all have this property. 
+          All the aforementionned
           optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge).
-        \item Finally, we absolutely want an \textbf{adaptive time step method}. 
-          One of the main goal of these papers is to avoid tuning hyperparameters. In an adaptive context, all the methods of the litterature that do not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. \\
+        \item Finally, we absolutely want an \textbf{adaptive learning rate method}. 
+          One of the main goal of this paper and its following second part is to avoid tuning hyperparameters. In an adaptive context, all the methods of the litterature that do not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. \\
           This last point deserves its own paper, which is the purpose of part II.
 \end{enumerate}
-Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented). 
-Therefore the goal of this paper is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies all these criteria}. This is a crucial step in order to develop smaller machine learning models. 
-\newG{Ici dire qu'on va identifier une procédure qui permet de passer un optim deter en un stoch well balanced et que quand on l'applique à GD, ça donne IG-SARAH qui verifie les 5 premiers et ensuite on ira vers la part II. }
+Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the
+second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented here). 
+Therefore the goal of this paper and its following second part is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies all these criteria}. This is a crucial step in order to develop smaller machine learning models. 
 
 \paragraph{Organization of the paper}
 ~~\\
 To reach such a construction, the paper is organized as follows:
 \begin{itemize}
-	\item in section \ref{section_stationary}, the stationary distribution of SGD and RRGD (with constant learning rate) is investigated empirically on analytic examples.
-          Indeed, it is necessary that SGD and RRGD recover the critical points of $\R$ in the long run, and not the ones of the $\R_i$. To do that, we build new benchmarks (in one
-          dimension) to discuss the negation of the interpolation assumption. Undesirable behaviors (which are, to the best of our knowledge, not documented in the litterature) are identified. 
+	\item in section \ref{section_stationary}, the stationary distribution of SGD and RRGD (with constant learning rate) is investigated empirically on analytic examples: we build new benchmarks (in one
+          dimension) to discuss the negation of the interpolation assumption. Undesirable behaviors (which are, to the best of our knowledge, not documented in the litterature) are
+          identified: SGD and RRGD recover the critical points of the $\R_i$ in the long run, and not the ones of $\R$. 
         \item An interpretation of RRGD as a specific splitting of operators is suggested in section \ref{section_splitting_schemes}. This enables to relate some "strange" stationary distributions to a disequilibrium of the splitting. 
-	\item The construction of a balanced splitting gives birth to a first optimizer in section \ref{new_splitting}. This optimizer extends the method developed by Speth \cite{rebalanced_splitting} for balancing convection-diffusion. It is shown to overcome the aforementioned issue and satisfies the first five criteria.
+	\item The construction of a balanced splitting gives birth to a first family of optimizer in section \ref{new_splitting}. This optimizer extends the method developed by Speth \cite{rebalanced_splitting} for balancing convection-diffusion. It is shown to overcome the aforementioned issue and satisfies the first five criteria.
 	\item In section \ref{num_res}, the two newly developed methods are tested on analytical benchmarks. 
 \end{itemize}
 
-The balanced strategy developed here serves as an excellent starting point for the adaptive extension (sixth criterion) which is discussed in part II. Let us emphasize the fact that only the final (adaptive) algorithms are tested on classical ML tasks in part II. In this part, numerical experiments are ment to explain the behavior of the methods described therein.
+The balanced strategy developed here serves as an excellent starting point for the adaptive extension (sixth criterion) which is discussed in part II. Let us emphasize the fact
+that only the final (adaptive) algorithms are tested on classical ML tasks in part II. In this part, numerical experiments are mainly meant to explain the behavior of the methods described therein.
 
 \section{Stationary distributions of SGD}
 \label{section_stationary}
@@ -376,7 +383,7 @@ We expect their supports to be "centered" around the minimums of $\R$. We will s
 ~~\\
 As highlighted in the introduction, the major part of the studies proving that constant step size SGD converges to critical point of $\R$ is based on the interpolation condition or
 the overparametrization of the network. It is therefore necessary to suggest new benchmarks taking
-into account all the possible setups in the non-interpolated case, in one dimension. Even though one dimensional exemples are very simple, we will see that they are nonetheless sufficient to highlight some undesirable behaviors.
+into account all the possible setups in the non-interpolated case, in one dimension. Even though one dimensional examples are very simple, we will see that they are nonetheless sufficient to highlight some undesirable behaviors.
 These examples are presented in detail in appendix \ref{annexe_non_interpolated}. 
 We have tried to give them a name related to game theory, the reason will be explicited with the descriptions of the benchmarks. 
 Succintly, we present their caracteristics below:
@@ -386,7 +393,8 @@ Succintly, we present their caracteristics below:
           Being selfish (i.e. focusing on $\R_1$ or $\R_2$)  always leads to a penalized agent.
 	\item In the case of \exTwo, $m=2$. Each function $\R_i$ is quadric (non-convex) and admits two minimums with a shared global minimum at $0.5$. Then the objective function
           $\R$ has an \textbf{interpolating local minimum} at $0.5$ and a \textbf{non-interpolating global minimum}. The name means that if the agents are self-centered, they are all individually satisfied (global minimum of $\R_i$) but it is not the best compromise (the global minimum of $\R_i$ becomes a local one for $\R$).
-	\item Concerning \exThree, $m=2$. Each function $\R_i$ is a polynomial of degree 6 or 10. Each of the three minimums is \textbf{non-interpolating}. The local minimum in 0 is the \textbf{intersection of the graphs of $\R_1$ and $\R_2$}. Here, the \textbf{global minimum of $\R_1$ is very close to the one of $\R$}. Here, the general interest is not a big "sacrifice" for the first agent. There also exists a balanced choice ($\theta=0$) insofar as the two agents are just as much (un)satisfied. 
+	\item Concerning \exThree, $m=2$. Each function $\R_i$ is a polynomial of degree 6 or 10. Each of the three minimums is \textbf{non-interpolating}. The local minimum in 0
+          is the \textbf{intersection of the graphs of $\R_1$ and $\R_2$}. The \textbf{global minimum of $\R_1$ is very close to the one of $\R$}. Here, the general interest is not a big "sacrifice" for the first agent. There also exists a balanced choice ($\theta=0$) insofar as the two agents are just as much (un)satisfied. 
 	\item For \exFour, $m=2$. Each function $\R_i$ is non-convex and the two minimums of $\R$ are \textbf{non-interpolating}. Here, the \textbf{global minimum of $\R$ is far from the ones of $\R_1$ and $\R_2$}. The general interest does not suit to the agent individually. 
 	\item The benchmark \exFive concerns three strongly convex functions ($m=3$). The unique global minimum of $\R$ is non-interpolating. The situation is similar as \exOne but with three agents.
 	\item For \exSix, $m=3$. The \textbf{local} minimum at $\theta=0.5$ is \textbf{interpolating}. There exists a point $\theta=-0.75$ which is the minimum of two functions among the three (\textbf{"semi-interpolation"}). Finally, the global minimum is non-interpolating. In this case, if two agents plot ($\theta=-0.75$), the last agent is badly done, but globally this plot leads to a choice close to the general interest. 
@@ -397,7 +405,7 @@ Succintly, we present their caracteristics below:
 \paragraph{Graph description}
 ~~\\
 Here, we numerically compute the stationary distributions of SGD/RRGD by Monte Carlo simulations on \exOne and \exTwo. These simulations are performed until time $t_f=10$, large
-enough in practice for the distributions to reach stationarity (visual verification). 10000 particles are uniformly sampled on $[-1,1]$ for each batch $i\in \{1,2\}$. The position of the particles after the time $t_f$ enables to build the densities $u^1$ and $u^2$. Here $u^1$ denotes the stationary distribution with the following initial condition (the second coordinate refers to the batch number):
+enough in practice for the distributions to reach stationarity (visual verification). Intially, 10000 particles are uniformly sampled on $[-1,1]$ for each batch $i\in \{1,2\}$. The position of the particles after the time $t_f$ enables to build the densities $u^1$ and $u^2$. Here $u^1$ denotes the stationary distribution with the following initial condition (the second coordinate refers to the batch number):
 \begin{equation*}
 	u^1_0(\theta) = \left(\frac{1}{4} \mathds{1}_{[-1,1]}(\theta),1\right).
 \end{equation*}
@@ -405,46 +413,46 @@ The same for $u^2$ with the initial condition:
 \begin{equation*}
 	u^2_0(\theta) = \left(\frac{1}{4} \mathds{1}_{[-1,1]}(\theta),2\right).
 \end{equation*}
-Let us denote by $L_1$ and $L_2$ the Lipschitz constants of $\nR_1$ and $\nR_2$ on $[-1,1]$ respectively. The figure \ref{sgd_ex1} corresponds to the applications of SGD on \exOne
-for four different values of the time steps: $\frac{1}{\max(L_1,L_2)}$ is the associated time step related to the stiffest batch whereas $\frac{1}{L_1+L_2}$ is an estimation of
-$\frac{1}{L}$, that is to say the stiffness of $\R$ (where $L$ denotes the Lipschitz constant of $\nR$), since $L \leq L_1+L_2$. At each time, the third of these time steps is also
+Let us denote by $L_1$ and $L_2$ the Lipschitz constants of $\nR_1$ and $\nR_2$ on $[-1,1]$ respectively. Figure \ref{sgd_ex1} presents the results obtained by the applications of SGD on \exOne
+for four different values of the learning rates: $\frac{1}{\max(L_1,L_2)}$ is the associated learning rate related to the stiffest batch whereas $\frac{1}{L_1+L_2}$ is an estimation of
+$\frac{1}{L}$, that is to say the stiffness of $\R$ (where $L$ denotes the Lipschitz constant of $\nR$), since $L \leq L_1+L_2$. At each time, the third of these learning rates is also
 considered in order to test a smaller value: the factor 3 could seem arbitrary for the moment but it will be explained in part II. The figures
-\ref{sgd_ex2}, \ref{RRGD_ex1} and \ref{RRGD_ex2} correspond respectively to \exTwo with SGD, \exOne with RRGD and \exTwo with RRGD, for the same choices of time steps ($L_1,L_2$ depends on the benchmark). 
+\ref{sgd_ex2}, \ref{RRGD_ex1} and \ref{RRGD_ex2} correspond respectively to \exTwo with SGD, \exOne with RRGD and \exTwo with RRGD, for the same choices of learning rates ($L_1,L_2$ depends on the benchmark). 
 
 \begin{figure}[!h]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/sgd_ex1.pgf}}
-	\caption{Stationary distributions of SGD for different time steps on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
+	\caption{Stationary distributions of SGD for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
 	\label{sgd_ex1}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/RRGD_ex1.pgf}}
-	\caption{Stationary distributions of RRGD for different time steps on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
+	\caption{Stationary distributions of RRGD for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
 	\label{RRGD_ex1}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/sgd_ex2.pgf}}
-	\caption{Stationary distributions of SGD for different time steps on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
+	\caption{Stationary distributions of SGD for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
 	\label{sgd_ex2}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/RRGD_ex2.pgf}}
-	\caption{Stationary distributions of RRGD for different time steps on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
+	\caption{Stationary distributions of RRGD for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
 	\label{RRGD_ex2}
 \end{figure}
 
 \paragraph{Comments}
 ~~\\
 On the graphs a) and c) of figure \ref{sgd_ex1} a Dirac comb appears with a lot of stationary states spaced between the minimum $\theta=0$ of $\R_1$ and $\theta=0.5$ of $\R_2$. In
-other words, several stationary states have nothing to do with the minimums of the $\R_i$ or $\R$. By decreasing the time step (graphs b) and d)), we get closer to a gaussian
-distribution but it is not really centered on the global minimum. For RRGD, the behavior is completely different, see figure \ref{RRGD_ex1}. When the time step decreases, the distribution gets closer to a Dirac centered at the global minimum but for intermediary learning rates (graphs a) and b)) the second Dirac is located at the minimum of $\R_2$, that is to say $\theta=0.5$. It is true that the behavior of RRGD is less troubling than the one of SGD but it is still problematic because the convergence (existence of a stationary distribution) does not imply to find a minimum of $\R$. \\
-Concerning \exTwo (figure \ref{sgd_ex2}), for any time step, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. Unfortunately, it seems that SGD favors interpolating minimums without taking into account their quality even for time steps sufficiently small. Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not neglected even for an intermediary value of the time step (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
+other words, several stationary states have nothing to do with the minimums of the $\R_i$ or $\R$. By decreasing the learning rate (graphs b) and d)), we get closer to a gaussian
+distribution but it is not really centered on the global minimum. For RRGD, the behavior is completely different, see figure \ref{RRGD_ex1}. When the learning rate decreases, the distribution gets closer to a Dirac centered at the global minimum but for intermediary learning rates (graphs a) and b)) the second Dirac is located at the minimum of $\R_2$, that is to say $\theta=0.5$. It is true that the behavior of RRGD is less troubling than the one of SGD but it is still problematic because the convergence (existence of a stationary distribution) does not imply to find a minimum of $\R$. \\
+Concerning \exTwo (figure \ref{sgd_ex2}), for any learning rate, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. Unfortunately, it seems that SGD favors interpolating minimums without taking into account their quality even for learning rates sufficiently small. Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not neglected even for an intermediary value of the learning rate (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
 Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the gaussian-like distribution is not well-centered (\exOne) or interpolating
 local minimum are largely favored.
 
@@ -494,7 +502,7 @@ As a basis for splitting schemes, see \cite{splitting_ode_review,splitting_ode_r
 ~~\\
 Let us remember that the deterministic version of RRGD is IG ({\it Incremental Gradient}) in the litterature \cite{IG_proximal}. The latter can be interpreted as a Lie-Trotter
 splitting with an Euler explicit scheme consisting in applying an Euler explicit scheme to each ODE $\theta'(t)=-\nR_i(\theta(t))$ and then to put them together like in \eqref{splitting_lie_trotter}. \\
-In the same way as for SGD and RRGD, we plot the stationary distributions of IG on \exOne and \exTwo for the same choices of time steps, on the figures \ref{IG_ex1} and \ref{IG_ex2}. Since there is no stochasticity, we only represent $u$, the stationary distribution corresponding to the initial condition:
+In the same way as for SGD and RRGD, we plot the stationary distributions of IG on \exOne and \exTwo for the same choices of learning rates, on the figures \ref{IG_ex1} and \ref{IG_ex2}. Since there is no stochasticity, we only represent $u$, the stationary distribution corresponding to the initial condition:
 \begin{equation*}
 	u_0(\theta) = \frac{1}{2} \mathds{1}_{[-1,1]}(\theta).
 \end{equation*}
@@ -503,14 +511,14 @@ On the figure \ref{IG_ex1}, if the learning rate is not small enough (graphs a) 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/IG_ex1.pgf}}
-	\caption{Stationary distributions of IG for different time steps on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
+	\caption{Stationary distributions of IG for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
 	\label{IG_ex1}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/IG_ex2.pgf}}
-	\caption{Stationary distributions of IG for different time steps on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
+	\caption{Stationary distributions of IG for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
 	\label{IG_ex2}
 \end{figure}
 
@@ -540,7 +548,7 @@ The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the sta
 
 \paragraph{Non-balanced schemes}
 ~~\\
-Now, the reasonable question is the following one: why are there stationary states that have nothing to do with the ones of $y'(t)=F(y(t))$ when this ODE is solved by splitting? This phenomenon was already noticed in the ODE/PDE context \cite{rebalanced_splitting}: arbitrary small time steps may be necessary to recover the stationary states of an ODE, even when the solutions slowly vary. \\
+Now, the reasonable question is the following one: why are there stationary states that have nothing to do with the ones of $y'(t)=F(y(t))$ when this ODE is solved by splitting? This phenomenon was already noticed in the ODE/PDE context \cite{rebalanced_splitting}: arbitrary small learning rates may be necessary to recover the stationary states of an ODE, even when the solutions slowly vary. \\
 Let us illustrate this phenomenon on an affine ODE where:
 \begin{equation}
 	F(y) = \left(Ay+a\right) + \left(By+b\right) \coloneqq F_1(y) + F_2(y),
@@ -567,7 +575,7 @@ directly $F$, we would have used the operator $e^{(A+B)\eta}$. The error for one
 where $\left[B,A\right]=BA-AB$ is the commutator of $A$ and $B$.\\
 Let us begin by the two cases where this splitting makes it possible to retrieve $y_{\infty}$:
 \begin{itemize}
-	\item if $A^{-1}a=B^{-1}b$ (interpolation) then $y_{\infty}$ is the stationary state of each $F_i$.
+	\item if $A^{-1}a=B^{-1}b$  then $y_{\infty}$ is the stationary state of each $F_i$ (interpolation).
 	\item If $A$ and $B$ commute then for every $\eta>0$, $e^{(A+B)\eta}=e^{B\eta}e^{A\eta}$. Therefore the splitting is exact and the stationary state $y_{\infty}$ is recovered asymptotically. 
 \end{itemize}
 In the general case, the Taylor development \eqref{Taylor_split} suggests that the local error introduced by a first order splitting is $\mathcal{O}(\eta^2)$ in the neighborhood of $y_{\infty}$:
@@ -587,7 +595,7 @@ and:
 \begin{equation*}
 	A^* = (\alpha-I)A^{-1} \text{ , } B^* = (\beta-I) B^{-1}.
 \end{equation*}
-What we have to retain from this expression is that the stationary state depends on the time step $\eta$ ! In the same way, let us compute the stationary states of IG on \exOne. By expliciting the recurrent equation of IG on \exOne, we get:
+What we have to retain from this expression is that the stationary state depends on the learning rate $\eta$ ! In the same way, let us compute the stationary states of IG on \exOne. By expliciting the recurrent equation of IG on \exOne, we get:
 \begin{equation*}
 	\theta_{n+1} = 4\eta + (1-8\eta)(1-2\eta)\theta_n.
 \end{equation*} 
@@ -678,7 +686,7 @@ The figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distrib
 Despite its benefits, the Speth splitting suffers from two drawbacks in our context:
 \begin{itemize}
 	\item when $y_{n+1}$ is computed \eqref{splitting_speth}, the evaluation of $F_1$ used in the balancing $c_n$ does not exploit the most recent value, namely $F_1(y_n)$, but rather $F_1(y_{n-1/2})$. But in the ML context, it is possible to employ the most recent evaluation because at every iteration, it is possible to evaluate the batch we want since all the batches have more or less the same computational cost. 
-	\item We want to use different time steps for every iteration (adaptive method in the end): $\eta^1$ and $\eta^2$. It is possible to keep the balance property in this context with some modifications, for example by replacing the division by $\eta$ by $\frac{2}{\eta^1+\eta^2}$. Nevertheless, exploiting the most recent evaluation (mentioned above), this issue is settled immediately. 
+	\item We want to use different learning rates for every iteration (adaptive method in the end): $\eta^1$ and $\eta^2$. It is possible to keep the balance property in this context with some modifications, for example by replacing the division by $\eta$ by $\frac{2}{\eta^1+\eta^2}$. Nevertheless, exploiting the most recent evaluation (mentioned above), this issue is settled immediately. 
 \end{itemize}
 
 \paragraph{Adjustment of the Speth splitting}
@@ -694,7 +702,7 @@ We therefore suggest the following scheme where the "balance" vector is slightly
 	\label{RAG_2batch}
 \end{equation}
 Asymptotically, $F_1(y_{\infty})+F_2(y_{\infty})=0$ hence $F(y_{\infty})=0$.
-Up to a factor $\frac{1}{2}$ on the learning rate , 
+Up to a factor $\frac{1}{2}$ on the learning rate, 
 \eqref{RAG_2batch} can be written in the same form as the Speth scheme with:
 \begin{equation*}
 	\left\{
@@ -730,7 +738,11 @@ where:
 	g_n^i = \sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right),
 	\label{gni}
 \end{equation}
-for all $i \in \{1,\dots,m\}$ and $n\geq 1$. It is possible to initialize the scheme ($n=0$) in two ways:
+for all $i \in \{1,\dots,m\}$ and $n\geq 1$. 
+\newG{ICI FAIRE REMARQUER LA CONSISTENCE AVEC LE GRADIENT EN INTRODUCTION DU STOPPING CRITERION}.
+
+
+It is possible to initialize the scheme ($n=0$) in two ways:
 \begin{itemize}
 	\item for all $i\in \{1,\dots,m\}$:
 	\begin{equation*}
@@ -751,7 +763,6 @@ for all $i \in \{1,\dots,m\}$ and $n\geq 1$. It is possible to initialize the sc
 In the case $F_i=-\nR_i$, \eqref{RAG_scheme} is equivalent to IAG (SAG without random permutation). \\
 The issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Now, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
 
-\newG{TO DO mettre un algorithme ici?}
 \begin{remark}
 	The splitting scheme we suggest in this paper can be applied to any differential equation $y'(t)=F(y(t))$. For example in the case of the Momentum/Heavy-Ball equation \cite{momentum_sutskever_RNN,Polyak,polyak_momentum_stability,continuous_general} a natural decomposition of the vector field is given by:
 	\begin{equation*}
@@ -764,7 +775,7 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
         Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with S-Momentum (stochastic Momentum) with $\beta_1=0.9$. 
         The learning rate is chosen as $\eta=0.125$, which is larger than the most restrictive stability condition dictated by the Lipschitz constants for GD for these benchmarks:
         Momentum is indeed stabler than GD for example, at least on these benchmarks. 
-        The distributions are displayed at two epochs: for epoch $n=20$, stationarity is not yet reached with Momentum whereas for epoch $n=2000$, it is.  
+        The distributions are displayed at two epochs: for epoch $n=20$, stationarity is not yet reached with S-Momentum whereas for epoch $n=2000$, it is.  
         %In such conditions, the distributions obtained with Momentum have not yet reached stationarity as testifies figure \ref{mom_ex1_ex2}.
         At epoch $n=20$, the (local and global) mimima seem to be within the supports of the distributions, for both benchmarks. This 
         is qualitatively better than the results obtained with SGD, see figure \ref{sgd_ex1}. 
@@ -773,13 +784,13 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
 	\centering
         \rotatebox{90}{\quad \quad epoch=20}  \scalebox{0.45}{\input{chapitre5_img/mom_exs.pgf}}
 	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.45}{\input{chapitre5_img/mom_long_exs.pgf}}
-        \caption{Stationary distributions of Momentum for time step $\eta=0.125$ on \exOne: a) and \exTwo: b), for epoch number $20$ (stationarity is not reached) and epoch number $2000$ (stationarity is reached). The green straight line represents the position of the global minimum of $\R$.}
+        \caption{Stationary distributions of Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for epoch number $20$ (stationarity is not reached) and epoch number $2000$ (stationarity is reached). The green straight line represents the position of the global minimum of $\R$.}
 	\label{mom_ex1_ex2}
 \end{figure}
-  The last line of figure \ref{mom_ex1_ex2} displays the results at epoch $n=2000$, for which we verified taht stationarity is reached:  S-Momentum captures respectively
+  The last line of figure \ref{mom_ex1_ex2} displays the results at epoch $n=2000$, for which we verified that stationarity is reached:  S-Momentum captures respectively
   $x=0.40533333$ instead of the unique global minimum $0.4$ of \exOne, 
   and $x=-0.72457792$ instead of $0.71$, the global minimum of \exTwo. 
-  In other words, the appearance of artificial minima strongly related to the choice of the learning rate emphasized in the previous example does also occur for other optimisers
+  In other words, the appearance of artificial minimums strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimisers
   (other $F$) and is not only restricted to SGD or RRGD. 
 
   On another hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with Speth-Momentum, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
@@ -787,16 +798,16 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
 	\centering
 	\rotatebox{90}{\quad \quad epoch=20}  \scalebox{0.45}{\input{chapitre5_img/speth_mom_exs.pgf}}
 	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.45}{\input{chapitre5_img/speth_mom_long_exs.pgf}}
-        \caption{Stationary distributions of Speth-Momentum for time step $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
+        \caption{Stationary distributions of Speth-Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
 	\label{speth_mom_ex1_ex2}
 \end{figure}
 For the Speth-Momentum optimizer, stationarity is very close to being reached with only $20$ epochs: the supports of the obtained distributions are way tighter around the local and
-global minima of $\R$. A faster convergence rate is consequently numerically observed.  
+global minimums of $\R$. A faster convergence rate is consequently numerically observed.  
   At epoch $n=2000$, for which stationarity is reached (the stopping criterion \eqref{stopping_criterion} is activated at $n\approx 40 - 60 \ll 2000$), the Speth-Momentum algorithm recovers the 
-  position of the global and local minima with a perfect accuracy. 
+  position of the global and local minimums with a perfect accuracy. 
 
-	Note that the application of one of our extension of Speth's splitting above gives a fundamentally different update of STORM (variance reduction on Momentum). 
-        The balanced splitting point of view leads to some optimizers like SAG or RR-SARAH when combined to GD but builds 
+        Note that the application of (our extension of) Speth's splitting gives a fundamentally different update of STORM (variance reduction on Momentum). 
+        The balanced splitting point of view leads to some optimizers lokking like SAG or RR-SARAH when combined to GD but builds 
         very different mini-batch optimisers from the ones obtained by applying a variance reduction technique. 
         The same comment can be made appears for the variance reduction versions related to Adam: see Adam$^+$ \cite{adam_variance1} for example.
 
@@ -808,9 +819,9 @@ global minima of $\R$. A faster convergence rate is consequently numerically obs
 \end{remark}
 
 
-In this section, we have highlighted the necessity of balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
-points of $F$). Finally, we have suggested a balanced splitting formula which differ from the classical ones %by their memory complexity and 
-due to its particular approximation of $F$. 
+In this section, we have highlighted the necessity of having resort to a balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
+points of $F$). Finally, we have suggested a balanced splitting formula which differ from the classical ones (and encompass some classical ones) %by their memory complexity and 
+depending on the particular approximation of $F$. 
 \ \\ \ \\
 
 \paragraph{Reduction of the memory cost}
@@ -859,10 +870,10 @@ where $g_n$ and the initialization are defined in the same way as \eqref{RAGL_sp
 Some comments are necessary:
 \begin{itemize}
 	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to suppress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
-        \item When the time step is adaptative, see part II, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
+        \item When the learning rate is adaptative, see part II, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
           iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$. \\
-\newG{The latter strategy assumes one is able to identify the stiffest batch (the having the larger Lipshitz constant) amongst the $m$ ones. 
-In practice, an generalisation of Armijo's rule, see \cite{Bilel_thesis}, precious for adaptiveness, gives an estimation. For this reason, this point will be developed in part II of this paper. }
+{The latter strategy assumes one is able to identify the stiffest batch (the having the larger Lipshitz constant) amongst the $m$ ones. 
+In practice, a generalisation of Armijo's rule, see \cite{Bilel_thesis}, precious for adaptiveness, gives an estimation. For this reason, this point will be developed in part II of this paper. }
 \end{itemize} 
 
 
@@ -874,11 +885,11 @@ En tout cas, ici, il faut dire qu'on applique le Speth-GD = "celui qui est connu
 
 \newG{TODO: stopping criterion! Mais besoin avant, dans la remarque sur Speth-Momentum}
 
-\newG{TODO: time step <--> learning rate}
 
 In this section, we suggest applying the new previously described splitting combined to GD, i.e. \newG{Speth-GD $=$ IG-SARAH}\footnote{a verifier} to the 
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. The study hence numerically emphasizes that this mini-batch optimiser also
-satisfies condition 1 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 5 related to ??? (depicted in section \ref{}). Part II of this paper will be dedicated to condition 6, namely
+satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
+not resorting to the interpolating hypothesis (depicted in section \ref{intro}). Part II of this paper will be dedicated to condition 6, namely
 adaptativeness. It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 
 
@@ -902,7 +913,7 @@ The extension of Speth's splitting we suggest in this first part still needs the
 $F_i(\theta)=-\nR_i(\theta)$), the only hyperparameter is the
 learning rate.  But Speth-Momentum or Speth-Adam would need to tune other hyperparameters (classically denoted by $\beta_1,\beta_2, \epsilon_a$ in the litterature, see
 \cite{Bilel_thesis}). 
-The purpose of this paper being putting forward the priority to have resort to a well-balanced splitting, we suggest focusing on Speth-GD and SGD as they only have one
+The purpose of this paper being putting forward the priority to have resort to a well-balanced splitting, we suggest focusing on mini-batch versions of GD as they only have one
 hyperparameter to tune, namely the learning rate. \\
 
 \begin{figure}[h!]
@@ -923,16 +934,16 @@ hyperparameter to tune, namely the learning rate. \\
 
 Figure \ref{SPETH_exs} presents the results obtained with Speth-GD on the eight examples described in section \ref{subsection_beyond_interpolation}. 
 The results are of the same type as the one of all the previous figures (but only \exOne and \exTwo were tackled in the latter): the final distributions of the weights are
-displayed at a final $t_f$, for some learning rates $\eta$ (the values will detailed later on).  
+displayed at a final $t_f$, for some learning rates $\eta$ (their values will be detailed and commented on later on).  
 In practice, the final time $t_f$ is not explicitly calculated as it is either obtained when the stopping criterion \eqref{} is fulfiled or when the maximum number of iteration is reached
 $n_{max} = 10000$.  
 Note that for Speth-GD, the final time always corresponds to the activation of the stopping criterion \eqref{}, representative of the full gradient being smaller than $\epsilon =
 10^{-4}$ here. We remind the reader that stopping criterion \eqref{} never needs the estimation on the full batch: it is estimated {\em on-the-fly} during the successive
 epochs/batches.  
 \ \\ \ \\
-For the eight next benchmarks, the first step was to tune of the learing rate $\eta$ and the total number of epochs $n_{max}$ for Speth-GD (figure \ref{SPETH_exs}). 
-By tuning the time step for Speth-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
-have stable resolution. By tuning $n_{max}$, we mean ensuring stationarity of the distributions.
+For the eight next benchmarks, the first step was to tune of the learning rate $\eta$ and the total number of epochs $n_{max}$ for Speth-GD (figure \ref{SPETH_exs}). 
+By tuning the learning rate for Speth-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
+have stable resolutions. By tuning $n_{max}$, we mean ensuring stationarity of the distributions.
 For all the benchmarks, this results in $n_{max}=10000$. 
 For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $F_1,F_2$ are available: they corresponds to 
 the larger learing rate ensuring stability. 
@@ -943,9 +954,9 @@ $\eta = 5 \times 10^{-2}$ for \exFive,
 $\eta = 1 \times 10^{-2}$ for \exSix, 
 $\eta = 1 \times 10^{-2}$ for \exSeven, 
 $\eta = 2.5 \times 10^{-2}$ for \exHeight. 
-As can be seen on figure \ref{SPETH_exs}, the distributions obtained with Speth-GD are all peaked on the different local and global minima, for the eight benchmarks, with learning
+As can be seen on figure \ref{SPETH_exs}, the distributions obtained with Speth-GD are all peaked on the different local and global minimums, for the eight benchmarks, with learning
 rates which are tractable. Note that on example \exHeight, figure \ref{SPETH_exs} (f), the Speth-GD optimiser does not find the global minimum and remains stuck on the local one:
-we will see in part II of this paper that adaptivity is necessary in order to capture this stiff global minima.  
+we will see in part II of this paper that adaptivity is necessary in order to capture this stiff global minimums.  
 In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
 soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. This also points out that
 our stopping criterion seems sufficient. In fact, when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
@@ -968,15 +979,15 @@ our stopping criterion seems sufficient. In fact, when {\em a posteriori} comput
 
 Figure \ref{SGD_exs} is obtained in the previous configurations of learning rates and maximum of epochs, the same as the ones of figure \ref{SPETH_exs} for Speth-GD, but with RRGD. 
 On \exTwo, the results are satisfactory. But they are far from being acceptable for all the other benchmarks: for \exOne, \exThree, \exFour, \exFive, \exSeven and \exHeight,
-artificial minima are captured. These artificial minima can be quite fare from the true ones, see \exFour, \exSeven, \exHeight.    
-Very often, the distributions are not veru peaked on the vicinities of the minima.
-On the last benchmarks, \exHeight, neither the local nor the global minima are captured. 
+artificial minimums are captured. These artificial minimums can be quite fare from the true ones, see \exFour, \exSeven, \exHeight.    
+Very often, the distributions are not veru peaked on the vicinities of the minimums.
+On the last benchmarks, \exHeight, neither the local nor the global minimums are captured. 
 The first hypothesis coming to mind to obtain better results would be to decrease the learning rate: figure \ref{SGD_exs_001} is obtained in exactly the same configurations but
 with learning rates $100$ times smaller than for figures \ref{SPETH_exs} and \ref{SGD_exs}. 
-For benchmarks \exOne and \exFour, it does mitigate the problem: the minima of $\R$ are recovered with good probabilities. 
+For benchmarks \exOne and \exFour, it does mitigate the problem: the minimums of $\R$ are recovered with good probabilities. 
 However, for all the other benchmarks, this is far from being enough: on benchmark \exTwo, i.e. on figure \ref{SGD_exs_001} (b), the distribution is not anymore
 converged in the same that if the learning rate is $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
-On \exThree, the local and global minima are now in the support of the distribution, but their probabilities of occurrence remain low.
+On \exThree, the local and global minimums are now in the support of the distribution, but their probabilities of occurrence remain low.
 For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from being captured even if an improvement is noticeable. 
 
 
@@ -988,11 +999,11 @@ The goal of this paper is to serve as a first step towards the extension of full
 More precisely, the following points were tackled:
 \begin{itemize}
 	\item the interpolation hypothesis was largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new stationary states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
-	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an Euler explicit scheme. This perspective makes it possible to explain the appearance of "artificial" stationary states that are related to the unbalancing of the splitting: the stationary states may depend on the time step. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
-         \item A new algorithm is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimas due to the batch decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping criterion which doesn't require to compute full batch gradients.
+	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an Euler explicit scheme. This perspective makes it possible to explain the appearance of "artificial" stationary states that are related to the unbalancing of the splitting: the stationary states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
+         \item A new algorithm is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping criterion which doesn't require to compute full batch gradients.
 \end{itemize}
 
-The notion of \textbf{balanced splitting is then crucial} to get an appropriate behavior with constant learning rate and {\em a fortiori} with adaptive time step. Improving the proposed algorithms to include adaptative learning rate selection is therefore the natural next step to obtain efficient algorithms, able to produce comparable results on machine-learning test than the full-batch counterpart. This is the subject of part II.
+The notion of \textbf{balanced splitting is then crucial} to get an appropriate behavior with constant learning rate and {\em a fortiori} with adaptive learning rate. Improving the proposed algorithms to include adaptative learning rate selection is therefore the natural next step to obtain efficient algorithms, able to produce comparable results on machine-learning test than the full-batch counterpart. This is the subject of part II.
 
 
 

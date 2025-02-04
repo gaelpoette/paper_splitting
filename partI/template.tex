@@ -943,10 +943,11 @@ epochs/batches.
 \ \\ \ \\
 For the eight next benchmarks, the first step was to tune of the learning rate $\eta$ and the total number of epochs $n_{max}$ for Speth-GD (figure \ref{SPETH_exs}). 
 By tuning the learning rate for Speth-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
-have stable resolutions. By tuning $n_{max}$, we mean ensuring stationarity of the distributions.
-For all the benchmarks, this results in $n_{max}=10000$. 
+have stable resolutions. 
+By tuning $n_{max}$, we mean ensuring stationarity of the distributions for the algorithms which suffer from not having a stopping criterion.
+For all the benchmarks, $n_{max}=10000$ seems to be a qualitatively good choice. 
 For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $F_1,F_2$ are available: they corresponds to 
-the larger learing rate ensuring stability. 
+the larger learning rate ensuring stability. 
 For all the other benchmarks, the larger learning rates have been (coarsely) manually obtained. They are given by 
 $\eta = 1\times 10^{-3}$ for \exThree, 
 $\eta = 3.33\times 10^{-2}$ for \exFour, 
@@ -956,10 +957,11 @@ $\eta = 1 \times 10^{-2}$ for \exSeven,
 $\eta = 2.5 \times 10^{-2}$ for \exHeight. 
 As can be seen on figure \ref{SPETH_exs}, the distributions obtained with Speth-GD are all peaked on the different local and global minimums, for the eight benchmarks, with learning
 rates which are tractable. Note that on example \exHeight, figure \ref{SPETH_exs} (f), the Speth-GD optimiser does not find the global minimum and remains stuck on the local one:
-we will see in part II of this paper that adaptivity is necessary in order to capture this stiff global minimums.  
+we will see in part II of this paper that adaptivity is necessary in order to capture this stiff global minimum.  
 In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
-soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. This also points out that
-our stopping criterion seems sufficient. In fact, when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
+soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. 
+The benchmarks also point out that
+our stopping criterion seems sufficient: when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
 \begin{figure}[h!]
 	\centering
 	%\scalebox{0.45}{\input{chapitre5_img/DGD_exs_001.pgf}}
@@ -979,16 +981,17 @@ our stopping criterion seems sufficient. In fact, when {\em a posteriori} comput
 
 Figure \ref{SGD_exs} is obtained in the previous configurations of learning rates and maximum of epochs, the same as the ones of figure \ref{SPETH_exs} for Speth-GD, but with RRGD. 
 On \exTwo, the results are satisfactory. But they are far from being acceptable for all the other benchmarks: for \exOne, \exThree, \exFour, \exFive, \exSeven and \exHeight,
-artificial minimums are captured. These artificial minimums can be quite fare from the true ones, see \exFour, \exSeven, \exHeight.    
-Very often, the distributions are not veru peaked on the vicinities of the minimums.
-On the last benchmarks, \exHeight, neither the local nor the global minimums are captured. 
+artificial minimums are captured. These artificial minimums can be quite far from the true ones, see \exFour, \exSeven, \exHeight.    
+Very often, the distributions are not peaked in the vicinities of the minimums.
+On the last benchmark (figure \ref{SGD_exs} f)), neither the local nor the global minimums is captured. 
 The first hypothesis coming to mind to obtain better results would be to decrease the learning rate: figure \ref{SGD_exs_001} is obtained in exactly the same configurations but
 with learning rates $100$ times smaller than for figures \ref{SPETH_exs} and \ref{SGD_exs}. 
 For benchmarks \exOne and \exFour, it does mitigate the problem: the minimums of $\R$ are recovered with good probabilities. 
 However, for all the other benchmarks, this is far from being enough: on benchmark \exTwo, i.e. on figure \ref{SGD_exs_001} (b), the distribution is not anymore
-converged in the same that if the learning rate is $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
-On \exThree, the local and global minimums are now in the support of the distribution, but their probabilities of occurrence remain low.
+converged: with a  learning rate $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
+On \exThree, the local and global minimums are now within the support of the distribution, but their probabilities of occurrence remain low.
 For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from being captured even if an improvement is noticeable. 
+Globally, without the balanced splitting we suggest in this paper, interpolatory minimums are favored, independently of their performances.  
 
 
 
@@ -996,9 +999,9 @@ For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from b
 \label{section_conclusion}
 
 The goal of this paper is to serve as a first step towards the extension of full-batch adaptive methods \cite{Bilel} to mini-batch algorithms.
-More precisely, the following points were tackled:
+More precisely, the following points are tackled:
 \begin{itemize}
-	\item the interpolation hypothesis was largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new stationary states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
+	\item the interpolation hypothesis is largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new stationary states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
 	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an Euler explicit scheme. This perspective makes it possible to explain the appearance of "artificial" stationary states that are related to the unbalancing of the splitting: the stationary states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
          \item A new algorithm is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping criterion which doesn't require to compute full batch gradients.
 \end{itemize}

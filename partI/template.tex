@@ -739,8 +739,19 @@ where:
 	\label{gni}
 \end{equation}
 for all $i \in \{1,\dots,m\}$ and $n\geq 1$. 
-\newG{ICI FAIRE REMARQUER LA CONSISTENCE AVEC LE GRADIENT EN INTRODUCTION DU STOPPING CRITERION}.
 
+\begin{remark}
+  \label{stopping}
+Something important which seems to, to our knowledge, not have been noticed in the litterature is that 
+  expression \eqref{gni} is consistent with $F=\sum_{i=1}^P F_i$ in the sense we have $\forall i\in\{1,...,m\}$ 
+  \begin{equation}
+    \label{stopping_criterion}
+    g_n^i = F(y_n) +\mathcal{O}(\eta). 
+  \end{equation}
+  This typically means that $g_n^i$ can be used as such in order to define a stopping criterion for the optimizer.
+  Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(y_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as $\|g_{n+1}\|/P \leq
+  \epsilon$, with $\epsilon$ prescribed by the user, and this, without resorting to a full batch estimation of $\nR$. This will be numerically verified in section \ref{num_res}. 
+\end{remark}
 
 It is possible to initialize the scheme ($n=0$) in two ways:
 \begin{itemize}
@@ -803,7 +814,8 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
 \end{figure}
 For the Speth-Momentum optimizer, stationarity is very close to being reached with only $20$ epochs: the supports of the obtained distributions are way tighter around the local and
 global minimums of $\R$. A faster convergence rate is consequently numerically observed.  
-  At epoch $n=2000$, for which stationarity is reached (the stopping criterion \eqref{stopping_criterion} is activated at $n\approx 40 - 60 \ll 2000$), the Speth-Momentum algorithm recovers the 
+  At epoch $n=2000$, for which stationarity is reached (in fact, the stopping criterion \eqref{stopping_criterion} of remark \ref{stopping} is activated at $n\approx 40 - 60 \ll 2000$ depending on the
+  initialization), the Speth-Momentum algorithm recovers the 
   position of the global and local minimums with a perfect accuracy. 
 
         Note that the application of (our extension of) Speth's splitting gives a fundamentally different update of STORM (variance reduction on Momentum). 
@@ -883,12 +895,10 @@ In practice, a generalisation of Armijo's rule, see \cite{Bilel_thesis}, preciou
 \newG{TODO: j'appelle ça Speth-GD etc. mais c'est IAG ou SAG...  ou un autre... A vérifier... Il suffira de faire une recherche sur "Speth-GD" et changer.
 En tout cas, ici, il faut dire qu'on applique le Speth-GD = "celui qui est connu" et on met en évidence qu'il a tous les bons sacrements sauf l'adaptatif... Objet de ka part II }
 
-\newG{TODO: stopping criterion! Mais besoin avant, dans la remarque sur Speth-Momentum}
-
 
 In this section, we suggest applying the new previously described splitting combined to GD, i.e. \newG{Speth-GD $=$ IG-SARAH}\footnote{a verifier} to the 
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. The study hence numerically emphasizes that this mini-batch optimiser also
-satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
+satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} (see remark \ref{stopping}) which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). Part II of this paper will be dedicated to condition 6, namely
 adaptativeness. It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 
@@ -897,7 +907,7 @@ adaptativeness. It will be applied to Speth-GD but, once again, the adaptive str
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/SPETH_exs.pgf}}
         \caption{
-          Application of Speth-GD for the eight benchmarks depicted in section \ref{}, with $n_{max}=10000$ and 
+          Application of Speth-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
         $\eta = 1\times 10^{-3}$ for \exThree (a), 
   $\eta = 3.33\times 10^{-2}$ for \exFour (b), 
   $\eta = 5 \times 10^{-2}$ for \exFive (c), 
@@ -921,7 +931,7 @@ hyperparameter to tune, namely the learning rate. \\
 	%\scalebox{0.45}{\input{chapitre5_img/DGD_exs_1.pgf}}
         \scalebox{0.45}{\input{chapitre5_img/SGD_exs_1.pgf}}
 	\caption{
-          Application of RRGD for the eight benchmarks depicted in section \ref{}, with $n_{max}=10000$ and 
+          Application of RRGD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
         $\eta = 1\times 10^{-3}$ for \exThree (a), 
   $\eta = 3.33\times 10^{-2}$ for \exFour (b), 
   $\eta = 5 \times 10^{-2}$ for \exFive (c), 
@@ -935,10 +945,10 @@ hyperparameter to tune, namely the learning rate. \\
 Figure \ref{SPETH_exs} presents the results obtained with Speth-GD on the eight examples described in section \ref{subsection_beyond_interpolation}. 
 The results are of the same type as the one of all the previous figures (but only \exOne and \exTwo were tackled in the latter): the final distributions of the weights are
 displayed at a final $t_f$, for some learning rates $\eta$ (their values will be detailed and commented on later on).  
-In practice, the final time $t_f$ is not explicitly calculated as it is either obtained when the stopping criterion \eqref{} is fulfiled or when the maximum number of iteration is reached
+In practice, the final time $t_f$ is not explicitly calculated as it is either obtained when the stopping criterion \eqref{stopping_criterion} is fulfilled or when the maximum number of iteration is reached
 $n_{max} = 10000$.  
-Note that for Speth-GD, the final time always corresponds to the activation of the stopping criterion \eqref{}, representative of the full gradient being smaller than $\epsilon =
-10^{-4}$ here. We remind the reader that stopping criterion \eqref{} never needs the estimation on the full batch: it is estimated {\em on-the-fly} during the successive
+Note that for Speth-GD, the final time always corresponds to the activation of the stopping criterion \eqref{stopping_criterion}, representative of the full gradient being smaller than $\epsilon =
+10^{-4}$ here. We remind the reader that stopping criterion \eqref{stopping_criterion} never needs the estimation on the full batch: it is estimated {\em on-the-fly} during the successive
 epochs/batches.  
 \ \\ \ \\
 For the eight next benchmarks, the first step was to tune of the learning rate $\eta$ and the total number of epochs $n_{max}$ for Speth-GD (figure \ref{SPETH_exs}). 
@@ -967,7 +977,7 @@ our stopping criterion seems sufficient: when {\em a posteriori} computing the f
 	%\scalebox{0.45}{\input{chapitre5_img/DGD_exs_001.pgf}}
 	\scalebox{0.45}{\input{chapitre5_img/SGD_exs_001.pgf}}
 	\caption{
-          Application of RRGD for the eight benchmarks depicted in section \ref{}, with $n_{max}=10000$ and 
+          Application of RRGD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
         $\eta = 1\times 10^{-5}$ for \exThree (a), 
   $\eta = 3.33\times 10^{-4}$ for \exFour (b), 
   $\eta = 5 \times 10^{-4}$ for \exFive (c), 
@@ -1449,7 +1459,8 @@ In this section, we recall the stochastic optimizers used in this paper, since t
 \end{algorithm} 
 
 \begin{remark}
-	We have written above the stochastic algorithms with the classical stopping criterion, namely the maximal number of epochs. All through the sections \ref{section_stationary}, \ref{section_splitting_schemes}, \ref{section_results}, they are implemented with different criteria: maximal time $t_f$ and full-batch gradient $\|\nR(\theta)\|/P \leq \epsilon$.
+	We have written above the stochastic algorithms with the classical stopping criterion, namely the maximal number of epochs. All through the sections
+        \ref{section_stationary}, \ref{section_splitting_schemes}, \ref{num_res}, they are implemented with different criteria: maximal time $t_f$ and full-batch gradient $\|\nR(\theta)\|/P \leq \epsilon$.
 \end{remark}
 
 

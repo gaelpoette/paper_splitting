@@ -865,6 +865,7 @@ The scheme \eqref{RAGL_splitting} is well-balanced	since $g_n$ asymptotically ap
 The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. We are going to see that this formula can be implemented with a storage involving $3N$.
 
 \paragraph{Trade-off between balancing and memory cost}
+\newG{JE PENSE QU'IL FAUT METTRE CETTE PARTIE DANS PART II}
 ~~\\
 The perturbation added to $g_n$, the estimator of $F$, may grow if the number of batches become large or if one batch is stiffer than the others (every term in the sum is an increase of $F_j$): in fact, the contributions of the previous epoch (hidden in $g_n$) remain since we only substract the vector fields of the epoch $n+1$ \eqref{RAGL_splitting}. \\ 
 Here, we suggest an intuitive way to reduce this perturbation and empirically confirm its interest in the following section. For simplicity, let us assume that for $i\in \{1,\dots,m\}$, $F_i$ is $L_i$-Lipschitz continuous and let us denote by $i_{max} = \displaystyle{\argmax_{1 \leq i \leq m}} (L_i)$ the index of the stiffest batch. We then define the following splitting:

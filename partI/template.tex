@@ -781,8 +781,9 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
 		\begin{pmatrix}
                   -\frac{v}{m} \\
                         -{\bbetone}\frac{v}{m}+\nR_i(\theta)
-		\end{pmatrix}.
+		\end{pmatrix},
 	\end{equation*}
+        where $m$ is the number of batches. 
         Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with S-Momentum (stochastic Momentum) with $\beta_1=0.9$. 
         The learning rate is chosen as $\eta=0.125$, which is larger than the most restrictive stability condition dictated by the Lipschitz constants for GD for these benchmarks:
         Momentum is indeed stabler than GD for example, at least on these benchmarks. 
@@ -1013,7 +1014,9 @@ More precisely, the following points are tackled:
 \begin{itemize}
 	\item the interpolation hypothesis is largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new stationary states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
 	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an Euler explicit scheme. This perspective makes it possible to explain the appearance of "artificial" stationary states that are related to the unbalancing of the splitting: the stationary states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
-         \item A new family of algorithm is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping criterion which doesn't require to compute full batch gradients.
+         \item A new family of algorithm is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch
+           decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping
+           criterion which doesn't require to compute full batch gradients. The mini-batch optimizer IG-SARAH of the litterature is part of this family. 
 \end{itemize}
 
 The notion of \textbf{balanced splitting is then crucial} to get an appropriate behavior with constant learning rate and {\em a fortiori} with adaptive learning rate. Improving the proposed algorithms to include adaptative learning rate selection is therefore the natural next step to obtain efficient algorithms, able to produce comparable results on machine-learning test than the full-batch counterpart. This is the subject of part II.
@@ -1386,82 +1389,82 @@ and
 	\label{ex8_example}
 \end{table}
 
-\section{Classical algorithms}
-\label{annexe_adam}
-
-In this section, we recall the stochastic optimizers used in this paper, since there exists many versions of a same algorithm. 
-
-\begin{algorithm}[h!]
-	\caption{{\it Stochastic Gradient Descent}: SGD}
-	\begin{algorithmic}
-		\REQUIRE initial values $\theta$ and $\eta$.
-		
-		\FOR{$n=0, \dots, mn_{max}-1$}
-		\STATE $i \leftarrow$ uniformly sampled in $\{1,\dots,m\}$
-		\STATE $\theta \leftarrow \theta-\eta \nR_i(\theta)$
-		\ENDFOR
-		
-		\RETURN $\theta$
-	\end{algorithmic}
-	\label{algo_sgd}
-\end{algorithm} 
-
-\begin{algorithm}[h!]
-	\caption{{\it Random Reshuffle Gradient Descent}: RRGD}
-	\begin{algorithmic}
-		\REQUIRE initial values $\theta$ and $\eta$.
-		
-		\FOR{$n=0, \dots, n_{max}-1$}
-		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
-		\FOR{$i=1, \dots, m$}
-		\STATE $\theta \leftarrow \theta-\eta \nR_{\Pi(i)}(\theta)$
-		\ENDFOR
-		\ENDFOR
-		\RETURN $\theta$
-	\end{algorithmic}
-	\label{algo_RRGD}
-\end{algorithm} 
-
-\begin{algorithm}[h!]
-	\caption{{\it Random Reshuffle AWB}: RRAWB}
-	\begin{algorithmic}
-		\REQUIRE initial values $\theta$, $\eta$, $\betone$, $\bettwo$ and $\epsilon_a$.
-		\STATE $v\leftarrow 0$, $s\leftarrow 0$
-		\FOR{$n=0, \dots, n_{max}-1$}
-		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
-		\FOR{$i=1, \dots, m$}
-		\STATE $v \leftarrow(1-\betone)v + \betone \nR_{\Pi(i)}(\theta)$
-		\STATE $s \leftarrow (1-\bettwo)s + \bettwo \nR_{\Pi(i)}(\theta)^2$
-		\STATE $\theta \leftarrow \theta -\eta \dfrac{v}{\epsilon_a+\sqrt{s}}$
-		\ENDFOR
-		\ENDFOR
-		\RETURN $\theta$
-	\end{algorithmic}
-	\label{algo_RRAWB}
-\end{algorithm} 
-
-\begin{algorithm}[h!]
-	\caption{{\it Random Reshuffle Adam}: RRAdam}
-	\begin{algorithmic}
-		\REQUIRE initial values $\theta$, $\eta$, $\betone$, $\bettwo$ and $\epsilon_a$.
-		\STATE $v\leftarrow 0$, $s\leftarrow 0$
-		\FOR{$n=0, \dots, n_{max}-1$}
-		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
-		\FOR{$i=1, \dots, m$}
-		\STATE $v \leftarrow(1-\betone)v + \betone \nR_{\Pi(i)}(\theta)$
-		\STATE $s \leftarrow (1-\bettwo)s + \bettwo \nR_{\Pi(i)}(\theta)^2$
-		\STATE $\theta \leftarrow \theta -\eta \dfrac{\sqrt{1-\bettwo^{n+1}}}{1-\betone^{n+1}} \dfrac{v}{\epsilon_a+\sqrt{s}}$
-		\ENDFOR
-		\ENDFOR
-		\RETURN $\theta$
-	\end{algorithmic}
-	\label{algo_RRAdam}
-\end{algorithm} 
-
-\begin{remark}
-	We have written above the stochastic algorithms with the classical stopping criterion, namely the maximal number of epochs. All through the sections
-        \ref{section_stationary}, \ref{section_splitting_schemes}, \ref{num_res}, they are implemented with different criteria: maximal time $t_f$ and full-batch gradient $\|\nR(\theta)\|/P \leq \epsilon$.
-\end{remark}
+%\section{Classical algorithms}
+%\label{annexe_adam}
+%
+%In this section, we recall the stochastic optimizers used in this paper, since there exists many versions of a same algorithm. 
+%
+%\begin{algorithm}[h!]
+%	\caption{{\it Stochastic Gradient Descent}: SGD}
+%	\begin{algorithmic}
+%		\REQUIRE initial values $\theta$ and $\eta$.
+%		
+%		\FOR{$n=0, \dots, mn_{max}-1$}
+%		\STATE $i \leftarrow$ uniformly sampled in $\{1,\dots,m\}$
+%		\STATE $\theta \leftarrow \theta-\eta \nR_i(\theta)$
+%		\ENDFOR
+%		
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%	\label{algo_sgd}
+%\end{algorithm} 
+%
+%\begin{algorithm}[h!]
+%	\caption{{\it Random Reshuffle Gradient Descent}: RRGD}
+%	\begin{algorithmic}
+%		\REQUIRE initial values $\theta$ and $\eta$.
+%		
+%		\FOR{$n=0, \dots, n_{max}-1$}
+%		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
+%		\FOR{$i=1, \dots, m$}
+%		\STATE $\theta \leftarrow \theta-\eta \nR_{\Pi(i)}(\theta)$
+%		\ENDFOR
+%		\ENDFOR
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%	\label{algo_RRGD}
+%\end{algorithm} 
+%
+%\begin{algorithm}[h!]
+%	\caption{{\it Random Reshuffle AWB}: RRAWB}
+%	\begin{algorithmic}
+%		\REQUIRE initial values $\theta$, $\eta$, $\betone$, $\bettwo$ and $\epsilon_a$.
+%		\STATE $v\leftarrow 0$, $s\leftarrow 0$
+%		\FOR{$n=0, \dots, n_{max}-1$}
+%		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
+%		\FOR{$i=1, \dots, m$}
+%		\STATE $v \leftarrow(1-\betone)v + \betone \nR_{\Pi(i)}(\theta)$
+%		\STATE $s \leftarrow (1-\bettwo)s + \bettwo \nR_{\Pi(i)}(\theta)^2$
+%		\STATE $\theta \leftarrow \theta -\eta \dfrac{v}{\epsilon_a+\sqrt{s}}$
+%		\ENDFOR
+%		\ENDFOR
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%	\label{algo_RRAWB}
+%\end{algorithm} 
+%
+%\begin{algorithm}[h!]
+%	\caption{{\it Random Reshuffle Adam}: RRAdam}
+%	\begin{algorithmic}
+%		\REQUIRE initial values $\theta$, $\eta$, $\betone$, $\bettwo$ and $\epsilon_a$.
+%		\STATE $v\leftarrow 0$, $s\leftarrow 0$
+%		\FOR{$n=0, \dots, n_{max}-1$}
+%		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
+%		\FOR{$i=1, \dots, m$}
+%		\STATE $v \leftarrow(1-\betone)v + \betone \nR_{\Pi(i)}(\theta)$
+%		\STATE $s \leftarrow (1-\bettwo)s + \bettwo \nR_{\Pi(i)}(\theta)^2$
+%		\STATE $\theta \leftarrow \theta -\eta \dfrac{\sqrt{1-\bettwo^{n+1}}}{1-\betone^{n+1}} \dfrac{v}{\epsilon_a+\sqrt{s}}$
+%		\ENDFOR
+%		\ENDFOR
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%	\label{algo_RRAdam}
+%\end{algorithm} 
+%
+%\begin{remark}
+%	We have written above the stochastic algorithms with the classical stopping criterion, namely the maximal number of epochs. All through the sections
+%        \ref{section_stationary}, \ref{section_splitting_schemes}, \ref{num_res}, they are implemented with different criteria: maximal time $t_f$ and full-batch gradient $\|\nR(\theta)\|/P \leq \epsilon$.
+%\end{remark}
 
 
 \clearpage

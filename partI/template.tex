@@ -501,7 +501,7 @@ As a basis for splitting schemes, see \cite{splitting_ode_review,splitting_ode_r
 \paragraph{RRGD as a splitting}
 ~~\\
 Let us remember that the deterministic version of RRGD is IG ({\it Incremental Gradient}) in the litterature \cite{IG_proximal}. The latter can be interpreted as a Lie-Trotter
-splitting with an Euler explicit scheme consisting in applying an Euler explicit scheme to each ODE $\theta'(t)=-\nR_i(\theta(t))$ and then to put them together like in \eqref{splitting_lie_trotter}. \\
+splitting with an explicit Euler scheme consisting in applying an explicit Euler scheme to each ODE $\theta'(t)=-\nR_i(\theta(t))$ and then to put them together like in \eqref{splitting_lie_trotter}. \\
 In the same way as for SGD and RRGD, we plot the stationary distributions of IG on \exOne and \exTwo for the same choices of learning rates, on the figures \ref{IG_ex1} and \ref{IG_ex2}. Since there is no stochasticity, we only represent $u$, the stationary distribution corresponding to the initial condition:
 \begin{equation*}
 	u_0(\theta) = \frac{1}{2} \mathds{1}_{[-1,1]}(\theta).
@@ -527,7 +527,7 @@ The most natural idea to improve IG is then to apply a Strang splitting: in fact
 \begin{equation*}
 	\chi_{\eta} = \phi_{\eta/2}^1 \circ \phi_{\eta}^2 \circ \phi_{\eta/2}^1,
 \end{equation*}
-where each $\phi_{\eta}^i$ is an Euler explicit scheme with step $\eta$ applied to $\theta'(t) = -\nR_i(\theta(t))$.
+where each $\phi_{\eta}^i$ is an explicit Euler scheme with step $\eta$ applied to $\theta'(t) = -\nR_i(\theta(t))$.
 The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the stationary distributions of this scheme for \exOne and \exTwo. From the results of figure
 \ref{Strang_ex2}, we can see that increasing the accuracy of the scheme does not change much, at least for the values of $\eta$ used on \exTwo. On the figure \ref{Strang_ex1}, we get closer to the stationary state faster when $\eta \to 0$ on
 \exOne. However, there still exists undesirable stationary states in the sense they do not correspond to a minimization of $\R$. 
@@ -546,7 +546,7 @@ The figures \ref{Strang_ex1} and \ref{Strang_ex2} represent respectively the sta
 	\label{Strang_ex2}
 \end{figure} 
 
-\paragraph{Non-balanced schemes}
+\paragraph{Unbalanced schemes}
 ~~\\
 Now, the reasonable question is the following one: why are there stationary states that have nothing to do with the ones of $y'(t)=F(y(t))$ when this ODE is solved by splitting? This phenomenon was already noticed in the ODE/PDE context \cite{rebalanced_splitting}: arbitrary small learning rates may be necessary to recover the stationary states of an ODE, even when the solutions slowly vary. \\
 Let us illustrate this phenomenon on an affine ODE where:
@@ -583,7 +583,7 @@ In the general case, the Taylor development \eqref{Taylor_split} suggests that t
 	\left[e^{(A+B)\eta}-e^{B\eta}e^{A\eta}\right]y_{\infty} \approx \frac{\eta^2}{2}\left[B,A\right]y_{\infty}.
 \end{equation*}
 The error above assumes that one starts from a point in the neighborhood of $y_{\infty}$ and integrates during one step. In fact, one starts from an arbitrary initial condition and
-integrate during a time in the order of $1/\eta$, until the scheme's stationary state denoted by $z_{\infty}$ is approached. Since then, the error $z_{\infty}-y_{\infty}$ is of order $\mathcal{O}(\eta)$ for a Lie-Trotter splitting and of $\mathcal{O}(\eta^2)$ for the Strang one. Concerning the system \eqref{EDO_linear}, the authors of \cite{rebalanced_splitting} compute explicitly the stationary state for a Strang splitting:
+integrate during a time of the order of $1/\eta$, until the scheme's stationary state denoted by $z_{\infty}$ is approached. Since then, the error $z_{\infty}-y_{\infty}$ is of order $\mathcal{O}(\eta)$ for a Lie-Trotter splitting and of $\mathcal{O}(\eta^2)$ for the Strang one. Concerning the system \eqref{EDO_linear}, the authors of \cite{rebalanced_splitting} compute explicitly the stationary state for a Strang splitting:
 \begin{equation*}
 	z_{\infty} = (I-\alpha\beta\alpha)^{-1}\left[\alpha B^*b + (\alpha\beta+I)A^*a\right],
 \end{equation*}
@@ -617,7 +617,7 @@ For two learning rates tested, the stationary state equals:
 	\right.
 \end{equation*}
 We recover the stationary states of the simulation and notice that it is impossible to achieve exactly the minimum of $\R$ at $\theta=\frac{2}{5}$ if $\eta \neq 0$. \\
-The splitting approach enables to suggest a plausible explication to the artificial stationary states that we have detected on SGD, RRGD, IG and Strang when $\eta$ does not tend to 0. Such a phenomenon is called an imbalance of the splitting. Therefore, the artificial stationary states (or the predilection towards the interpolating local minimum) are related to the \textbf{non-commutativity} of the vector fields $\nR_1$ and $\nR_2$. 
+The splitting approach enables to suggest a plausible explanation to the artificial steady states that we have detected on SGD, RRGD, IG and Strang when $\eta$ does not tend to 0. Such a phenomenon is called an imbalance of the splitting. Therefore, the artificial steady states (or the predilection towards the interpolating local minimum) are related to the \textbf{non-commutativity} of the vector fields $\nR_1$ and $\nR_2$. 
 
 \paragraph{Construction of balanced schemes}
 ~~\\
@@ -628,14 +628,14 @@ Let us illustrate the construction of a balanced scheme as suggested in \cite{re
 \begin{equation*}
 	\text{(Stationary) } 0 = F_1(y_{\infty}) + F_2(y_{\infty}).
 \end{equation*}
-The idea of this article is to share a vector $c$ between the two operators $F_1$ and $F_2$ in order for the new operators $F_1^* = F_1+c$ and $F_2^*=F_2-c$ to admit $y_{\infty}$ as a stationary state. At point $y=y_{\infty}$, the vector to add in order to guarantee the equilibrium should be $c_{\infty} = \frac{1}{2} \left[F_2(y_{\infty})-F_1(y_{\infty})\right]$:
+The idea of this article is to share a vector $c$ between the two operators $F_1$ and $F_2$ in order for the new operators $F_1^* = F_1+c$ and $F_2^*=F_2-c$ to admit $y_{\infty}$ as a steady state. At point $y=y_{\infty}$, the vector to add in order to guarantee the equilibrium should be $c_{\infty} = \frac{1}{2} \left[F_2(y_{\infty})-F_1(y_{\infty})\right]$:
 \begin{equation*}
 	F_1^*(y) =  F_1(y) + \frac{1}{2} \left[F_2(y_{\infty})-F_1(y_{\infty})\right] = 0 \text{ at } y=y_{\infty},
 \end{equation*}
 \begin{equation*}
 	F_2^*(y) =  F_2(y) - \frac{1}{2} \left[F_2(y_{\infty})-F_1(y_{\infty})\right] = 0 \text{ at } y=y_{\infty}.
 \end{equation*}
-Since $y_{\infty}$ is not known, the balanced splitting methods consist in adding an equilibrium vector $c_n$ at every step in order for the stationary state associated to $F$ to be an approximate stationary state for $F_1^* \coloneqq F_1+c_n$ and $F_2^*\coloneqq F_2-c_n$. The idea often consists in taking this vector of the form $\frac{1}{2}\left[\tilde{F}_1-\tilde{F}_2\right]$ where $\tilde{F}_1$ and $\tilde{F}_2$ are approximations of $F_1$ and $F_2$ computed using previous evaluations. Following this idea, R.L.Speth suggests the following scheme \cite{rebalanced_splitting} (adjustment to order one compared to the original article):
+Since $y_{\infty}$ is not known, the balanced splitting methods consist in adding an equilibrium vector $c_n$ at every step in order for the steady state associated to $F$ to be an approximate steady state for $F_1^* \coloneqq F_1+c_n$ and $F_2^*\coloneqq F_2-c_n$. The idea often consists in taking this vector of the form $\frac{1}{2}\left[\tilde{F}_1-\tilde{F}_2\right]$ where $\tilde{F}_1$ and $\tilde{F}_2$ are approximations of $F_1$ and $F_2$ computed using previous evaluations. Following this idea, Speth suggests the following scheme \cite{rebalanced_splitting} (adjustment to order one compared to the original article):
 \begin{equation}
 	\left\{
 	\begin{array}{ll}
@@ -655,7 +655,7 @@ This scheme is well-balanced since if $(y_n)_{n\in \mathbb{N}}$ converges then:
 	\end{array}
 	\right.
 \end{equation*}
-which gives $F(y_{\infty})=0$. The strength of a balanced scheme is the following: either it does not admit a stationary distribution, or it converges to the stationary states of $F$.\\
+which gives $F(y_{\infty})=0$. The strength of a balanced scheme is the following: either it does not admit a stationary distribution, or it converges to the steady states of $F$.\\
 The figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distributions for the scheme \eqref{splitting_speth} on \exOne and \exTwo. First on \exOne, we perfectly retrieve the minimum for the four choices of learning rates contrary to SGD and to unbalanced splittings (RRGD, IG, Strang). On \exTwo, the non-interpolating global minimum is favored for the four learning rates. These first examples show the interest and the efficiency of balanced splittings. 
 
 \begin{figure}[h!]
@@ -675,7 +675,7 @@ The figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distrib
 \begin{remark}
 	To finish this section, let us cite some connected works:
 	\begin{itemize}
-		\item In \cite{splitting_sgd}, the authors interpret SGD (in fact RRGD) as a Lie-Trotter splitting. As an application, the same splitting is conserved by replacing the Euler explicit scheme by a Dormand\&Prince scheme (default integrator of the Scipy library). This process tested on linear and logistic regression problems improves the performances of SGD. However, there is no mention of the essential notion of equilibrium and of stationary distribution. 
+		\item In \cite{splitting_sgd}, the authors interpret SGD (in fact RRGD) as a Lie-Trotter splitting. As an application, the same splitting is conserved by replacing the explicit Euler scheme by a Dormand\&Prince scheme (default integrator of the Scipy library). This process tested on linear and logistic regression problems improves the performances of SGD. However, there is no mention of the essential notion of equilibrium and of stationary distribution. 
 		\item For the composite problems where $\R=f+g$ with $f$ a differentiable function and $g$ a non-smooth convex function, there exists a litterature about splitting methods \cite{splitting_proximal}. At first glance, no link was developed (until recently) between these methods and splitting schemes for ODE/PDE. The recent article \cite{splitting_proximal_ode} reinterprets the forward-backward, Douglas-Rachford and ADMM methods as splitting schemes on specific ODE.   
 	\end{itemize}
 \end{remark}
@@ -686,7 +686,7 @@ The figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distrib
 Despite its benefits, the Speth splitting suffers from two drawbacks in our context:
 \begin{itemize}
 	\item when $y_{n+1}$ is computed \eqref{splitting_speth}, the evaluation of $F_1$ used in the balancing $c_n$ does not exploit the most recent value, namely $F_1(y_n)$, but rather $F_1(y_{n-1/2})$. But in the ML context, it is possible to employ the most recent evaluation because at every iteration, it is possible to evaluate the batch we want since all the batches have more or less the same computational cost. 
-	\item We want to use different learning rates for every iteration (adaptive method in the end): $\eta^1$ and $\eta^2$. It is possible to keep the balance property in this context with some modifications, for example by replacing the division by $\eta$ by $\frac{2}{\eta^1+\eta^2}$. Nevertheless, exploiting the most recent evaluation (mentioned above), this issue is settled immediately. 
+	\item We want to be able to use different learning rates for every iteration (adaptive method in the end): $\eta^1$ and $\eta^2$. It is possible to keep the balance property in this context with some modifications, for example by replacing the division by $\eta$ by $\frac{2}{\eta^1+\eta^2}$. Nevertheless, exploiting the most recent evaluation (mentioned above), this issue is settled immediately. 
 \end{itemize}
 
 \paragraph{Adjustment of the Speth splitting}
@@ -712,7 +712,7 @@ Up to a factor $\frac{1}{2}$ on the learning rate,
 	\end{array}
 	\right.
 \end{equation*}
-Both on \exOne and \exTwo, the stationary distributions of \eqref{RAG_2batch} are exactly the same as the ones for the Speth splitting, see figures \ref{IAG_ex1} and \ref{IAG_ex2}. This fact confirms empirically the balance property of this scheme.
+Both on \exOne and \exTwo, the stationary distributions of \eqref{RAG_2batch} are exactly the same as the ones for the Speth splitting, see figures \ref{IAG_ex1} and \ref{IAG_ex2}. This fact empirically confirms the balance property of this scheme.
 
 \begin{figure}[h!]
 	\centering
@@ -728,7 +728,7 @@ Both on \exOne and \exTwo, the stationary distributions of \eqref{RAG_2batch} ar
 	\label{IAG_ex2}
 \end{figure}
 
-For $m$ operators, \eqref{RAG_2batch} extends to the form:
+For $m$ operators, \eqref{RAG_2batch} can naturally be extended to the form:
 \begin{equation}
 	y_{n+i/m} = y_{n+(i-1)/m}+\eta^i g_n^i,
 	\label{RAG_scheme}
@@ -738,30 +738,27 @@ where:
 	g_n^i = \sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right),
 	\label{gni}
 \end{equation}
-for all $i \in \{1,\dots,m\}$ and $n\geq 1$. 
+for all $i \in \{1,\dots,m\}$ and $n\geq 1$. \\
 
-\begin{remark}
   \newG{A METTRE APRES REDUCTION MEMORY COST?}
-  \label{stopping}
-Something important which seems to, to our knowledge, not have been noticed in the litterature is that 
-  expression \eqref{gni} is consistent with $F=\sum_{i=1}^P F_i$ in the sense we have $\forall i\in\{1,...,m\}$ 
+Something important which seems, to our knowledge, to not have been noticed in the litterature is that 
+  expression \eqref{gni} is consistent with $F=\sum_{i=1}^P F_i$ in the sense that $\forall i\in\{1,...,m\}$ 
   \begin{equation}
     \label{stopping_criterion}
     g_n^i = F(y_n) +\mathcal{O}(\eta). 
   \end{equation}
   This typically means that $g_n^i$ can be used as such in order to define a stopping criterion for the optimizer.
   Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(y_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as $\|g_{n+1}\|/P \leq
-  \epsilon$, with $\epsilon$ prescribed by the user, and this, without resorting to a full batch estimation of $\nR$. This will be numerically verified in section \ref{num_res}. 
-\end{remark}
-
-It is possible to initialize the scheme ($n=0$) in two ways:
+  \epsilon$, with $\epsilon$ prescribed by the user, and this without resorting to a full batch estimation of $\nR$. This will be numerically verified in section \ref{num_res}. \\
+\ \\
+The initialization of the scheme ($n=0$) can be done in two ways:
 \begin{itemize}
-	\item for all $i\in \{1,\dots,m\}$:
+	\item either set for all $i\in \{1,\dots,m\}$:
 	\begin{equation*}
 		g_0^i = \sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right),
 	\end{equation*}
 	and the iterates update is the same as in the case $n\geq 1$.
-	\item We compute the full-batch vector field $F$ sequentially (sum) only at the first epoch:
+	\item Or compute the full-batch vector field $F$ sequentially (sum) only at the first epoch:
 	\begin{equation*}
 		\left\{
 		\begin{array}{ll}
@@ -806,7 +803,7 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
   In other words, the appearance of artificial minimums strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimisers
   (other $F$) and is not only restricted to SGD or RRGD. 
 
-  On another hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with Speth-Momentum, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
+  On the other hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with Speth-Momentum, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
 \begin{figure}[!h]
 	\centering
 	\rotatebox{90}{\quad \quad epoch=20}  \scalebox{0.45}{\input{chapitre5_img/speth_mom_exs.pgf}}
@@ -816,12 +813,12 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
 \end{figure}
 For the Speth-Momentum optimizer, stationarity is very close to being reached with only $20$ epochs: the supports of the obtained distributions are way tighter around the local and
 global minimums of $\R$. A faster convergence rate is consequently numerically observed.  
-  At epoch $n=2000$, for which stationarity is reached (in fact, the stopping criterion \eqref{stopping_criterion} of remark \ref{stopping} is activated at $n\approx 40 - 60 \ll 2000$ depending on the
+  At epoch $n=2000$, for which stationarity is reached (in fact, the aformentionned stopping criterion \eqref{stopping_criterion} involving $g_n^i$ is activated at $n\approx 40 - 60 \ll 2000$ depending on the
   initialization), the Speth-Momentum algorithm recovers the 
   position of the global and local minimums with a perfect accuracy. 
 
-        Note that the application of (our extension of) Speth's splitting gives a fundamentally different update of STORM (variance reduction on Momentum). 
-        The balanced splitting point of view leads to some optimizers lokking like SAG or RR-SARAH when combined to GD but builds 
+        Note that the application of our extension of Speth's splitting gives an update that is fundamentally different than STORM (variance reduction on Momentum). 
+        The balanced splitting point of view leads to some optimizers looking like SAG or RR-SARAH when combined to GD but builds 
         very different mini-batch optimisers from the ones obtained by applying a variance reduction technique. 
         The same comment can be made appears for the variance reduction versions related to Adam: see Adam$^+$ \cite{adam_variance1} for example.
 
@@ -987,8 +984,8 @@ Globally, without the balanced splitting we suggest in this paper, interpolatory
 The goal of this paper is to serve as a first step towards the extension of full-batch adaptive methods \cite{Bilel} to mini-batch algorithms.
 More precisely, the following points are tackled:
 \begin{itemize}
-	\item the interpolation hypothesis is largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new stationary states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
-	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an Euler explicit scheme. This perspective makes it possible to explain the appearance of "artificial" stationary states that are related to the unbalancing of the splitting: the stationary states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
+	\item the interpolation hypothesis is largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new steady states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
+	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an explicit Euler scheme. This perspective makes it possible to explain the appearance of "artificial" steady states that are related to the unbalancing of the splitting: the steady states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
          \item A new family of algorithm is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch
            decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping
            criterion which doesn't require to compute full batch gradients. The mini-batch optimizer IG-SARAH of the litterature is part of this family. 

@@ -740,9 +740,41 @@ where:
 \end{equation}
 for all $i \in \{1,\dots,m\}$ and $n\geq 1$. \\
 
-  \newG{A METTRE APRES REDUCTION MEMORY COST?}
+\paragraph{Reduction of the memory cost}
+~~\\
+The issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Now, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
+%The previous algorithm has been described as if all the batches were in memory. 
+In this section, we show that 
+the memory cost can easily be reduced while preserving the balanced property. 
+We suggest the following balanced splitting for $n\geq 1$:
+\begin{multline}
+	y_{n+i/m} = y_{n+(i-1)/m} \\
+	+\eta^i
+	\left\{
+	\begin{array}{ll}
+		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
+		g_{n+1} \text{ if } i=m,
+	\end{array}
+	\right.
+	\label{RAGL_splitting}
+\end{multline}
+where:
+\begin{equation*}
+	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right).
+\end{equation*}
+The scheme is initialized at $n=0$ with:
+\begin{equation*}
+	y_{n+i/m} = y_0 + \eta \mathds{1}_{i=m} g_0 \text{ with } g_0 = F(y_0),
+\end{equation*}
+for all $i \in \{1,\dots,m\}$. 
+%The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
+The scheme \eqref{RAGL_splitting} is well-balanced	since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
+The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. We are going to see that this formula can be implemented with a storage involving $3N$.
+
+\paragraph{Stopping criterion}
+~~\\
 Something important which seems, to our knowledge, to not have been noticed in the litterature is that 
-  expression \eqref{gni} is consistent with $F=\sum_{i=1}^P F_i$ in the sense that $\forall i\in\{1,...,m\}$ 
+  expression \eqref{gni} is consistent with $F=\sum_{i=1}^m F_i$ in the sense that $\forall i\in\{1,...,m\}$ 
   \begin{equation}
     \label{stopping_criterion}
     g_n^i = F(y_n) +\mathcal{O}(\eta). 
@@ -751,6 +783,9 @@ Something important which seems, to our knowledge, to not have been noticed in t
   Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(y_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as $\|g_{n+1}\|/P \leq
   \epsilon$, with $\epsilon$ prescribed by the user, and this without resorting to a full batch estimation of $\nR$. This will be numerically verified in section \ref{num_res}. \\
 \ \\
+
+\paragraph{Initialization of the algorithm}
+~~\\
 The initialization of the scheme ($n=0$) can be done in two ways:
 \begin{itemize}
 	\item either set for all $i\in \{1,\dots,m\}$:
@@ -769,10 +804,11 @@ The initialization of the scheme ($n=0$) can be done in two ways:
 	\end{equation*}
         In practice, this can be easily done by setting the learning rate to zero only at the first epoch for example. 
 \end{itemize}
-In the case $F_i=-\nR_i$, \eqref{RAG_scheme} is equivalent to IAG (SAG without random permutation). \\
-The issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Now, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
 
-\begin{remark}
+
+\paragraph{Example: application to Momentum}
+~~\\
+The simplest choice for $F_i$ is $F_i=-\nR_i$ which is equivalent to IAG (SAG without random permutation) if memory reduction is not taken into account. 
 	The splitting scheme we suggest in this paper can be applied to any differential equation $y'(t)=F(y(t))$. For example in the case of the Momentum/Heavy-Ball equation \cite{momentum_sutskever_RNN,Polyak,polyak_momentum_stability,continuous_general} a natural decomposition of the vector field is given by:
 	\begin{equation*}
 		F_i(\theta,v) = 
@@ -781,8 +817,8 @@ The issue is that the implementation of formula \eqref{RAG_scheme} requires the 
                         -{\bbetone}\frac{v}{m}+\nR_i(\theta)
 		\end{pmatrix},
 	\end{equation*}
-        where $m$ is the number of batches. 
-        Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with S-Momentum (stochastic Momentum) with $\beta_1=0.9$. 
+        where $m$ is the number of batches.\\ 
+        We suggest testing the mini-batch optimizer obtained with this choice. Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with S-Momentum (stochastic Momentum) with $\beta_1=0.9$. 
         The learning rate is chosen as $\eta=0.125$, which is larger than the most restrictive stability condition dictated by the Lipschitz constants for GD for these benchmarks:
         Momentum is indeed stabler than GD for example, at least on these benchmarks. 
         The distributions are displayed at two epochs: for epoch $n=20$, stationarity is not yet reached with S-Momentum whereas for epoch $n=2000$, it is.  
@@ -818,49 +854,21 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
   position of the global and local minimums with a perfect accuracy. 
 
         Note that the application of our extension of Speth's splitting gives an update that is fundamentally different than STORM (variance reduction on Momentum). 
-        The balanced splitting point of view leads to some optimizers looking like SAG or RR-SARAH when combined to GD but builds 
-        very different mini-batch optimisers from the ones obtained by applying a variance reduction technique. 
-        The same comment can be made appears for the variance reduction versions related to Adam: see Adam$^+$ \cite{adam_variance1} for example.
+        %The balanced splitting point of view leads to some optimizers looking like SAG or RR-SARAH when combined to GD but builds 
+        %very different mini-batch optimisers from the ones obtained by applying a variance reduction technique. 
+        We insist on the fact that any $F$ can be chosen: a whole new family of mini-batch algorithms can be constructed based on \eqref{RAG_scheme} using the
+        equation relative to RMSProp, Adam etc.
+        Once again, the variance reduction versions related to Adam, see Adam$^+$ \cite{adam_variance1}, are fundamentally different from this approach.
+        Note finally that additionnally to being independent of the choice of $F$, our methodology allows any choice of summable decomposition $F=\sum_{i=1}^m F_i$ for the
+        splitting. 
 
 
-\end{remark}
-
-\begin{remark}
-  \newG{Mettre une remarque sur le fait que p-GD ne se met pas facilement sous la forme de somme et donc ben ça s'applique pas?}
-\end{remark}
-
+\ \\
 
 In this section, we have highlighted the necessity of having resort to a balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
 points of $F$). Finally, we have suggested a balanced splitting formula which differ from the classical ones (and encompass some classical ones) %by their memory complexity and 
 depending on the particular approximation of $F$. 
 \ \\ \ \\
-
-\paragraph{Reduction of the memory cost}
-~~\\
-Then, we suggest the following balanced splitting for $n\geq 1$:
-\begin{multline}
-	y_{n+i/m} = y_{n+(i-1)/m} \\
-	+\eta^i
-	\left\{
-	\begin{array}{ll}
-		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
-		g_{n+1} \text{ if } i=m,
-	\end{array}
-	\right.
-	\label{RAGL_splitting}
-\end{multline}
-where:
-\begin{equation*}
-	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right).
-\end{equation*}
-The scheme is initialized at $n=0$ with:
-\begin{equation*}
-	y_{n+i/m} = y_0 + \eta \mathds{1}_{i=m} g_0 \text{ with } g_0 = F(y_0),
-\end{equation*}
-for all $i \in \{1,\dots,m\}$. 
-%The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
-The scheme \eqref{RAGL_splitting} is well-balanced	since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
-The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. We are going to see that this formula can be implemented with a storage involving $3N$.
 
 \section{Numerical results}
 \label{num_res}
@@ -871,7 +879,7 @@ En tout cas, ici, il faut dire qu'on applique le Speth-GD = "celui qui est connu
 
 In this section, we suggest applying the new previously described splitting combined to GD, i.e. \newG{Speth-GD $=$ IG-SARAH}\footnote{a verifier} to the 
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. The study hence numerically emphasizes that this mini-batch optimiser also
-satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} (see remark \ref{stopping}) which does not need a full batch estimation and condition 1 related to fact of
+satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). Part II of this paper will be dedicated to condition 6, namely
 adaptativeness. It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 

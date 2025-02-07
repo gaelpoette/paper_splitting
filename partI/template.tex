@@ -873,11 +873,8 @@ depending on the particular approximation of $F$.
 \section{Numerical results}
 \label{num_res}
 
-\newG{TODO: j'appelle ça Speth-GD etc. mais c'est IAG ou SAG...  ou un autre... A vérifier... Il suffira de faire une recherche sur "Speth-GD" et changer.
-En tout cas, ici, il faut dire qu'on applique le Speth-GD = "celui qui est connu" et on met en évidence qu'il a tous les bons sacrements sauf l'adaptatif... Objet de ka part II }
 
-
-In this section, we suggest applying the new previously described splitting combined to GD, i.e. \newG{Speth-GD $=$ IG-SARAH}\footnote{a verifier} to the 
+In this section, we suggest applying the new previously described splitting combined to GD, i.e. {Speth-GD} to the 
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. The study hence numerically emphasizes that this mini-batch optimiser also
 satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). Part II of this paper will be dedicated to condition 6, namely
@@ -899,13 +896,6 @@ adaptativeness. It will be applied to Speth-GD but, once again, the adaptive str
 	\label{SPETH_exs}
 \end{figure}
 
-
-The extension of Speth's splitting we suggest in this first part still needs the tuning of the hyperparameters of the deterministic optimiser it is based on: for Speth-GD (i.e.
-$F_i(\theta)=-\nR_i(\theta)$), the only hyperparameter is the
-learning rate.  But Speth-Momentum or Speth-Adam would need to tune other hyperparameters (classically denoted by $\beta_1,\beta_2, \epsilon_a$ in the litterature, see
-\cite{Bilel_thesis}). 
-The purpose of this paper being putting forward the priority to have resort to a well-balanced splitting, we suggest focusing on mini-batch versions of GD as they only have one
-hyperparameter to tune, namely the learning rate. \\
 
 \begin{figure}[h!]
 	\centering
@@ -984,19 +974,25 @@ On \exThree, the local and global minimums are now within the support of the dis
 For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from being captured even if an improvement is noticeable. 
 Globally, without the balanced splitting we suggest in this paper, interpolatory minimums are favored, independently of their performances.  
 
+\ \\
+In this numerical study, the learning rate being constant, it had to be tuned to produce stable trajectories. 
+It is the only hyperparameter to tune because we considered Speth-GD here. 
+But other variations such as Speth-Momentum or Speth-Adam for example would need to tune other hyperparameters (classically denoted by $\beta_1,\beta_2, \epsilon_a$ in the litterature, see
+\cite{Bilel_thesis}). Part II will be focused to overcoming this tedious tuning phase.  
+
 
 
 \section{Conclusion}
 \label{section_conclusion}
 
-The goal of this paper is to serve as a first step towards the extension of full-batch adaptive methods \cite{Bilel} to mini-batch algorithms.
+The goal of this paper is to serve as a first step towards an extension of full-batch adaptive methods \cite{Bilel} to mini-batch algorithms which ensures well-balancedness.
 More precisely, the following points are tackled:
 \begin{itemize}
 	\item the interpolation hypothesis is largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new steady states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
 	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an explicit Euler scheme. This perspective makes it possible to explain the appearance of "artificial" steady states that are related to the unbalancing of the splitting: the steady states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
          \item A new family of algorithm is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch
            decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping
-           criterion which doesn't require to compute full batch gradients. The mini-batch optimizer IG-SARAH of the litterature is part of this family. 
+           criterion which doesn't require to compute full batch gradients. 
 \end{itemize}
 
 The notion of \textbf{balanced splitting is then crucial} to get an appropriate behavior with constant learning rate and {\em a fortiori} with adaptive learning rate. Improving the proposed algorithms to include adaptative learning rate selection is therefore the natural next step to obtain efficient algorithms, able to produce comparable results on machine-learning test than the full-batch counterpart. This is the subject of part II.

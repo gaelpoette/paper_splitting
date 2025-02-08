@@ -215,21 +215,15 @@ grestore
 \maketitle
 
 \begin{abstract}
-  TODO: A MODIFIER!
-	Mini batch optimizers are at the center of neural network training. 
-        These are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
-        In practice, these optimizers need an extensive tuning of the hyperparameters (learning rate, batch size,...) to converge and exhibit expected behaviours. %give appropriate performances. 
-        In theory, many stochastic algorithms used in this setting rely on the interpolation condition for convergence. 
-        This condition is closely related to the overparametrization of the network. 
-        In this paper, we investigate numerically the non-interpolating case and highlight some new undesirable behaviors for the stationary distributions of the most popular stochastic optimizers. 
-        We exploit the notion of balanced splitting to explain such behavior and to build new mini-batch optimizers which work without tuning and without interpolation assumption. 
-        These new algorithms are rigorously tested on a set of analytic and Machine Learning benchmarks where they outperform the famous Adam algorithm.
-\keywords{Non-convex optimization \and Mini-batch algorithms \and Splitting schemes}
-\subclass{65K10 \and 65L05 \and 60H10}
-\end{abstract}
-
-\section{Introduction}
-\label{intro}
+%  TODO: A MODIFIER!
+%	Mini batch optimizers are at the center of neural network training. 
+%        These are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
+%        In practice, these optimizers need an extensive tuning of the hyperparameters (learning rate, batch size,...) to converge and exhibit expected behaviours. %give appropriate performances. 
+%        In theory, many stochastic algorithms used in this setting rely on the interpolation condition for convergence. 
+%        This condition is closely related to the overparametrization of the network. 
+%        In this paper, we investigate numerically the non-interpolating case and highlight some new undesirable behaviors for the stationary distributions of the most popular stochastic optimizers. 
+%        We exploit the notion of balanced splitting to explain such behavior and to build new mini-batch optimizers which work without tuning and without interpolation assumption. 
+%        These new algorithms are rigorously tested on a set of analytic and Machine Learning benchmarks where they outperform the famous Adam algorithm.
 
 A faire:
 
@@ -244,111 +238,104 @@ A faire:
  5) rajouter un paragraphe pour rappeler les notations (et avoir les équations référencées)
 
  6) Lisser les rappels aux sections jusqu'à 4) (qui sont dans la première partie).
- 
-%Deep Learning tasks \cite{image_recognition,language_recognition,plasma} imply the resolution of highly non-convex optimization problems \cite{DL_opti}:
-%\begin{equation*}
-%\displaystyle{\min_{\theta \in \Rb^N}} \R(\theta).
-%\end{equation*}
-%This objective function has the particularity to involve a sum-structure on all the data of the problem:
-%\begin{equation*}
-%	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)},
-%\end{equation*}
-%where $(x_p,y_p)_{1\leq p \leq P}$ are the data of the problems, $u(\theta,x)$ a parametrized model (for example a neural network) and $\loss$ a loss function measuring the distance between predictions $u(\theta,x)$ and real data. In practice, the memory complexity is proportional to the number of data $P$ and $P$ is big. Therefore, the memory cost exceeds the RAM storage. To overcome this difficulty, the data are splitted into $m$ batches of size $b$ (except the last batch of size $P-(m-1)b$):
-%\begin{equation}
-%	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)} = \sum_{i=1}^m \R_i(\theta),
-%	\label{pb_somme_fini}
-%\end{equation}
-%where each function $\R_i$ is computed on $b$ data and not $P \gg b$. Then at every iteration, the algorithm has only access to one function $\R_i$. This problem is a particular case of stochastic optimization:
-%\begin{equation}
-%	\R(\theta) = \mean \left[\R_{\zeta}(\theta)\right],
-%	\label{opti_sto}
-%\end{equation}  
-%where $\zeta$ is a probability law. Although we study mini-batch optimization for memory consumption issue, some authors are interested in this for other reasons: it is commonly accepted that stochastic noise introduced by the batches helps escaping saddle points \cite{sgd_escape1,sgd_escape2,sgd_escape3,sgd_escape4} or achieving best generalization error \cite{sgd_gen1,sgd_gen2,sgd_gen3,sgd_gen4}. Many optimizers have been suggested these recent years to find critical points for the finite sum problem \eqref{pb_somme_fini}. In the following, we present the most important family of mini-batch optimizers.
-%
-%\paragraph{Stochastic gradient descent (SGD)}
-%~~\\
-%The most studied optimizer to minimize \eqref{pb_somme_fini} is the stochastic gradient descent (SGD), introduced in \cite{SGD_Robins}. SGD consists in applying a gradient descent to each function $\R_i$, where $i$ is uniformly sampled in $\{1,\dots,m\}$:
-%\begin{equation}
-%	\theta_{n+1} = \theta_n-\eta \nR_i(\theta_n).
-%	\label{SGD}
-%\end{equation}
-%The convergence of SGD was studied under several assumptions:
-%bounded variance \cite{sgd_general_diminishing_lr,Bertsekas_basis,sgd_dynamical_basis,bertsekas_theorem,SGD_upper_bound}, relaxed strong growth condition \cite{RG_mean,RG_almost_sure}, gradient confusion \cite{gradient_confusion}, sure-smoothness \cite{sure_smoothness_sgd} and expected smoothness \cite{ES_sgd,sgd_descent_condition,ES_sgd,sgd_global_KL}. In all these studies, learning rates need to decrease as
-%\begin{equation}
-%	\sum_{n\geq 0} \eta_n = +\infty \text{ , } \sum_{n\geq 0} \eta_n^{2}<+\infty
-%	\label{diminishing_step}
-%\end{equation}
-%to ensure convergence. In practice, SGD is used with constant learning rate. However, the authors of \cite{sgd_prec} showed that even under bounded variance assumption, SGD with any constant learning rate does not converge to a critical point. To expect such a convergence, assumptions like Maximal Strong Growth Condition \cite{MSG_strong_convex,MSG_IG} or Expected Strong Growth Condition \cite{ESG_upper_bound} are necessary. All these hypotheses imply the famous interpolation condition:
-%\begin{equation}
-%  \nR(\theta)=0 \implies \forall i\in\{1,\dots,m\}, \nR_i(\theta)=0.
-%	\label{interpolation}
-%\end{equation}
-%This assumption is very strong. For example, concerning neural networks, this assumption is related to the surparametrization ($N\gg P$) of the network \cite{ESG_upper_bound,ESG_IG}. 
-%In a sense, this work aims at helping answering the question: is it possible to build efficient small networks using SGD?
-%Accurate shallow networks certainly present interesting properties in a scientific ML context \cite{mettre_le_paquet_en_refs_ici,..,..,..,..,..,..}. 
-%%Then it is not possible to build efficient small networks using SGD. 
-%Hence, one of the main concern of this work will be to overcome the interpolation condition \eqref{interpolation}. Note that stochastic inertial algorithms and Adam-like optimizers suffer from the same limitation \cite{sgd_prec,adam1,adam2,zou_rms,rms_not_bounded}.
-%
-%\paragraph{Random reshuffle gradient descent (RRGD)}
-%~~\\
-%In practice, the reshuffle versions are prefered to classical ones \cite{RR_use1,RR_use2,RG_mean}. For example, the version of SGD with random reshuffling is called Random Reshuflle GD (RRGD) or SGD without replacement. It consists, at the beginning of every epoch, in sampling a random permutation and then to apply the $m$ updates \eqref{SGD} in the order given by the permutation. Empirically, it seems that RRGD converges faster than SGD and gives better performances \cite{RR_use1,RR_use_superior}. Many works \cite{RR_outperforms_quadratics,RR_use3,RR_outperforms_convex,RR_small_epochs} try to explain this superiority theoretically, especially for well-conditionned convex functions.
-%
-%\paragraph{Variance reduction}  
-%~~\\
-%Despite being not used in practice, variance reduction optimizers have been extensively studied by ML researchers this last decade, since they can converge with constant learning rate. In broad outline, the aim is to conceive methods that ensure that the variance does not vanish asymptotically:
-%\begin{equation*}
-%	\displaystyle{\sum_{i=1}^m}\left[\|\nR(\theta_n)/m-\nR_i(\theta_n)\|^2\right] \to 0.
-%\end{equation*}
-%Now, we will present some of these methods describing their principal features:
-%\begin{itemize}
-%	\item historically, one of the first method of this kind introduced in the strongly convex case is SAG: Stochastic Average Gradient. The goal is to combine the small computational cost of SGD with the linear convergence of GD on strongly convex functions. The iterations are of the form:
-%	\begin{equation*}
-%		\theta_{n+1}=\theta_n-\eta \sum_{i=1}^m y_i^n
-%	\end{equation*}
-%	where at each iteration, one batch $i_n$ is sampled and the variables $y_i^n$ are updated according to:
-%	\begin{equation*}
-%		y_i^n =
-%		\left\{
-%		\begin{array}{ll}
-%			\nR_i(\theta_n) \text{ if } i=i_n, \\
-%			y_i^{n-1} \text{ else}.
-%		\end{array}
-%		\right.
-%	\end{equation*}
-%It is interesting to see that this algorithm is a random version of a former deterministic optimizer called IAG \cite{IAG_first}: Incremental Aggregated Gradient Descent. We will come back to this algorithm later. This optimizer needs to store the $m$ last gradients ($m$ is the number of batches). Then the memory cost involves the product $mN$ that may be big.
-%\item From now on, $i_n$ denotes a uniform sample in $\{1,\dots,m\}$ at iteration $n$. In order to reduce the memory cost, the authors of \cite{SVRG_first} suggest SVRG: Stochastic Variance Reduced Gradient which is the basis of many other methods. Let us imagine that we keep a weight $\tilde{\theta}$ every $\tilde{m}$ iterations. The SVRG update is:
-%\begin{equation*}
-%	\theta_{n+1} = \theta_n -\eta \left[\nR_{i_n}(\theta_n)-\nR_{i_n}(\tilde{\theta})+\nR(\tilde{\theta})\right].
-%\end{equation*}
-%Let us note two important facts: the introduction of a new hyperparameter $\tilde{m}$ representing the frequence of full-batch gradient evaluation and the computation of such a
-%    gradient. This is typical of many variance reduction methods, but it is an issue in our case because we want to avoid evaluation of $\R$ or $\nR$ because of the storage
-%    requirement. Based on the same ideas, we could mention SAGA \cite{SAGA_first} or SNVRG \cite{SNVRG_first}. For bounded variance noise, this algorithm admits a complexity that
-%    may be "better" than GD for large $b$. 
-%\item There are also methods called recursive variance reduction gradients . The prototype of these methods is SARAH \cite{SARAH_first}. The idea is to obtain recursively an estimation $g_n$ of $\nR$ without storing previous gradients:
-%\begin{equation*}
-%	g_n = \nR_{i_n}(\theta_n)-\nR_{i_n}(\theta_{n-1})+g_{n-1}
-%\end{equation*}
-%where every $\tilde{m}$ iterations, the estimation $g_n$ is the full batch gradient $\nR$. In the same family we find GEOM-SARAH \cite{GEOM_SARAH}, ZERO-SARAH (no computation of $\nR$ but introduction of a new hyperparameter and similar storage as SAG) \cite{ZERO_SARAH}, STORM (add an inertial hyperparameter $\beta$ to tune) \cite{STORM_first}, SPIDER (variance reduction on normalized gradient) \cite{SPIDER_first}, SSRGD (mix between SARAH and perturbed GD in order to escape more efficiently to saddle points) \cite{SSRGD}, PAGE (alternating between SARAH and SGD with some probability) \cite{PAGE}, Katyusha (acceleration on strongly convex functions) \cite{Katyusha}. 
-%\item Let us now present variance reduction methods that do not need computation of $\nR$, tuning of a hyperparameter like $\tilde{m}$ or $\beta$, or the storage of $m$ gradients. The first method that fits into this setting is SCSG \cite{SCSG}. The update looks like the one for SARAH (we do not substract the evaluation of the last iterate but of the first of each epoch) by replacing the full-batch gradient by a stochastic gradient. Coupling variance reduction with random reshuffling, the authors of \cite{RR_SARAH} suggest very recently RR-SARAH: its memory cost involves $3N$ and not $mN$ and it does not need computation of the full-batch gradient $\nR$. To the best of our knowledge, it is the only optimizer that enjoys these properties. However, the analysis is limited to strongly convex functions under strong assumption on the noise. Besides, the numerical experiences are limited to the logistic regression (for only one initialization). 
-%\end{itemize}
 
-On refait pas l'etat de l'art sur les minibatch, see part I, but blabla 
-\paragraph{Objectives}
-~~\\
-This recap of the mini-batch litterature encourages us to require the six following properties in the conception of a mini-batch optimizer, suitable for any networks (even for under-parametrized model/network):
+\keywords{Non-convex optimization \and Mini-batch algorithms \and Splitting schemes}
+\subclass{65K10 \and 65L05 \and 60H10}
+\end{abstract}
+
+\section{Introduction}
+\label{intro}
+
+ 
+This paper is the second part of a work dedicated to studying a new family of mini-batch optimizers. 
+Mini-batch optimization is very popular in order to solve Deep Learning tasks \cite{image_recognition,language_recognition,plasma}. 
+It consists in the resolution of highly non-convex optimization problems \cite{DL_opti}:
+\begin{equation*}
+\displaystyle{\min_{\theta \in \Rb^N}} \R(\theta),
+\end{equation*}
+in which $\R$ has a particular sum-structure on all the labels of the problem:
+\begin{equation*}
+	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)},
+\end{equation*}
+where $(x_p,y_p)_{1\leq p \leq P}$ are the data of the problems, $u(\theta,x)$ a parametrized model (for example a neural network) and $\loss$ a loss function measuring the distance between predictions $u(\theta,x)$ and real data. 
+%In practice, the memory complexity is proportional to the number of data $P$ and $P$ is big. Therefore, the memory cost exceeds the RAM storage. 
+To overcome memory complexity, the cost function is often split into $m$ batches of size $b$:
+\begin{equation}
+	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)} = \sum_{i=1}^m \R_i(\theta),
+	\label{pb_somme_fini}
+\end{equation}
+where each function $\R_i$ is computed on $b$ data and not $P \gg b$. 
+Then at every iteration, the algorithm has only access to one function $\R_i$.
+A thorough review of the existing optimizers allowing to minimize $\R$ in a mini-batch context is provided in part I of this paper. 
+In part I, a new family of min-batch optimizers has been put forward. 
+The construction of this new family has been motivated by the will to alleviate a strong hypothesis, often made in the litterature, 
+on the batch distribution, namely the {\em interpolation assumption}, see \cite{ESG_upper_bound,ESG_IG} for example but also  \cite{sgd_prec,adam1,adam2,zou_rms,rms_not_bounded}
+for Adam-like algorithms.
+This hypothesis is closely related to having an overparametrized network, hence a deep one, whereas 
+in our application of interest, mainly motivated by physical problems \cite{FV_scheme,reentry,acc_newt,FRANCK,plasma,KluthRipoll}, shallow and accurate networks are necessary to
+become competitive.\\
+In part I, the authors noticed an analogy between being able to deal with non-interpolatory batches $\R_i$ and operator splitting between non-commutative operators \cite{rebalanced_splitting}. 
+Based on the work of Speth \cite{rebalanced_splitting}, who mainly worked on balancing stiff convection-diffusion operators, a new family of mini-batch optimizers has been
+presented. 
+In a nutshell, assume that the update of a full-batch optimizer is given by
+\begin{equation}
+  \label{fb_opt}
+        y_{n+1} = y_{n}+\eta F(y_n),
+\end{equation}
+where $\eta$ is the learning rate and $F$ is the flow: for Gradient Descent (GD), $y=\theta$ and $F(y)=-\nR(\theta)$, for Momentum, $y=(\theta,v)^t$ and $F(y)=(-v, -\bbetone v +
+\nR(\theta))^t$. All classical optimizers can be put into the previous expression \eqref{fb_opt}.  
+The new mini-batch optimizer family based on an extension of Speth's well-balanced splitting
+can then be summed-up asthe following update for batch $i\in\{1,..,m\}$ of epoch $n\geq 1$:
+\begin{equation}
+  \begin{array}{c}
+	y_{n+i/m} = y_{n+(i-1)/m}+\eta^i g_n^i,\\
+	g_n^i = \sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right).
+  \end{array}
+	\label{RAG_scheme}
+\end{equation}
+As above, the mini-batch optimizer has a memory complexity of $N\times m$ since the gradients of the bathes of the previous epoch need to be stored in order to be removed from,
+what we will call, the aggregator $g_n^i$. A reduction of memory cost can be made, going from $m\times N$ to $3 \times N$, by applying
+\begin{multline}
+	y_{n+i/m} = y_{n+(i-1)/m} \\
+	+\eta^i
+	\left\{
+	\begin{array}{ll}
+		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
+		g_{n+1} \text{ if } i=m,\\
+                \text{ with} 
+	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right),
+	\end{array}
+	\right.
+	\label{RAGL_splitting}
+\end{multline}
+for all $i \in \{1,\dots,m\}$. The previous algorithm with reduced memory cost remains balanced in the sense it keeps the good properties of mini-batch update \eqref{RAG_scheme}
+with respect to the non-interpolatory condition. 
+For $F=-\nR$, the mini-batch update is close to the one of algorithm RR-SARAH \cite{RR_SARAH}.
+
+All in all, in part I of this paper, it has been numerically emphasized on analytical one dimensional benchmarks that the new family of mini-batch optimizers can efficiently
 \begin{enumerate}
-	\item we want to \textbf{avoid assumptions on the batch distribution}. 
+	\item {avoid assumptions on the batch distribution}. 
           %Firstly, the bounded variance hypothesis is not reasonable 
           %since it is not even satisfied by a linear regression. Moreover, the major part of stochastic optimizers need interpolation condition (then over-parametrized models) to be used with constant learning rate. At the best of our knowledge, the only optimizers that get rid of these conditions are IAG and DIAG \cite{DIAG}.
-	\item It is essential that the optimizers could achieve an arbitrary precision (concerning the gradient) without requiring decreasing time steps. 
+	\item achieve an arbitrary precision (concerning the gradient) without requiring too drastic decreasing time steps. 
           %This is only verified by variance reduction methods. 
-	\item The algorithms can not use the full-batch gradient, at any stage, due to storage requirement. 
+	\item The algorithms never use the full-batch gradient, at any stage, due to storage requirement. 
           %The ones that fit into this category are: SGD, RRGD, IG, IAG, SAG, ZERO-SARAH, STORM, SCSG et RR-SARAH.
-	\item If possible, we do not want to store $m$ gradients. 
+	\item The reduced memory version do not store $m$ gradients. 
           %mFor example, the optimizers that do not need such a storage are:  SGD, RRGD, IG, SVRG, SNVRG, SPIDER, SARAH, SSRGD, PAGE, SCSG et RR-SARAH.
-	\item we absolutely need a \textbf{stopping criterion} that ensures that the full-batch gradient is smaller than a fixed arbitrary precision. 
+	\item And all the new algorithms of the family come with a \textbf{stopping criterion} that ensures that the full-batch gradient is smaller than a fixed arbitrary
+          precision, without explicitly computing it: indeed, in part I, has been noticed the fact that the aggregators in \eqref{RAG_scheme} or \eqref{RAGL_splitting} are all
+          consistent approximations of $F=\sum_{i=1}^m F_i$ as 
+$\forall i\in\{1,...,m\}$ 
+  \begin{equation}
+    \label{stopping_criterion}
+    g_n^i = F(y_n) +\mathcal{O}(\eta). 
+  \end{equation}
+  This typically means that $g_n^i$ can be used as such in order to define a stopping criterion for the optimizer.
+  Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(y_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as $\|g_{n+1}\|/P \leq
+  \epsilon$, with $\epsilon$ prescribed by the user, and this without resorting to a full batch estimation of $\nR$. This will be numerically verified in section \ref{num_res}. 
           %All the mentionned optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge). 
-	\item We finally want an \textbf{adaptive time step method} since the main goal of this paper is to avoid tuning hyperparameters. In this case, all the methods that do not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. 
+	\item But... finally want an \textbf{adaptive time step method} since the main goal of this paper is to avoid tuning hyperparameters. In this case, all the methods that do not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. 
 
 \end{enumerate}
 Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented). Therefore the goal of this paper is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies all these criteria}. This is a crucial step in order to develop smaller machine learning models. 

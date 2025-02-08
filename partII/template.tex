@@ -302,7 +302,7 @@ what we will call, the aggregator $g_n^i$. A reduction of memory cost can be mad
 	\begin{array}{ll}
 		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
 		g_{n+1} \text{ if } i=m,\\
-                \text{ with} 
+                \text{ with } 
 	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right),
 	\end{array}
 	\right.
@@ -321,7 +321,7 @@ All in all, in part I of this paper, it has been numerically emphasized on analy
           %This is only verified by variance reduction methods. 
 	\item The algorithms never use the full-batch gradient, at any stage, due to storage requirement. 
           %The ones that fit into this category are: SGD, RRGD, IG, IAG, SAG, ZERO-SARAH, STORM, SCSG et RR-SARAH.
-	\item The reduced memory version do not store $m$ gradients. 
+        \item The reduced memory version do not store $m$ gradients (only $3$). 
           %mFor example, the optimizers that do not need such a storage are:  SGD, RRGD, IG, SVRG, SNVRG, SPIDER, SARAH, SSRGD, PAGE, SCSG et RR-SARAH.
 	\item And all the new algorithms of the family come with a \textbf{stopping criterion} that ensures that the full-batch gradient is smaller than a fixed arbitrary
           precision, without explicitly computing it: indeed, in part I, has been noticed the fact that the aggregators in \eqref{RAG_scheme} or \eqref{RAGL_splitting} are all
@@ -331,17 +331,27 @@ $\forall i\in\{1,...,m\}$
     \label{stopping_criterion}
     g_n^i = F(y_n) +\mathcal{O}(\eta). 
   \end{equation}
-  This typically means that $g_n^i$ can be used as such in order to define a stopping criterion for the optimizer.
-  Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(y_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as $\|g_{n+1}\|/P \leq
-  \epsilon$, with $\epsilon$ prescribed by the user, and this without resorting to a full batch estimation of $\nR$. This will be numerically verified in section \ref{num_res}. 
+  This typically means that $g_n^i$ can be used as such in order to define a stopping criterion of the form $\|g_{n+1}\|/P \leq
+  \epsilon$, with $\epsilon$ prescribed by the user. 
           %All the mentionned optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge). 
-	\item But... finally want an \textbf{adaptive time step method} since the main goal of this paper is to avoid tuning hyperparameters. In this case, all the methods that do not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. 
-
+	\item But the well-balanced optimizers of part I still need the tedious tuning of the learning rate. 
 \end{enumerate}
-Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented). Therefore the goal of this paper is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies all these criteria}. This is a crucial step in order to develop smaller machine learning models. 
+Building an adaptative strategy on top of the well-balanced mini-batch
+          optimizers of part I is the purpose of this second part. 
+
+\paragraph{Organization of the paper}
+~~\\
+The paper is organised as follows: in section \ref{adapt}, we review of adaptive learning rate strategies
+is proposed. 
+In section \ref{section_optimizers}, the adaptive learning rate strategy we suggest is presented: it is based on several linesearches allowing to both tune the time step for the
+current batchan and estimate its local Lipschitz
+constant to combine them into an original well-balanced adaptive algorithm. 
+In section \ref{section_results}, the newly developped algorithms are tested on analytical benchmarks and on classical machine learning tasks. They are compared with
+          RRAdam (Random Reshuffle Adam), which seems to be the favorite optimizer of the practitioners.   
 
 
-\paragraph{Adaptive time steps}
+\section{Review on adaptive learning rate strategies}
+\label{adapt}
 ~~\\
 So far, all the mini-batch optimizers mentioned above use decreasing or constant time step, so tuning is generally necessary to make the methods converge. In fact, there are very few works about adaptive learning rate (time step) mini-batch optimizers (algorithms that do not need tuning):
 \begin{itemize}
@@ -355,20 +365,6 @@ So far, all the mini-batch optimizers mentioned above use decreasing or constant
           trust-region method with adaptive $b$, which is not conceivable for the same reasons as in the previous point. %Armijo. 
 	\item Other works can be mentionned especially for varying batch sizes \cite{adaptive_sampling,adaptive_batch,sgd_lauched}. There are also algorithms called CMA \cite{CMA,CMA_Light} but they require computation of $\R$ at every epoch.
 \end{itemize} 
-
-\paragraph{Organization of the paper}
-~~\\
-To reach such a construction, the paper is organized as follows:
-\begin{itemize}
-	\item in section \ref{section_stationary}, the stationary distribution of SGD and RRGD (with constant learning rate) is investigated empirically on analytic examples.
-          Indeed, it is necessary that SGD and RRGD recover the critical points of $\R$ in the long run, and not the ones of the $\R_i$. To do that, we build new benchmarks (in one
-          dimension) to discuss the negation of the interpolation assumption. Undesirable behaviors (which are, to the best of our knowledge, not documented in the litterature) are identified. 
-	\item An interpretation of RRGD as a specific splitting of operators is suggested in section \ref{section_splitting_schemes}. This enables to relate some "strange" stationary distributions to a disequilibrium of the splitting. 
-	\item The construction of a balanced splitting gives birth to a first optimizer in section \ref{section_optimizers}. But it requires the storage of $m$ gradients. A new
-          splitting formula makes it possible to overcome this limitation and to build the first optimizer satisfying the six aformentioned criteria.
-	\item In section \ref{section_results}, the two newly developped methods are tested on analytical benchmarks and on classical machine learning tasks. They are compared with
-          RRAdam (Random Reshuffle Adam), which seems to be the favorite optimizer of the practitioners.   
-\end{itemize}
 
 
 \section{Adaptive optimizers}

@@ -378,8 +378,8 @@ adaptative in the case $F_i=-\nR_i$, drawing inspiration from some deterministic
 For the sake of conciseness, the (non adaptative) well-balanced mini-batch GD optimizer will be called Speth-GD. 
 To ease the reading, the complete presentation of some algorithms is sent back to appendix \ref{annexe_algo}, especially the backtrackings, the initializations, the RAGL prototype and RAGL.
 We insist on the fact that all the next material could be applied to any $F$ associated to a Lyapunov function $V$ (in the case $F\neq-\nR$, $\R$ in the Armijo rule must be
-replaced by a Lyapunov function relative to $F$, see \cite{Lyap_Theory_Bilel,Bilel_thesis,bakharat,..,..}). But the advantage of focusing on a well-balanced adaptative mini-batch version of GD is that
-the only hyperparameter to tune is the learning rate (whereas Momentum, RMSProp, Adam etc. also need the tuning of several other coefficients, see \cite{fdqsfq}). 
+replaced by a Lyapunov function relative to $F$, see \cite{Lyap_Theory_Bilel,Bilel_thesis}). But the advantage of focusing on a well-balanced adaptative mini-batch version of GD is that
+the only hyperparameter to tune is the learning rate (whereas Momentum, RMSProp, Adam etc. also need the tuning of several other coefficients, see \cite{Bilel_thesis}). 
 
 \subsection{The backtrackings}
 Firstly, let us begin by describing the backtrackings necessary to evaluate some learning rates which ensure stability. 

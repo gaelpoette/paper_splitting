@@ -612,9 +612,25 @@ We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version 
 	\end{algorithmic}
 \end{algorithm} 
 
+The previously described algorithm is consequently adaptive and relies on updating the weights at each batches according to a well-balanced aggregator. 
+But the memory complexity remains high in the sense that the aggregator needs the storage of $m$ gradients of size $N$, i.e. of the size of $y$. In section \ref{section_results},
+we will see that the algorithm is very efficient in practice. Due to its characteristics, it will be particularly adapted in the case in which the data can not fit into memory
+but the architecture can 
+
+\newG{ICI, J'AIMERAIS BIEN UNE BELLE PHRASE QUI MONTRE QUE C'EST PAS SI  GRAVE: SI ON A BEOSIN DE LA MEMOIRE POUR L'ARCHI ET LES M GRADIENTS, PAS GRAVE, ON MET MOINS EN MÉMOIRE ET
+L'ALGO ENCAISSE BIEN LES DESEQUILIBRE DE BATCHS. Mais au cas ou blabla... }
+
+
 \subsection{\newG{The RAGL-prototype optimizer: {\it Rebalanced Aggregated Gradient Light prototype}}}
 \label{RAGL_proto}
+
+As explained in the previous section, we now would like to reduce the memory cost the previous adaptive well-balanced mini-batch optimizer. 
+
+The procedure used for optimizer RR-SARAH is applicable to our problem...
 \newG{ICI, IL FAUT EXPLIQUER POURQUOI IL ETS PAS ADAPTÉ AU PB STIFF...}
+
+
+
 \subsection{The RAGL optimizer: {\it Rebalanced Aggregated Gradient Light}}
 \label{RAGL}
 

@@ -2,8 +2,10 @@
 	\caption{RAG}
 	\label{algo_RAG}
 	\begin{algorithmic}[1]
-                \REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
-                \STATE $\theta_0 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$
+		%\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_2=1000$, $\eta_{init}=0.1$ 
+                \REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, \newG{$f_1=30$,} $f_2=1000$, $\eta_{init}=0.1$ 
+		%\STATE  $g \leftarrow 0$, $R \leftarrow 0$
+                \STATE \newG{$\theta_0 \leftarrow \theta$,} $g \leftarrow 0$, $R \leftarrow 0$
 		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 2m-1$
 		\STATE $gTab$, $RTab$, $dTab$ (initialized at 0) and $LTab$ arrays of size $m$
 		\STATE Init\_RAG ($\theta$, $\eta$, $g$, $R$, $gTab$, $RTab$, $LTab$, $\eta_{init}$, $\epsilon$)

@@ -560,63 +560,66 @@ We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version 
 	\end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}[h!]
-	\caption{RAG}
-	\label{algo_RAG}
-	\begin{algorithmic}[1]
-		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_2=1000$, $\eta_{init}=0.1$ 
-		\STATE $g \leftarrow 0$, $R \leftarrow 0$
-		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 2m-1$
-		\STATE $gTab$, $RTab$, $dTab$ (initialized at 0) and $LTab$ arrays of size $m$
-		\STATE Init\_RAG ($\theta$, $\eta$, $g$, $R$, $gTab$, $RTab$, $LTab$, $\eta_{init}$, $\epsilon$)
-		
-		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
-		\STATE $R_0 \leftarrow R$
-		
-		\FOR{i=1,...,m}
-		
-		\STATE $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
-		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
-		\STATE $g\leftarrow g-gTab[i]$, $g \leftarrow g+g_i$, $gTab[i] \leftarrow g_i$
-		
-		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$
-		\STATE $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$)
-		\STATE $i_{max} \leftarrow \argmax(LTab)$
-		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
-		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), \STATE $\eta \leftarrow \max(\eta_1,\eta_2)$
-		\ELSE
-		\STATE $\eta \leftarrow \eta_1$
-		\ENDIF
-		
-		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
-		\STATE $LTab[i] \leftarrow 0$
-		\ELSE
-		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
-		\ENDIF
-		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
-		
-		\IF{$L<\epsilon_m$}
-		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
-		\ELSE
-		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
-		\IF{$op==2m-1$}
-		\STATE $\eta \leftarrow \frac{2}{op \times L}$
-		\ELSE
-		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
-		\ENDIF
-		\ENDIF
-		
-		\STATE $\theta \leftarrow \theta - \eta g$
-		\STATE Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$)
-		
-		\STATE Stopping if $\|g\|/P<\epsilon$ and $d/P<\epsilon$
-		
-		\ENDFOR
-		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $2m-1$)
-		\ENDWHILE
-		\RETURN $\theta$
-	\end{algorithmic}
-\end{algorithm} 
+\input{ALGO/RAG}
+%\begin{algorithm}[h!]
+%  \caption{RAG \newG{(en magenta: les trucs qui semblent manquer par rapport aux autres)}}
+%	\label{algo_RAG}
+%	\begin{algorithmic}[1]
+%		%\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_2=1000$, $\eta_{init}=0.1$ 
+%                \REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, \newG{$f_1=30$,} $f_2=1000$, $\eta_{init}=0.1$ 
+%		%\STATE  $g \leftarrow 0$, $R \leftarrow 0$
+%                \STATE \newG{$\theta_0 \leftarrow \theta$,} $g \leftarrow 0$, $R \leftarrow 0$
+%		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 2m-1$
+%		\STATE $gTab$, $RTab$, $dTab$ (initialized at 0) and $LTab$ arrays of size $m$
+%		\STATE Init\_RAG ($\theta$, $\eta$, $g$, $R$, $gTab$, $RTab$, $LTab$, $\eta_{init}$, $\epsilon$)
+%		
+%		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
+%		\STATE $R_0 \leftarrow R$
+%		
+%		\FOR{i=1,...,m}
+%		
+%		\STATE $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
+%		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
+%		\STATE $g\leftarrow g-gTab[i]$, $g \leftarrow g+g_i$, $gTab[i] \leftarrow g_i$
+%		
+%		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$
+%		\STATE $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$)
+%		\STATE $i_{max} \leftarrow \argmax(LTab)$
+%		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
+%		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), \STATE $\eta \leftarrow \max(\eta_1,\eta_2)$
+%		\ELSE
+%		\STATE $\eta \leftarrow \eta_1$
+%		\ENDIF
+%		
+%		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
+%		\STATE $LTab[i] \leftarrow 0$
+%		\ELSE
+%		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
+%		\ENDIF
+%		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
+%		
+%		\IF{$L<\epsilon_m$}
+%		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
+%		\ELSE
+%		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
+%		\IF{$op==2m-1$}
+%		\STATE $\eta \leftarrow \frac{2}{op \times L}$
+%		\ELSE
+%		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
+%		\ENDIF
+%		\ENDIF
+%		
+%		\STATE $\theta \leftarrow \theta - \eta g$
+%		\STATE Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$)
+%		
+%		\STATE Stopping if $\|g\|/P<\epsilon$ and $d/P<\epsilon$
+%		
+%		\ENDFOR
+%		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $2m-1$)
+%		\ENDWHILE
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%\end{algorithm} 
 
 The previously described algorithm is consequently adaptive and relies on updating the weights at each batches according to a well-balanced aggregator. 
 But the memory complexity remains high in the sense that the aggregator needs the storage of $m$ gradients of size $N$, i.e. of the size of $y$. In section \ref{section_results},
@@ -634,70 +637,70 @@ explain why the less straightforward strategy of section \ref{RAGL} is needed in
 \label{RAGL_proto}
 
 
-
-\begin{algorithm}[h!]
-	\caption{RAGL-prototype}
-	\label{algo_RAGL_proto}
-	\begin{algorithmic}[1]
-		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
-		\STATE $\theta_0 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$
-		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
-		\STATE $RTab$ and $LTab$ arrays of size $m$
-		\STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$)
-		
-		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
-		\STATE $gSum \leftarrow 0$, $d\leftarrow 0$, $R_0 \leftarrow R$
-		
-		\FOR{i=1,...,m}
-		
-		\IF{$i\leq m-1$}
-		\STATE $gs \leftarrow -\nR_i(\theta_0)$
-		\ENDIF
-		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
-		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
-		\STATE $gSum \leftarrow g+g_i$
-		\IF{$i\leq m-1$}
-		\STATE $g \leftarrow g-gs$, $g \leftarrow g+g_i$
-		\ELSE
-		\STATE $g \leftarrow gSum$
-		\ENDIF
-		
-		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$, $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$), $i_{max} \leftarrow \argmax(LTab)$
-		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
-		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), $\eta \leftarrow \max(\eta_1,\eta_2)$
-		\ELSE
-		\STATE $\eta \leftarrow \eta_1$
-		\ENDIF
-		
-		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
-		\STATE $LTab[i] \leftarrow 0$
-		\ELSE
-		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
-		\ENDIF
-		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
-		
-		\IF{$L<\epsilon_m$}
-		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
-		\ELSE
-		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
-		\IF{$op==4m-1$}
-		\STATE $\eta \leftarrow \frac{2}{op \times L}$
-		\ELSE
-		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
-		\ENDIF
-		\ENDIF
-		
-		\STATE $\theta \leftarrow \theta -\eta g$
-		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
-		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
-		\ENDIF
-		
-		\ENDFOR
-		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $4m-1$)
-		\ENDWHILE
-		\RETURN $\theta$
-	\end{algorithmic}
-\end{algorithm}
+\input{ALGO/RAGL_proto}
+%\begin{algorithm}[h!]
+%	\caption{RAGL-prototype}
+%	\label{algo_RAGL_proto}
+%	\begin{algorithmic}[1]
+%		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
+%		\STATE $\theta_0 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$
+%		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
+%		\STATE $RTab$ and $LTab$ arrays of size $m$
+%		\STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$)
+%		
+%		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
+%		\STATE $gSum \leftarrow 0$, $d\leftarrow 0$, $R_0 \leftarrow R$
+%		
+%		\FOR{i=1,...,m}
+%		
+%		\IF{$i\leq m-1$}
+%		\STATE $gs \leftarrow -\nR_i(\theta_0)$
+%		\ENDIF
+%		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
+%		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
+%		\STATE $gSum \leftarrow g+g_i$
+%		\IF{$i\leq m-1$}
+%		\STATE $g \leftarrow g-gs$, $g \leftarrow g+g_i$
+%		\ELSE
+%		\STATE $g \leftarrow gSum$
+%		\ENDIF
+%		
+%		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$, $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$), $i_{max} \leftarrow \argmax(LTab)$
+%		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
+%		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), $\eta \leftarrow \max(\eta_1,\eta_2)$
+%		\ELSE
+%		\STATE $\eta \leftarrow \eta_1$
+%		\ENDIF
+%		
+%		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
+%		\STATE $LTab[i] \leftarrow 0$
+%		\ELSE
+%		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
+%		\ENDIF
+%		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
+%		
+%		\IF{$L<\epsilon_m$}
+%		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
+%		\ELSE
+%		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
+%		\IF{$op==4m-1$}
+%		\STATE $\eta \leftarrow \frac{2}{op \times L}$
+%		\ELSE
+%		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
+%		\ENDIF
+%		\ENDIF
+%		
+%		\STATE $\theta \leftarrow \theta -\eta g$
+%		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
+%		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
+%		\ENDIF
+%		
+%		\ENDFOR
+%		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $4m-1$)
+%		\ENDWHILE
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%\end{algorithm}
 
 
 As explained in the previous section, we now would like to reduce the memory cost the previous adaptive well-balanced mini-batch optimizer. 
@@ -1500,71 +1503,72 @@ Here, we present some of the algorithms (except RAG) involving in the section \r
 	\end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}[h!]
-	\caption{RAGL}
-	\label{algo_RAGL}
-	\begin{algorithmic}[1]
-		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
-		\STATE $\theta_0, \theta_1, \theta_2 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$, $\tilde{L}_{max} \leftarrow 0$
-		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
-		\STATE $RTab$ and $LTab$ arrays of size $m$
-		\STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$)
-		
-		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
-		\STATE $gSum \leftarrow 0$, $d\leftarrow 0$, $R_0 \leftarrow R$
-		
-		\FOR{i=1,...,m}
-		
-		\IF{$i\leq m-1$}
-		\STATE $gs \leftarrow -\nR_i(\theta_1)$
-		\ENDIF
-		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
-		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
-		\STATE $gSum \leftarrow g+g_i$
-		\IF{$i\leq m-1$}
-		\STATE $g \leftarrow g-gs$, $g \leftarrow g+g_i$
-		\ELSE
-		\STATE $g \leftarrow gSum$
-		\ENDIF
-		
-		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$, $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$), $i_{max} \leftarrow \argmax(LTab)$
-		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
-		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), $\eta \leftarrow \max(\eta_1,\eta_2)$
-		\ELSE
-		\STATE $\eta \leftarrow \eta_1$
-		\ENDIF
-		
-		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
-		\STATE $LTab[i] \leftarrow 0$
-		\ELSE
-		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
-		\ENDIF
-		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
-		
-		\IF{$L<\epsilon_m$}
-		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
-		\ELSE
-		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
-		\IF{$op==4m-1$}
-		\STATE $\eta \leftarrow \frac{2}{op \times L}$
-		\ELSE
-		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
-		\ENDIF
-		\ENDIF
-		
-		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
-		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
-		\ENDIF
-		
-		\STATE Comparison($i$, $\theta$, $\theta_2$, $\tilde{L}_{max}$, $LTab$) (update of $\theta_2$)
-		
-		\ENDFOR
-		\STATE $\theta_1 \leftarrow \theta_2$
-		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $4m-1$)
-		\ENDWHILE
-		\RETURN $\theta$
-	\end{algorithmic}
-\end{algorithm}
+\input{ALGO/RAGL}
+%\begin{algorithm}[h!]
+%	\caption{RAGL}
+%	\label{algo_RAGL}
+%	\begin{algorithmic}[1]
+%		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
+%		\STATE $\theta_0, \theta_1, \theta_2 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$, $\tilde{L}_{max} \leftarrow 0$
+%		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
+%		\STATE $RTab$ and $LTab$ arrays of size $m$
+%		\STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$)
+%		
+%		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
+%		\STATE $gSum \leftarrow 0$, $d\leftarrow 0$, $R_0 \leftarrow R$
+%		
+%		\FOR{i=1,...,m}
+%		
+%		\IF{$i\leq m-1$}
+%		\STATE $gs \leftarrow -\nR_i(\theta_1)$
+%		\ENDIF
+%		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
+%		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
+%		\STATE $gSum \leftarrow g+g_i$
+%		\IF{$i\leq m-1$}
+%		\STATE $g \leftarrow g-gs$, $g \leftarrow g+g_i$
+%		\ELSE
+%		\STATE $g \leftarrow gSum$
+%		\ENDIF
+%		
+%		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$, $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$), $i_{max} \leftarrow \argmax(LTab)$
+%		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
+%		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), $\eta \leftarrow \max(\eta_1,\eta_2)$
+%		\ELSE
+%		\STATE $\eta \leftarrow \eta_1$
+%		\ENDIF
+%		
+%		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
+%		\STATE $LTab[i] \leftarrow 0$
+%		\ELSE
+%		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
+%		\ENDIF
+%		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
+%		
+%		\IF{$L<\epsilon_m$}
+%		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
+%		\ELSE
+%		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
+%		\IF{$op==4m-1$}
+%		\STATE $\eta \leftarrow \frac{2}{op \times L}$
+%		\ELSE
+%		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
+%		\ENDIF
+%		\ENDIF
+%		
+%		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
+%		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
+%		\ENDIF
+%		
+%		\STATE Comparison($i$, $\theta$, $\theta_2$, $\tilde{L}_{max}$, $LTab$) (update of $\theta_2$)
+%		
+%		\ENDFOR
+%		\STATE $\theta_1 \leftarrow \theta_2$
+%		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $4m-1$)
+%		\ENDWHILE
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%\end{algorithm}
 
 \clearpage
 

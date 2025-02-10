@@ -1,0 +1,362 @@
+\documentclass[a4paper,leqno,11pt]{article}
+
+%cédric a tout fait avec la calsse book. Apparemment,on peut changer de classe facilement sauf que l'abstract est pas reconnu avec book
+%draft sert à compiler sans charger les images, c'est beaucoup moins long
+% charger des modules à utiliser ...
+\usepackage[frenchb]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{delarray}
+\usepackage{afterpage}
+\usepackage{graphicx}
+\usepackage{makeidx}
+
+%\usepackage[T1]{fontenc}
+%\usepackage{pstricks,pst-node,pst-text,pst-3d}
+\usepackage{latexsym}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{multicol}
+% c'est moche mais c'est pratique pour repérer les liens morts etc...
+%\usepackage{hyperref}
+\usepackage{backref}
+\usepackage{setspace}
+\singlespacing
+
+\bibliographystyle{plain}
+
+\usepackage{listings}
+\usepackage{calc}
+\usepackage{epsfig}
+
+%\usepackage[textwidth=170mm,twosideshift=0pt]{geometry}
+%\geometry{bmargin=2.5cm,tmargin=2cm}
+\usepackage{url}
+
+
+
+% NOUVEAUX ENVIRONNEMENTS
+%\newenvironment{obj}[1][Objectifs]{\begin{trivlist}\item[\hskip \labelsep {\bfseries #1}]}{\hfill$\bullet$ \end{trivlist}}
+%\newenvironment{bil}[1]{\begin{trivlist}\item[\hskip \labelsep {\bfseries #1}]}{\hfill$\circ$ \end{trivlist}}
+\newenvironment{obj}[1][Objectifs]{\begin{trivlist}\it\item[\hskip \labelsep {\bfseries #1}]}{\hfill$\bullet$ \end{trivlist}}
+\newenvironment{bil}[1][]{\begin{trivlist}\it \item[\hskip \labelsep {\bfseries #1}]}{\hfill$\circ$ \end{trivlist}}
+
+\newcommand{\sousparagraphe}[1]{\textbf{\textit{#1}}}
+\newcommand{\cacher}[1]{}
+\newcommand{\mbf}[1]{{\mathversion{bold} #1}}
+\newcommand{\Frac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+\newcommand{\Lim}[2]{\displaystyle \lim_{#1}{#2}}
+\newcommand{\Int}{\displaystyle \int}
+
+\newcommand{\INT}[4]{\Int_{#1}^{#2} #3 \: \textnormal{d}#4}
+\newcommand{\Sum}{\displaystyle \sum}
+\newcommand{\Prod}{\displaystyle \prod}
+\newcommand{\SUM}[3]{\Sum_{#1}^{#2} #3}
+\newcommand{\PD}[3]{\left.\Frac{\partial #1}{\partial #2}\right|_{#3}}
+\newcommand{\TD}[2]{\Frac{\textnormal{d} #1}{\textnormal{d} #2}}
+\newcommand{\dif}[1]{\textnormal{d} #1}
+\newcommand{\pdt}{\partial_t}
+\newcommand{\pdx}{\partial_x}
+\newcommand{\pdy}{\partial_y}
+\newcommand{\pdz}{\partial_z}
+\newcommand{\pdX}{\partial_X}
+\newcommand{\pdm}{\partial_m}
+\newcommand{\pdtt}{\partial_{t^2}^2}
+\newcommand{\pdxx}{\partial_{x^2}^2}
+\newcommand{\pdxi}{\partial_{x_i}}
+\newcommand{\pdxj}{\partial_{x_j}}
+\newcommand{\pdxixi}{\partial_{x_i x_i}^2}
+\newcommand{\pdxjxj}{\partial_{x_j x_j}^2}
+\newcommand{\pdxixj}{\partial_{x_i x_j}^2}
+\newcommand{\pdxjxi}{\partial_{x_j x_i}^2}
+\newcommand{\pdmm}{\partial_{m^2}^2}
+\newcommand{\pdvi}{\partial_{v_i}}
+\newcommand{\pdvj}{\partial_{v_j}}
+\newcommand{\pdma}{\partial_{m^\alpha}}
+\newcommand{\pdmb}{\partial_{m^\beta}}
+\newcommand{\iR}{_{i+\Frac{1}{2}}}
+\newcommand{\iL}{_{i-\Frac{1}{2}}}
+\newcommand{\iRR}{_{i+1}}
+\newcommand{\iLL}{_{i-1}}
+\newcommand{\nR}{^{n+\Frac{1}{2}}}
+\newcommand{\nRR}{^{n+1}}
+\newcommand{\vm}[1]{\left< #1 \right>}
+\newcommand{\vmt}[1]{\left< #1 \: |_t\right>}
+\newcommand{\vmE}[1]{\left< #1 \: |_E\right>}
+\newcommand{\vmL}[1]{\left< #1 \: |_L\right>}
+\newcommand{\vmm}[1]{\left< #1 \: |_m\right>}
+\newcommand{\vmEs}[1]{\left< #1 \: |_E^*\right>}
+\newcommand{\vms}[1]{\left< #1 \: |_v^s \right>}
+\newcommand{\pdcg}{\left[\kern-0.12em\left[}
+\newcommand{\pdcd}{\right]\kern-0.12em\right]}
+\newcommand{\gdcg}{\left[\kern-0.25em\left[}
+\newcommand{\gdcd}{\right]\kern-0.25em\right]}
+\newcommand{\wideitemlabel}[1]{#1\hfil}
+\newenvironment{wideitemlist}
+ {\begin{list}{}%
+        {\renewcommand{\makelabel}{\wideitemlabel}%
+         \setlength{\labelwidth}{1.5in}%
+         \setlength{\labelsep}{0.1in}%
+         \setlength{\itemindent}{0pt}%
+         \setlength{\listparindent}{0pt}%
+         \setlength{\leftmargin}{\labelwidth+\labelsep}%
+        }%
+  }%
+  {\end{list}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\begin{center}
+\end{center}
+% No page numbers, no nothing...
+\pagestyle{empty}
+% No page numbers, no nothing... on the title page either...  (Has to
+% follow the maketitle)
+\thispagestyle{empty}
+
+
+\parbox[t]{0.3\linewidth}{
+\textbf{Gaël Poëtte}\\
+%3B rue Cavelier de la Salle\\
+%91300 Massy\\
+tél: 06 73 49 37 13\\
+%tél: 01 69 26 44 58\\
+%Tél: (+33) 9 53 19 42 12\\
+\texttt{gael.poette@bordeaux-inp.fr}\\
+\texttt{gael.poette@cea.fr}\\
+}
+\hfill
+\parbox[t]{0.35\linewidth}{
+\textbf{CEA CESTA}\\
+\textbf{Institut Mathématiques de Bordeaux}\\
+%\textbf{Service Simulation des} \\
+%\textbf{Phénomènes Physiques}, \\
+}
+
+
+\vspace{2pt}
+\hfill
+\parbox[t]{0.35\linewidth}{
+Mios, jeudi 5 décembre 2024.
+}
+
+\vspace{10pt}
+
+\textbf{Objet}: blabla.\\ 
+
+
+\vspace{3pt}
+\parbox[t]{0.3\linewidth}{
+Monsieur, 
+}
+
+\vspace{5pt}
+
+Par la présente, .\\  
+
+%Tout d'abord, laissez-moi vous présenter le contexte dans lequel j'ai pu évaluer Yassine Ayoun. 
+Reasons why we have a two part paper
+\begin{itemize}
+\item Long juste a cause de la literature fournie et consequente pour la partie I. 
+\item Plusieurs ingredients clés (well balanced, adaptiveness), pas forcement encore accepte dans la literature,  qu'il faut justifier separement  
+\end{itemize}
+
+
+
+\vspace{8pt}
+
+Je reste à votre disposition si vous avez besoin de plus amples informations. \\
+
+%Bien cordialement,
+%\vspace{2pt}
+
+\hspace{10cm}Ga\"el Po\"ette \text{                    }\includegraphics[width=0.1\linewidth]{signature.png}
+
+
+
+
+
+
+
+
+
+
+
+%
+%
+%
+%
+%
+%\newpage
+%\section*{Liste (non-exhaustive) de Publications}
+%\begin{enumerate}
+%%\item G. Po\"ette, D. Lucor and B. Després. Uncertainty Quantification for Systems of Conservation Laws. \textit{J. Comp. Phys.} (2009) doi http://dx.doi.org/10.1016/j.jcp.2008.12.018 
+%\item G. Po\"ette, D. Lucor and B. Després. Treatment of Uncertain Material Interfaces in Compressible Flows. \textit{Comp. Meth. Appl. Math. Engrg.} (2010)
+%%\item G. Po\"ette, D. Lucor. Non Intrusive Iterative Stochastic Spectral Representation with Application to Compressible Gas Dynamics.  \textit{J. Comp. Phys.} (2011)
+%\item G. Po\"ette, D. Lucor, H. Jourdren. A stochastic surrogate model approach applied to calibration of unstable fluid flow experiments.  \textit{C. R. A. S.} (2012)
+%      \item  B. Despr\'es, G. Po\"ette, and D. Lucor. Robust Uncertainty Propagation in Systems of
+%        Conservation Laws with the Entropy Closure Method, \textit{Lecture Notes in Computational
+%        Science and Engineering. Uncertainty Quantification in Computational Fluid Dynamics}, (2013).
+%\item {A. Birolleau, G. Po\"ette, D. Lucor},
+%{{Adaptive Bayesian Inference for discontinuous inverse problems, application to hyperbolic conservation laws
+%}}.
+%	{{\em Comm. in Comput. Physics}},
+%{(2014)}
+%%\item {A. Birolleau, G. Po\"ette, D. Lucor},
+%%{{Iterative polynomial approximation adapting to
+%%arbitrary probability distribution
+%%}}.
+%%	{{\em S. I. A. M. Numer. Analysis}},
+%%	{(soumis en 2013)}
+%      \item  G. Po\"ette, A. Birolleau, and D. Lucor. Iterative polynomial approximation adapting
+%        to arbitrary probability distribution. \textit{SIAM J. Numerical Analysis} (2015)
+%
+%
+%      \item  D. Dureau and G. Po\"ette. Hybrid Parallel Programming Models for AMR Neutron Monte-Carlo
+%        Transport. \textit{In International Conference on Supercomputing in Nuclear Applications + Monte-Carlo}, (2013)
+%
+%      \item  A. Bernede and G. Po\"ette. An Unsplit Monte-Carlo scheme for the resolution of the linear
+%        Boltzmann equation coupled to (stiff) Bateman equations. \textit{Accepted J. Comp. Phys.} (2016)
+%
+%\end{enumerate}
+%
+
+
+
+
+
+
+
+
+
+
+\cacher{\begin{wideitemlist}
+\item[2006-2009] Thèse de Doctorat au \textbf{Commissariat à l'\'Energie Atomique} (CEA) sur la  \textit{Quantification d'incertitudes pour les systèmes de lois de conservation}
+sous la direction de Bruno Després (CEA) co-encadrée par Pierre Sagaut et Didier Lucor (Institut Jean Le Rond d'Alembert, Paris VI).
+Fin du contrat de thèse le 23 Octobre 2009.
+\item[2005-2006] Troisième année à \textbf{l'\'Ecole Nationale Supérieure des Mines de Nancy} (ENSMN). Option principale: calcul scientifique.  
+\textbf{Master 2
+Recherche} en mathématiques appliquées à l'Université Henri Poincaré, \textbf{Institut \'Elie Cartan à Nancy}, Mention Très Bien.
+\item[2003-2006] \textbf{ENSMN} 
+\begin{itemize} 
+\item  Option principale deuxième année: Ingénierie Mathématique (Probabilité, Analyse numérique et Programmation). 
+\item Option secondaire deuxième année: Cyndinique (sciences des risques naturels et industriels).
+\item  Première année à l'\textbf{ENSMN}: Tronc commun (Mathématiques, Physique, Informatique).
+\end{itemize} 
+\item[2001--2003] Classes Préparatoires aux Grandes \'Ecoles: 
+\begin{itemize}
+\item MP$^*$ au lycée Fabert à Metz, option informatique.  
+\item MPSI au lycée Fabert à Metz.  
+\end{itemize}
+\item[2000-2001]  \textit{Baccalauréat Scientifique} au lycée Fabert à Metz. Mention Très Bien.
+\end{wideitemlist}
+
+\section*{Stages}
+\begin{wideitemlist}
+%\item[2005-2007] \textbf{Professeur} vacataire à l'Ecole Centrale Paris en informatique : cours de PRIS (PRojet d'Intégration de Systèmes), et TDs de programmation objet avancée (Java).\\ \textbf{Doctorat} au Commissariat à l'Energie Atomique.
+\item[\'Eté 2006] {Stage de troisième année {\em ENSMN/Master Recherche}} au \textbf{Commissariat à l'\'Energie Atomique}, sous la tutelle de Stéphane Jaouen (CEA/DAM/DIF) et de
+Antoine Henrot (Institut \'Elie Cartan), en mathématiques appliquées et analyse numérique. Sujet: \textit{Perturbations linéaires tridimensionnelles d'un écoulement de base monodimensionnel en coordonnées eulériennes dans le formalisme Lagrange+Projection.}
+\item[\'Eté 2005] Stage linguistique de deuxième année à Casteltownshend, West Cork, Ireland. 
+\item[Janvier-Mars 2004] Stage de découverte du monde du travail (tronc commun première année ENSMN) au sein de la société SCREG-EST, Woippy (57), France.
+\end{wideitemlist}
+
+%\section*{Activités associatives}
+%\begin{itemize}
+%\item \textbf{VideoLAN/VLC}: \textbf{Chef de Projet} pour l'année 2002/2003 : gestion de projet, encadrement de développeurs, mise en production, événementiel. Développeur en 2003/2004 : conception et implémentation de VLM (VideoLAN Manager) dans VLC. (\texttt{www.videolan.org})
+%\item \textbf{VIA - Centrale Réseaux} : \textbf{Secrétaire Général, Administrateur réseaux} en 2002-2003. Membre du Conseil d'Administration de 2002 à 2004. (\texttt{www.via.ecp.fr})
+%\end{itemize}
+
+\section*{Programmation}
+
+%\section*{Computer skills}
+\begin{itemize}
+%\item \textbf{Visualisation Scientifique}: OpenGL, programmation GPU (Glsl), VTK/Paraview, MPI
+\item \textbf{Langages}: C, C++, Java, Python.
+%\item \textbf{Administration réseaux}: Administration de switchs/routeurs de niveau 2/3 (Ethernet, IP, OSPF, Multicast, etc.)
+%\item \textbf{Bases en administration Unix}: Debian GNU/Linux, Services Web, FTP, Firewall
+\item \textbf{Bureautique}: LateX, OpenOffice.
+\item \textbf{Autres}: Matlab, Maple, NumPy.
+%\item \textbf{Infographie}: Adobe Photoshop, Gimp
+\end{itemize}
+
+\section*{Langues étrangères}
+\begin{itemize}
+\cacher{\item \textbf{Français}: langue natale.}
+\item \textbf{Anglais}: courant. \textit{First Certificate of English} en 2005, mention Bien.
+\item \textbf{Italien}: Bon niveau. \textit{Certificazione d'Italiano come Lingua Straniere livello due} en 2005, mention Bien.
+\end{itemize}
+
+\section*{Publications}
+G. Po\"ette, D. Lucor and B. Després. Uncertainty Quantification for Systems of Conservation Laws. \textit{J. Comp. Phys.} (2009) DOI: http://dx.doi.org/10.1016/j.jcp.2008.12.018 
+
+\section*{Loisirs} 
+\begin{itemize}
+\item \textbf{Musique}: Guitare.
+\item \textbf{Sports}:  Basket-Ball, Skateboard, Freebord, Snowboard.
+\item \textbf{Autres}: Jonglage, lecture, concerts, festivals, bricolage.
+\end{itemize}
+
+\section*{Références}
+\begin{multicols}{2}{
+\parbox[t]{0.7\linewidth}{
+
+\textbf{Bruno Després}\\
+Directeur de recherche,\\
+CEA/DAM/DIF,\\
+ F-91297, \\
+Arpajon cedex.\\
+ Tél: 01 69 26 63 45.\\
+\texttt{bruno.despres@cea.fr }
+}
+}{
+\parbox[t]{0.7\linewidth}{
+
+\textbf{Didier Lucor}\\
+Chargé de Recherche CNRS,\\
+IJLRA - UPMC/CNRS\\
+Case 162, 4 place Jussieu\\
+75252 Paris Cedex 05\\
+France. Tél: 01 44 27 62 13.\\
+\texttt{lucor@lmm.jussieu.fr}
+}
+}
+\end{multicols}
+\begin{multicols}{2}{
+\parbox[t]{0.7\linewidth}{
+
+\textbf{Stéphane Jaouen}\\
+Ingénieur de recherche,\\
+CEA/DAM/DIF,\\
+ F-91297, \\
+Arpajon cedex.\\
+ Tél: 01 69 26 68 48.\\
+\texttt{stephane.jaouen@cea.fr }
+}
+}{
+\parbox[t]{0.7\linewidth}{
+
+\textbf{Antoine Henrot}\\
+Directeur de l'Institut \'Elie Cartan, \\
+Université Henri Poincaré, BP 239,\\
+54506 Vandoeuvre-lès-Nancy Cedex.
+Tél: 03 83 68 45 60.\\
+\texttt{antoine.henrot@iecn.u-nancy.fr}
+
+Professeur à l'\'Ecole des Mines de nancy,\\
+\'Ecole des Mines de Nancy,\\
+Parc de Saurupt, 54042,
+Nancy Cedex.\\
+Tél: 03 83 58 40 98.\\
+\texttt{antoine.henrot@mines.inpl-nancy.fr}
+}
+}
+\end{multicols}
+}
+
+\end{document}
+
+

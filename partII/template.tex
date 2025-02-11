@@ -285,9 +285,9 @@ In a nutshell, assume that the update of a full-batch optimizer is given by
 \end{equation}
 where $\eta$ is the learning rate and $F$ is the flow: for example, 
 for Gradient Descent (GD), $y=\theta$ and $F(y)=-\nR(\theta)$ and 
-for Momentum, $y=(\theta,v)^t$ and $F(y)=(-v, -\bbetone v +
-\nR(\theta))^t$. 
-All classical optimizers can be put into the previous expression \eqref{fb_opt}, see \cite{Barakat_bianchi}.  
+for Momentum, $y=(\theta,v)^\top$ and $F(y)=(-v, -\bbetone v +
+\nR(\theta))^\top$. 
+All classical first-order optimizers can be put into the previous expression \eqref{fb_opt}, see \cite{Barakat_bianchi}.  
 The new mini-batch optimizer family based on an extension of Speth's well-balanced splitting
 can then be summed-up as the following update for batch $i\in\{1,..,m\}$ of epoch $n\geq 1$:
 \begin{equation}
@@ -321,7 +321,8 @@ All in all, in part I of this paper, it has been numerically emphasized on analy
 	\item {avoid assumptions on the batch distribution}, 
           %Firstly, the bounded variance hypothesis is not reasonable 
           %since it is not even satisfied by a linear regression. Moreover, the major part of stochastic optimizers need interpolation condition (then over-parametrized models) to be used with constant learning rate. At the best of our knowledge, the only optimizers that get rid of these conditions are IAG and DIAG \cite{DIAG}.
-	\item achieve an arbitrary precision (concerning the gradient) without requiring too drastic decreasing learning rates. 
+	\item achieve an arbitrary precision (concerning the gradient) without requiring too drastic decreasing learning rates. \\ \ \\
+          Moreover: \\
           %This is only verified by variance reduction methods. 
 	\item The algorithms never use the full-batch gradient, at any stage. 
           %The ones that fit into this category are: SGD, RRGD, IG, IAG, SAG, ZERO-SARAH, STORM, SCSG et RR-SARAH.
@@ -338,8 +339,8 @@ $\forall i\in\{1,...,m\}$
   This typically means that $g_n^i$ can be used as such in order to define a stopping criterion of the form $\|g_{n+1}\|/P \leq
   \epsilon$, with $\epsilon$ prescribed by the user. 
           %All the mentionned optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge). 
-\item But the well-balanced optimizers of part I still need the tedious tuning of the (constant) learning rate $\eta$. 
 \end{enumerate}
+However, the well-balanced optimizers of part I still need the tedious tuning of the (constant) learning rate $\eta$. 
 Building an adaptative strategy on top of the well-balanced mini-batch
           optimizers of part I is the purpose of this paper. 
 
@@ -351,8 +352,7 @@ is proposed.
 In section \ref{section_optimizers}, the adaptive learning rate strategy we suggest is presented: it is based on several linesearches allowing to both tune the learning rate for the
 current batch and estimate its stiffness (local Lipschitz
 constant) to combine them into an original well-balanced adaptive family of algorithms. 
-In section \ref{section_results}, the newly developed algorithms are tested on analytical benchmarks and on classical machine learning tasks. They are compared with
-          RRAdam (Random Reshuffle Adam), which seems to be the favorite optimizer of the practitioners.   
+In section \ref{section_results}, the newly developed algorithms are tested on analytical benchmarks and on classical machine learning tasks. They are compared with RRAdam (Random Reshuffle Adam), which is very popular among the practitioners.   
 
 
 \section{Review on adaptive learning rate strategies}
@@ -386,14 +386,13 @@ For the sake of conciseness, the (non adaptative) well-balanced mini-batch GD op
 \newG{To ease the reading, the complete presentation of some algorithms is sent back to appendix \ref{annexe_algo}, especially the backtrackings, the initializations, the RAGL
 prototype and RAGL\footnote{\newG{peut-etre que ce ne sera plus vrai plus tard...}}}
 We insist on the fact that all the next material could be applied to any $F$ associated to a Lyapunov function $V$ (in the case $F\neq-\nR$, $\R$ in the Armijo rule must be
-replaced by a Lyapunov function relative to $F$, see \cite{Lyap_Theory_Bilel,Bilel_thesis}). But the advantage of focusing on a well-balanced adaptative mini-batch version of GD is that
-the only hyperparameter to tune is the learning rate (whereas Momentum, RMSProp, Adam etc. also need the tuning of several other coefficients, see \cite{Bilel_thesis}). 
+replaced by a Lyapunov function relative to $F$, see \cite{Lyap_Theory_Bilel,Bilel_thesis}). We choose here to focus on a well-balanced adaptative mini-batch version of GD for the sake of clarity and simplicity. Furthermore, the only hyperparameter to tune in this case is the learning rate (whereas Momentum, RMSProp, Adam etc. also need the tuning of several other coefficients, see \cite{Bilel_thesis}). 
 
 \subsection{The backtrackings}
 Firstly, let us begin by describing the backtrackings necessary to evaluate some learning rates which ensure stability. 
 We will see that they can also be used to estimate the current batch stiffness. 
 Let us denote by $\epsilon_m$ the precision of the float representation
-($\approx 10^{-16}$ for doubles in IEEE754). To ease the reading, we also denote by $g$ the update vector for one iteration: for example for the splitting \eqref{RAG_scheme}, it is
+($\approx 10^{-16}$ for doubles of the order of 1 in IEEE754 norm). To ease the reading, we also denote by $g$ the update vector for one iteration: for example for the splitting \eqref{RAG_scheme}, it is
 $g_n^i$ (more generally the factor of $\eta$). The gradient of batch $i$, namely $\nR_i$, is stored in the variable $g_i$. 
 
 \paragraph{Backtracking without interaction}
@@ -489,25 +488,26 @@ of memory complexity of $5\times N$.
 We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version of the splitting \eqref{RAG_scheme}. Let us explain below all the steps and sub-procedures:
 \begin{enumerate}
 	\item let us begin by the initialization procedure Init\_RAG described by algorithm \ref{algo_init}. The latter computes the full-batch gradient in the variable $g$ by accumulation, while evaluating Lipschitz constants $L_1, \dots, L_m$ of 
-	$\nR_1,$ $\dots, \nR_m$ thanks to the linesearch without interaction. A possible Lipschitz constant for $\nR$ is then obtained by $L=L_1+\dots+L_m$. The learning rate is then computed as $2(1-\lambda)L^{-1}$ according to proposition 1 of \cite{Lyap_Theory_Bilel} and a GD step is done. Notice that for the rest of the epochs we define the learning rate as $2L^{-1}$ (neglect the factor $1-\lambda$) because this choice enables empirically to save time.
+	$\nR_1,$ $\dots, \nR_m$ thanks to the linesearch without interaction. A possible Lipschitz constant for $\nR$ is then obtained by $L=L_1+\dots+L_m$. The learning rate is then computed as $2(1-\lambda)L^{-1}$ according to proposition 1 of \cite{Lyap_Theory_Bilel} and a GD step is done. Notice that for the rest of the epochs we define the learning rate as $2L^{-1}$ (neglect the factor $1-\lambda$) because this choice empirically enables to save time.
         Note that this step can be easily done only by setting $\eta=0$ for the first epoch. 
 	\item The line 10 of RAG corresponds to the computation of $g_n^i$ \eqref{RAG_scheme}. For a neural network, given that a forward pass is necessary before a backpropagation, we have access to $\R_i$. At line 9, an estimation of $\R$ is computed in a similar way as the one for $\nR$:
 	\begin{equation}
 		\R_n^i = \sum_{j=1}^i \R_j\left(\theta_{n+(j-1)/m}\right)+\sum_{j=i+1}^m \R_j\left(\theta_{n-1+(j-1)/m}\right).
 		\label{Rni}
 	\end{equation}
+        Both these updates of $\R$ and $\nR$ are simply done by replacing the former values of $\R_n^i$ and $\nR_i$ by the new ones.\\
 	Then the variable $R_0$ at line 6 corresponds to this quantity at the beginning of the epoch. The comparison between $R$ and $R_0$ at the end of the epoch enables to determine if the objective function diminished since these quantities are supposed to approximate it in the long run. 
-	\item The lines from 12 to 23 are here to evaluate the Lipschitz constants $L_i$ in the direction $g_i$ or $g$, as explained previously. A possible Lipschitz constant for $\nR$ is then obtained at line 25 by summing the individual constants. $L_{max}$ corresponds to the largest Lipschitz constant among the $m$ last gradients: have in mind that some of them have been evaluated at the running epoch $n+1$ and others at the previous epoch $n$.
-	\item This maximum is exploited for the memory effect (see \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}) at line 29. Here, the learning rate from
+	\item The lines from 12 to 23 are here to evaluate the Lipschitz constants $L_i$ in the direction $g_i$ or $g$, as previously explained. A possible Lipschitz constant for $\nR$ is then obtained at line 25 by summing the individual constants. $L_{max}$ corresponds to the largest Lipschitz constant among the last $m$ gradients: have in mind that some of them have been evaluated at the running epoch $n+1$ and others at the previous epoch $n$.
+	\item This largest Lipschitz constant is exploited for the memory effect (see \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}) at line 29. Here, the learning rate from
           which we start the next linesearch is taken as the learning rate corresponding to the stiffest batch multiplied by $f_2$. The idea follows the same as the one of the
-          theorem 5.1 of \cite{Bilel_ICML} and theorem 2.5 of \cite{Bilel_thesis}. The idea is to create a recurrent relation between the admissible learning rates of two successive
+          theorem 5.1 of \cite{Bilel_ICML} and theorem 2.5 of \cite{Bilel_thesis} {\it i.e.} creating a recurrent relation between the admissible learning rates of two successive
           epochs for the stiffest batch, in order to get a complexity (number of evaluations of $\R_i$) less dependent on the stiffness. Given that the other batches are less
           stiff, they require less evaluations. This is empirically verified in section \ref{section_results}.
-	\item At line 31, the effective learning rate $\eta$ is computed from the estimation of the Lipschitz constant of $\nR$ in the same way as in the initialization (factor $(1-\lambda)$ disregarded). The difference is the division by $2m-1$. Indeed, it is common in splitting operator theory to divide the learning rate by the number of operators involving in the splitting \cite{splitting_ode_review}. There are $m$ gradient operators $\left(\nR_j\right)_{1 \leq j \leq m}$ and also the $m-1$ delay operators for all $i \in \{1,\dots,m\}$ \eqref{RAG_scheme}:
+	\item At line 31, the effective learning rate $\eta$ is computed from the estimation of the Lipschitz constant of $\nR$ in the same way as in the initialization (the factor $(1-\lambda)$ is disregarded). The difference is the division by $2m-1$. Indeed, it is natural in splitting operator theory to divide the learning rate by the number of operators involving in the splitting \cite{splitting_ode_review}. There are $m$ gradient operators $\left(\nR_j\right)_{1 \leq j \leq m}$ and also the $m-1$ delay operators for all $i \in \{1,\dots,m\}$ \eqref{RAG_scheme}:
 	\begin{equation*}
 		\left(\theta_{n+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j <i} \text{ and } \left(\theta_{n-1+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{i+1\leq j \leq m}.
 	\end{equation*}
-	That is why we have tested SGD, RRGD and the different splittings with learning rates divided by $3=2\times 2-1$ in the previous part I. 
+	\footnote{That is why we have tested SGD, RRGD and the different splittings with learning rates divided by $3=2\times 2-1$ in part I.} 
         At line 33, the learning rate is again divided by a factor $h$ related to the heuristic described later in the paper. 
         %The goal is to activate the heuristic when its application conditions are verified at least twice in a row: \newG{the only aim of this line is to limit the potential oscillations generated by the heuristic}.
 	\item Now, let us deal with the Distance function described by algorithm \ref{algo_dist}. The product $\eta \|g\|$ corresponds to the exact distance between two successive iterates:
@@ -523,9 +523,9 @@ We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version 
 	\item This explains the stopping criterion. It guarantees that $g$ is representative of the full-batch gradient under the fixed precision ($d/P<\epsilon$) and that in this
           case $g$ is small ($\|g\|/P<\epsilon$). This criterion is also exploited at line 38 to stop the algorithm during an epoch.   
 	\item It remains to detail the heuristic. Its aim is to accelerate the convergence of the algorithm in practice (it is possible to remove it to not take risks but the
-          execution times are longer). If the estimation of $\R$ decreases during the epoch, we permit ourself to be less restrictive on the "CFL" condition $\frac{2}{op\times L}$:
-          this goes through the reduction of the variable $op$ (default value $2m-1$ the number of operators) by a factor $h$. Even though the variable $\R$ is supposed to diminish
-          in the long run, not taking into account "all the operators" might generate oscillations, since we do not come back if $\R$ increases (it would be necessary to suppress an epoch). To restrain this unwelcome effect, the factor $h$ is adapted. Intuitively, we want to "ignore" the delay operators if $d$ (the variations related to the delays) influences a little the estimation $g$ ($d\leq \|g\|$ even if it is rather $d\ll \|g\|$)): the iterates are "quasi mixed up" from the point of view of $\|g\|$. Then $h$ is increased or decreased linearly if we could ignore or not some operators. In the opposite case, we take into account all the operators without exception, in order to not take any risk if $\R$ increases. Despite being intuitive (heuristic), this part works well in practice. In the case where the number of batch is not important ($m<100$), this heuristic can be removed without major deceleration. 
+          execution times are longer). If the estimation of $\R$ decreases during the epoch, we allow ourselves to be less restrictive on the "CFL" condition $\frac{2}{op\times L}$:
+          this goes through the reduction of the variable $op$ (default value: $2m-1$ times the number of operators) by a factor $h$. Even though the variable $\R$ is supposed to diminish
+          in the long run, not taking into account "all the operators" might generate oscillations, since we do not come back if $\R$ increases (it would be necessary to delete an epoch). To restrain this unwelcome effect, the factor $h$ is adapted. Intuitively, we want to "ignore" the delay operators if $d$ (the variations related to the delays) influences a little the estimation $g$ ($d\leq \|g\|$ even if it is rather $d\ll \|g\|$)): the iterates are "quasi mixed up" from the point of view of $\|g\|$. Then $h$ is increased or decreased linearly if we could ignore or not some operators. In the opposite case, we take into account all the operators without exception, in order to take no risk if $\R$ increases. Despite being intuitive (heuristic), this part works well in practice. In the case where the number of batch is not important ($m<100$), this heuristic can be removed without major deceleration. 
 \end{enumerate}    
 
 \begin{algorithm}[h!]
@@ -621,7 +621,7 @@ We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version 
 %	\end{algorithmic}
 %\end{algorithm} 
 
-The previously described algorithm is consequently adaptive and relies on updating the weights at each batches according to a well-balanced aggregator. 
+The previously described algorithm is consequently adaptive and relies on updating the weights at each batch according to a well-balanced aggregator. 
 But the memory complexity remains high in the sense that the aggregator needs the storage of $m$ gradients of size $N$, i.e. of the size of $y$. In section \ref{section_results},
 we will see that the algorithm is very efficient in practice and is certainly 
 to one to be applied if a good compromise data into memory/size of the architecture can be reached. Otherwise, we suggest a lighter alternative, algorithm RAGL of section
@@ -703,7 +703,7 @@ explain why the less straightforward strategy of section \ref{RAGL} is needed in
 %\end{algorithm}
 
 
-As explained in the previous section, we now would like to reduce the memory cost the previous adaptive well-balanced mini-batch optimizer. 
+As stated in the previous section, we now would like to reduce the memory cost the previous adaptive well-balanced mini-batch optimizer. 
 The mini-batch optimizer RAGL-prototype is born from the intuition
 that the adaptive procedures of the previous sections can easily be combined to 
  update \eqref{RAGL_splitting} and its lighter aggregator.
@@ -712,8 +712,8 @@ that the adaptive procedures of the previous sections can easily be combined to
 The RAGL-prototype algorithm we first suggest, explicited in algorithm \ref{algo_RAGL_proto}, is an adaptive version of the splitting \eqref{RAGL_splitting}. 
 It is of complexity $3\times N$ and can also be viewed as a deterministic adaptive version of RR-SARAH. 
 
-\newG{ICI, IL FAUT EXPLIQUER POURQUOI IL ETS PAS ADAPTÉ AU PB STIFF parce qu'on fait ref a cette section plus tarf...}
-
+\newG{ICI, IL FAUT EXPLIQUER POURQUOI IL ETS PAS ADAPTÉ AU PB STIFF parce qu'on fait ref a cette section plus tard...}\\
+TODO: et il faut aussi développer un peu ce qui est fait - même si c'est assez normal.
 
 
 \subsection{The RAGL optimizer: {\it Rebalanced Aggregated Gradient Light}}
@@ -721,7 +721,7 @@ It is of complexity $3\times N$ and can also be viewed as a deterministic adapti
 
 \paragraph{Trade-off between balancing and memory cost}
 ~~\\
-The perturbation added to $g_n$, the estimator of $F$, may grow if the number of batches become large or if one batch is stiffer than the others (every term in the sum is an increase of $F_j$): in fact, the contributions of the previous epoch (hidden in $g_n$) remain since we only substract the vector fields of the epoch $n+1$ \eqref{RAGL_splitting}. \\ 
+The perturbation added to $g_n$, the estimator of $F$, may grow if the number of batches becomes large or if one batch is stiffer than the others (every term in the sum is an increase of $F_j$): in fact, the contributions of the previous epoch (hidden in $g_n$) remain since we only substract the vector fields of the epoch $n+1$ \eqref{RAGL_splitting}. \\ 
 Here, we suggest an intuitive way to reduce this perturbation and empirically confirm its interest in the following section. For simplicity, let us assume that for $i\in \{1,\dots,m\}$, $F_i$ is $L_i$-Lipschitz continuous and let us denote by $i_{max} = \displaystyle{\argmax_{1 \leq i \leq m}} (L_i)$ the index of the stiffest batch. We then define the following splitting:
 \begin{multline}
 	y_{n+i/m} = y_{n+(i-1)/m} \\
@@ -738,20 +738,19 @@ where $g_n$ and the initialization are defined in the same way as \eqref{RAGL_sp
 Some comments are necessary:
 \begin{itemize}
 	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to suppress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
-        \item When the learning rate is adaptative, see part II, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
+        \item Since the learning rate is adaptative, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain the most the learning rate. Therefore, the
           iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$. \\
-{The latter strategy assumes one is able to identify the stiffest batch (the having the larger Lipshitz constant) amongst the $m$ ones. 
-In practice, a generalisation of Armijo's rule, see \cite{Bilel_thesis}, precious for adaptiveness, gives an estimation. For this reason, this point will be developed in part II of this paper. }
+{This strategy is implemented in practice by using the largest estimated Lipschitz constant given by the algorithm.}
 \end{itemize} 
 
 
 
 \paragraph{Algorithm description}
 ~~\\
-Firstly, we present the adaptive implementation of the splitting formula \eqref{RAGL_splitting} described by algorithm \ref{algo_RAGL_proto} in order to reduce the memory cost of RAG. There are a lot of similarities with RAG and we only comment the differences:
+First, we present the adaptive implementation of the splitting formula \eqref{RAGL_splitting} described by algorithm \ref{algo_RAGL_proto} in order to reduce the memory cost of RAG. There are a lot of similarities with RAG and we only comment the differences:
 \begin{enumerate}
 	\item The initialization \ref{algo_init_RAGL} is the same as RAG with the exception that it is not necessary to store the values $\nR_i$ in an array $gTab$.
-	\item The lines 8-9 and 13-17 correspond to the scheme \eqref{RAGL_splitting}.
+	\item Lines 8-9 and 13-17 correspond to the scheme \eqref{RAGL_splitting}.
 	\item By default, the number of operators is $4m-1$ (line 2 or 35). This is in fact an upper bound since at batch $i$, $2m+2i-1$ operators are involved: the $m$ operators $\left(\nR_j\right)_{1\leq j \leq m}$ and the delays:
 	\begin{multline*}
 		\left(\theta_{n+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j<i} \text{ , } \left(\theta_{n-1+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j \leq m} \\ 
@@ -762,7 +761,7 @@ Firstly, we present the adaptive implementation of the splitting formula \eqref{
 		\sum_{j=1}^m \nR_j\left(\theta_{n+(i-1)/m}\right) - \sum_{j=1}^m \nR_j\left(\theta_{n-1+(j-1)/m}\right) \\
 		 + \displaystyle{\sum_{j=1}^i} \left[\nR_j\left(\theta_{n+(j-1)/m}\right)-\nR_j\left(\theta_{n+(j-2)/m}\right)\right]. 
 	\end{multline*}
-	\item The line 43 evaluates $d$ (as RAG). The difference is that on batch $i$, $d$ corresponds to the variations of the $i$ last gradients: here we wait for $d$ to accumulate the variations of the last $m$ gradients (no "early" stopping). In fact, in the meantime, $g$ is a perturbed approximation of $\nR$, see formula \eqref{RAGL_splitting}.
+	\item Line 43 evaluates $d$ (as RAG). The difference is that on batch $i$, $d$ corresponds to the variations of the $i$ last gradients: here we wait for $d$ to accumulate the variations of the last $m$ gradients (no "early" stopping). In fact, in the meantime, $g$ is a perturbed approximation of $\nR$, see formula \eqref{RAGL_splitting}.
 \end{enumerate}
 The RAGL algorithm \ref{algo_RAGL} implements the formula \eqref{RAGL2_splitting}. It is similar with the difference that the function \eqref{algo_comparaison} called at line 44 enables to store the point $\theta_2$ associated to the stiffest batch of the running epoch: $L_{max}$ is not necessary equal to $\tilde{L}_{max}$. Therefore at the end of an epoch, $\theta_2$ assigned to $\theta_1$, is the point associated to the stiffest batch of this epoch. \\
 
@@ -773,7 +772,7 @@ The RAGL algorithm \ref{algo_RAGL} implements the formula \eqref{RAGL2_splitting
 	\label{complexity_law}
 \end{equation}
 where $p$ denotes the number of dichotomous steps in the linesearches. 
-We will see later that this estimation is also verified empirically in the mini-batch case.
+We will see later that this estimation is also empirically verified in the mini-batch case.
 \end{remark}
 
 \begin{remark}
@@ -782,14 +781,14 @@ We will see later that this estimation is also verified empirically in the mini-
 
 \paragraph{A first test to skim off the best}
 ~~\\
-As explained in subsection \ref{RAGL_proto}, RAGL-prototype is not adapted to deal with stiff
-problems. We are going to confirm this fact on the stiffest analytical example that we have, namely \polyFive: $\R$ is a two variables polynomial, of degree total 10, with
-different degree of degeneracy. Although $m=2$ and the benchmark satisfies the interpolation condition, it is very difficult since $\R_1$ and $\R_2$ do not admit the same order of
+As stated in subsection \ref{RAGL_proto}, RAGL-prototype is not adapted to deal with stiff
+problems. We are going to confirm this fact on the stiffest analytical example that we have, namely \polyFive: $\R$ is a two variables polynomial, of total degree 10, with
+different degrees of degeneracy. Although $m=2$ and the benchmark satisfies the interpolation condition, it is very difficult since $\R_1$ and $\R_2$ do not admit the same order of
 degeneracy around some critical points (for example $(-4,3)$): $\nnR_1$ is non-zero whereas the second and third order derivatives of $\R_2$ are zero. This may generate some
 important slow downs since around these points, two very different scales should be taken into account: it is the main reason behind the linesearch with interaction (i.e.
 algorithm \ref{linesearch_batch2}). \\
 The table \ref{polyFive_ecreme} presents the number of divergent\footnote{\newG{divergent ou non-convergent?}} trajectories on \polyFive as well as the execution time for $28000$ trainings initialized uniformly on $[-5,5]^2$.
-RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL, with similar execution times. It is possible to completely suppress the divergent trajectories by turning off the heuristic ($h_{max}=1$) but the execution time is $2.6$ times larger than RAGL. In fact on the ML benchmarks, the difference is more distinct (factor from 4 to 6). Therefore, we will only test RAG and RAGL in the following.
+RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL, with similar execution times. It is possible to completely suppress the divergent trajectories by turning off the heuristic ($h_{max}=1$) but the execution time is $2.6$ times larger than RAGL. In fact on the ML benchmarks, the difference is even more significant (factor from 4 to 6). Therefore, we will only test RAG and RAGL in the following.
 
 
 \begin{table}[h!]
@@ -807,12 +806,12 @@ RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL,
 	\label{polyFive_ecreme}
 \end{table} 
 
-In this section, we have introduced new adaptive mini-batch optimizers based on the balanced splitting schemes of section \ref{section_optimizers}.
+%In this section, we have introduced new adaptive mini-batch optimizers based on the balanced splitting schemes of section \ref{section_optimizers}.
 
 \section{Numerical results}
 \label{section_results}
 
-The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most famous stochastic optimizer
+The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most popular stochastic optimizer
 in the Deep Learning litterature, namely RRAdam (called also Adam in the litterature \cite{Adam}), described in appendix \ref{annexe_adam}. Another slight modification of RRAdam without the debiased steps (that we call RRAWB: Random Reshuffle Adam without bias steps) is sometimes tested to illustrate some instability phenomenons. They are also compared to new Armijo-like full-batch optimizers introduced in chapter 2 of \cite{Bilel_thesis} (see \cite{Lyap_Theory_Bilel} for an analysis): LC (Lyapunov control) and LCD (Lyapunov Control Dichotomy) since they have many good properties (stability for example).
 
 \subsection{Analytic benchmarks}
@@ -856,7 +855,7 @@ In the following, the hyperparameters are the following:
 ~~\\
 In the same way as in part I of this paper, we represent the final distribution of the points $\theta$ on the eight benchmarks using $10000$ points in the Monte-Carlo simulation. Here, we do not stop the algorithm for a time $t_f$ large enough, but we use our stopping criterion with $\epsilon=10^{-4}$ and $n_{max}=200000$: this makes it possible to evaluate its relevancy. 
 \\
-The figures \ref{RAG_exs} and \ref{RAGL_exs} present the eight distributions, both for RAG and RAGL. The below comments concern the two algorithms given that their distributions are exactly the same.\\
+Figures \ref{RAG_exs} and \ref{RAGL_exs} present the eight distributions, both for RAG and RAGL. The below comments concern the two algorithms given that their distributions are exactly the same.\\
 In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
 soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. This also points out that
 our stopping criterion seems sufficient. In fact, when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
@@ -880,7 +879,7 @@ here, we have interpolating critical points and others which are not, some criti
 \end{figure}
 
 \paragraph{}
-Now, we focus on the benchmarks \polyTwo, \polyThree and \polyFive in dimension 2 introduced in \cite{Bilel} ($m=2$) to analyse the stability, the behavior of the saddle points and the speed of convergence. The threshold is fixed to $\epsilon=10^{-4}$ and $n_{max}=200000$. Let us remember that these benchmarks satisfy the interpolation condition for all the critical points. \\
+Now, we focus on the two-dimensional benchmarks \polyTwo, \polyThree and \polyFive introduced in \cite{Bilel} ($m=2$) to analyse the stability, the behavior of the saddle points and the speed of convergence. The threshold is fixed to $\epsilon=10^{-4}$ and $n_{max}=200000$. Let us remember that these benchmarks satisfy the interpolation condition for all the critical points. \\
 In order to be able to compare the optimizers, we have no choice but to compute the full-batch gradient at the end of every epoch for RRGD, RRAWB and RRAdam in the rest of the paper, since there are no stopping criteria for the stochastic optimizers. Of course, this choice increases the running time of these algorithms, but it is the only manner to be fairly comparable.
 
 \paragraph{Stability}
@@ -1057,21 +1056,21 @@ than RRAdam and 13 to 34 times more effective than Adam. These results are valid
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Sonar_train.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Sonar_train.pgf}}
 	\caption{Distribution of the proportion of well-classified training points on Sonar.}
 	\label{Sonar_train}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Sonar_test.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Sonar_test.pgf}}
 	\caption{Distribution of the proportion of well-classified testing points on Sonar.}
 	\label{Sonar_test}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Sonar_time.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Sonar_time.pgf}}
 	\caption{Distribution of execution times on Sonar.}
 	\label{Sonar_time}
 \end{figure} 
@@ -1112,7 +1111,7 @@ Although RRAdam does not converge for $n_{max}$ epochs, it is logical to wonder 
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Boston_grads.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Boston_grads.pgf}}
 	\caption{Distribution of $\log\left(\|\nR(\theta_{n_{max}})\|\right)$ for RRAdam with $b=4$ on Boston.}
 	\label{Boston_grads}
 \end{figure}
@@ -1133,21 +1132,21 @@ $(L_i)_{1\leq i \leq m}$ along the trajectories which seem to play a role in the
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Boston_train.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Boston_train.pgf}}
 	\caption{Distribution of the training costs on Boston.}
 	\label{Boston_train}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Boston_test.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Boston_test.pgf}}
 	\caption{Distribution of the testing costs on Boston.}
 	\label{Boston_test}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Boston_time.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Boston_time.pgf}}
 	\caption{Distribution of the execution time on Boston.}
 	\label{Boston_time}
 \end{figure}
@@ -1190,21 +1189,21 @@ Let us finish with the execution time on figure \ref{Diamonds_time}. Here, LCD i
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Diamonds_train.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Diamonds_train.pgf}}
 	\caption{Distribution of training costs on Diamonds, in logarithmic scale.}
 	\label{Diamonds_train}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Diamonds_test.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Diamonds_test.pgf}}
 	\caption{Distribution of testing costs on Diamonds, in logarithmic scale.}
 	\label{Diamonds_test}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Diamonds_time.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Diamonds_time.pgf}}
 	\caption{Distribution of execution times on Diamonds.}
 	\label{Diamonds_time}
 \end{figure}

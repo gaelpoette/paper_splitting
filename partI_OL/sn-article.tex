@@ -869,7 +869,7 @@ In this section, we suggest applying the new previously described splitting comb
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. The study hence numerically emphasizes that this mini-batch optimiser also
 satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). Part II of this paper will be dedicated to condition 6, namely
-adaptativeness. It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
+adaptativeness. \\ %It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 
 
 \begin{figure}[h!]
@@ -877,12 +877,14 @@ adaptativeness. It will be applied to Speth-GD but, once again, the adaptive str
 	\scalebox{0.45}{\input{chapitre5_img/SPETH_exs.pgf}}
         \caption{
           Application of Speth-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
-        $\eta = 1\times 10^{-3}$ for \exThree (a), 
-  $\eta = 3.33\times 10^{-2}$ for \exFour (b), 
-  $\eta = 5 \times 10^{-2}$ for \exFive (c), 
-  $\eta = 1 \times 10^{-2}$ for \exSix (d), 
-  $\eta = 1 \times 10^{-2}$ for \exSeven (e), 
-  $\eta = 2.5 \times 10^{-2}$ for \exHeight (f). 
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
 }
 	\label{SPETH_exs}
 \end{figure}
@@ -894,12 +896,14 @@ adaptativeness. It will be applied to Speth-GD but, once again, the adaptive str
         \scalebox{0.45}{\input{chapitre5_img/SGD_exs_1.pgf}}
 	\caption{
           Application of RRGD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
-        $\eta = 1\times 10^{-3}$ for \exThree (a), 
-  $\eta = 3.33\times 10^{-2}$ for \exFour (b), 
-  $\eta = 5 \times 10^{-2}$ for \exFive (c), 
-  $\eta = 1 \times 10^{-2}$ for \exSix (d), 
-  $\eta = 1 \times 10^{-2}$ for \exSeven (e), 
-  $\eta = 2.5 \times 10^{-2}$ for \exHeight (f). 
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
         }
 	\label{SGD_exs}
 \end{figure}
@@ -918,15 +922,17 @@ By tuning the learning rate for Speth-GD, we mean having an estimation of the la
 have stable resolutions. 
 By tuning $n_{max}$, we mean ensuring stationarity of the distributions for the algorithms which suffer from not having a stopping criterion.
 For all the benchmarks, $n_{max}=10000$ seems to be a qualitatively good choice. 
-For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $F_1,F_2$ are available: they corresponds to 
-the larger learning rate ensuring stability. 
+For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $F_1,F_2$ are available: they correspond to 
+the largest estimation of the stability condition available. 
 For all the other benchmarks, the larger learning rates have been (coarsely) manually obtained. They are given by 
-$\eta = 1\times 10^{-3}$ for \exThree, 
-$\eta = 3.33\times 10^{-2}$ for \exFour, 
-$\eta = 5 \times 10^{-2}$ for \exFive, 
-$\eta = 1 \times 10^{-2}$ for \exSix, 
-$\eta = 1 \times 10^{-2}$ for \exSeven, 
-$\eta = 2.5 \times 10^{-2}$ for \exHeight. 
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
 As can be seen on figure \ref{SPETH_exs}, the distributions obtained with Speth-GD are all peaked on the different local and global minimums, for the eight benchmarks, with learning
 rates which are tractable. Note that on example \exHeight, figure \ref{SPETH_exs} (f), the Speth-GD optimiser does not find the global minimum and remains stuck on the local one:
 we will see in part II of this paper that adaptivity is necessary in order to capture this stiff global minimum.  
@@ -940,12 +946,14 @@ our stopping criterion seems sufficient: when {\em a posteriori} computing the f
 	\scalebox{0.45}{\input{chapitre5_img/SGD_exs_001.pgf}}
 	\caption{
           Application of RRGD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
-        $\eta = 1\times 10^{-5}$ for \exThree (a), 
-  $\eta = 3.33\times 10^{-4}$ for \exFour (b), 
-  $\eta = 5 \times 10^{-4}$ for \exFive (c), 
-  $\eta = 1 \times 10^{-4}$ for \exSix (d), 
-  $\eta = 1 \times 10^{-4}$ for \exSeven (e), 
-  $\eta = 2.5 \times 10^{-4}$ for \exHeight (f). 
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
 }
 	\label{SGD_exs_001}
 \end{figure}
@@ -980,7 +988,9 @@ The goal of this paper is to serve as a first step towards an extension of full-
 More precisely, the following points are tackled:
 \begin{itemize}
 	\item the interpolation hypothesis is largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new steady states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
-	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an explicit Euler scheme. This perspective makes it possible to explain the appearance of "artificial" steady states that are related to the unbalancing of the splitting: the steady states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
+	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the
+          classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an explicit Euler scheme. This
+          splitting approach makes it possible to explain the appearance of "artificial" steady states that are related to the unbalancing of the splitting: the steady states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
          \item A new family of algorithm is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch
            decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping
            criterion which doesn't require to compute full batch gradients. 

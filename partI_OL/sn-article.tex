@@ -244,7 +244,10 @@ where each function $\R_i$ is computed on $b$ data and not $P \gg b$. Then at ev
 	\R(\theta) = \mean \left[\R_{\zeta}(\theta)\right],
 	\label{opti_sto}
 \end{equation}  
-where $\zeta$ is a probability law. Although we study mini-batch optimization for memory consumption issue, some authors are interested in this for other reasons: it is commonly accepted that stochastic noise introduced by the batches helps escaping saddle points \cite{sgd_escape1,sgd_escape2,sgd_escape3,sgd_escape4} or achieving best generalization error \cite{sgd_gen1,sgd_gen2,sgd_gen3,sgd_gen4}. Many optimizers have been suggested these recent years to find critical points for the finite sum problem \eqref{pb_somme_fini}. In the following, we present the most important family of mini-batch optimizers.
+where $\zeta$ is a probability law. Although we study mini-batch optimization for memory consumption issue, some authors are interested in this for other reasons: it is commonly
+accepted that stochastic noise introduced by the batches helps escaping saddle points \cite{sgd_escape1,sgd_escape2,sgd_escape3,sgd_escape4} or achieving best generalization error
+\cite{sgd_gen1,sgd_gen2,sgd_gen3,sgd_gen4}. Many optimizers have been suggested these recent years to find critical points for the finite sum problem \eqref{pb_somme_fini}. In the
+following, we present the most important families of mini-batch optimizers.
 
 \paragraph{Stochastic gradient descent (SGD)}
 ~~\\
@@ -266,17 +269,17 @@ to ensure convergence. In practice, SGD is used with constant learning rate. How
 \end{equation}
 This assumption is very strong. For example, concerning neural networks, this assumption is related to the surparametrization ($N\gg P$) of the network \cite{ESG_upper_bound,ESG_IG}. 
 In a sense, this work aims at helping answering the question: is it possible to build efficient small networks using SGD?
-Accurate shallow networks certainly present interesting properties in a {scientific ML context \cite{FV_scheme,reentry,acc_newt,FRANCK,plasma,KluthRipoll}}. 
+Accurate shallow networks certainly present interesting properties in a {scientific ML context \cite{FV_scheme,reentry,acc_newt,FRANCK,plasma,KluthRipoll,DESPRES2020109275}}. 
 %Then it is not possible to build efficient small networks using SGD. 
 Hence, one of the main concern of this work will be to overcome the interpolation condition \eqref{interpolation}. Note that stochastic inertial algorithms and Adam-like optimizers suffer from the same limitation \cite{sgd_prec,adam1,adam2,zou_rms,rms_not_bounded}.
 
 \paragraph{Random reshuffle gradient descent (RRGD)}
 ~~\\
-In practice, the reshuffle versions are prefered to classical ones \cite{RR_use1,RR_use2,RG_mean}. For example, the version of SGD with random reshuffling is called Random Reshuflle GD (RRGD) or SGD without replacement. It consists, at the beginning of every epoch, in sampling a random permutation and then to apply the $m$ updates \eqref{SGD} in the order given by the permutation. Empirically, it seems that RRGD converges faster than SGD and gives better performances \cite{RR_use1,RR_use_superior}. Many works \cite{RR_outperforms_quadratics,RR_use3,RR_outperforms_convex,RR_small_epochs} try to explain this superiority theoretically, especially for well-conditionned convex functions.
+In practice, the reshuffle versions are prefered to classical ones \cite{RR_use1,RR_use2,RG_mean}. For example, the version of SGD with random reshuffling is called Random Reshuffle GD (RRGD) or SGD without replacement. It consists, at the beginning of every epoch, in sampling a random permutation and then to apply the $m$ updates \eqref{SGD} in the order given by the permutation. Empirically, it seems that RRGD converges faster than SGD and gives better performances \cite{RR_use1,RR_use_superior}. Many works \cite{RR_outperforms_quadratics,RR_use3,RR_outperforms_convex,RR_small_epochs} try to explain this superiority theoretically, especially for well-conditionned convex functions.
 
 \paragraph{Variance reduction}  
 ~~\\
-Despite not being used in practice, variance reduction optimizers have been extensively studied by ML researchers this last decade, since they can converge with constant learning
+Although variance reduction optimizers are not as widely used in practice as the previous two families, they have been extensively studied by ML researchers this last decade, since they can converge with constant learning
 rate. In broad outline, the aim is to conceive methods that ensure that the variance does vanish asymptotically:
 \begin{equation*}
   \displaystyle{\sum_{i=1}^m}\left[\|\nR(\theta_n)/m-\nR_i(\theta_n)\|^2\right] {\underset{n\to \infty}{\longrightarrow}} 0.
@@ -349,8 +352,10 @@ To reach such a construction, the paper is organized as follows:
 \begin{itemize}
 	\item in section \ref{section_stationary}, the stationary distribution of SGD and RRGD (with constant learning rate) is investigated empirically on analytic examples: we build new benchmarks (in one
           dimension) to discuss the negation of the interpolation assumption. Undesirable behaviors (which are, to the best of our knowledge, not documented in the litterature) are
-          identified: SGD and RRGD recover the critical points of the $\R_i$ in the long run, and not the ones of $\R$. 
-        \item An interpretation of RRGD as a specific splitting of operators is suggested in section \ref{section_splitting_schemes}. This enables to relate some "strange" stationary distributions to a disequilibrium of the splitting. 
+          identified: SGD and RRGD may recover the critical points of the $\R_i$ in the long run, and not always the ones of $\R$ or even recover artificial critical points (in the
+          sense they are neither critical points of $\R$ nor of the $\R_i, i\in\{1,...,m\}$). 
+        \item An interpretation of RRGD as a specific splitting of operators is suggested in section \ref{section_splitting_schemes}. This enables to relate some "strange"
+          stationary distributions (and critical points) to a disequilibrium of the splitting. 
 	\item The construction of a balanced splitting gives birth to a first family of optimizer in section \ref{new_splitting}. This family extends the method developed by Speth \cite{rebalanced_splitting} for balancing convection-diffusion. It is shown to overcome the aforementioned issue and satisfies the first five criteria.
 	\item In section \ref{num_res}, the newly developed methods are tested on analytical benchmarks. 
 \end{itemize}
@@ -456,7 +461,9 @@ Note that for SGD, even when decreasing the learning rate, the stationary distri
 local minimum are largely favored.
 
 \paragraph{}
-In this section, we built new benchmarks to analyse the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble catching non-interpolating critical points. Even worse, SGD creates artificial stationary states in the sense that they are not critical points of the invidual functions $\R_i$ or of the sum function $\R$.   
+In this section, we built new benchmarks to analyse the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble
+catching non-interpolating critical points. Even worse, SGD creates artificial stationary states in the sense that they are not critical points of the individual functions $\R_i$
+or of the sum function $\R$. Decreasing the learning rate appears to have little to no effect on the previous observations: this point will be confirmed in the next section. 
 
 \section{SGD revisited as a splitting scheme and issues}
 \label{section_splitting_schemes}
@@ -499,7 +506,7 @@ As a basis for splitting schemes, see \cite{splitting_ode_review,splitting_ode_r
 
 \paragraph{RRGD as a splitting}
 ~~\\
-Let us remember that the deterministic version of RRGD is IG ({\it Incremental Gradient}) in the litterature \cite{IG_proximal}. The latter can be interpreted as a Lie-Trotter
+Let us remember that the deterministic version of RRGD is IG ({\it Incremental Gradient}) in the litterature \cite{IG_proximal,despres2022neural}. The latter can be interpreted as a Lie-Trotter
 splitting with an explicit Euler scheme consisting in applying an explicit Euler scheme to each ODE $\theta'(t)=-\nR_i(\theta(t))$ and then to put them together like in \eqref{splitting_lie_trotter}. \\
 In the same way as for SGD and RRGD, we plot the stationary distributions of IG on \exOne and \exTwo for the same choices of learning rates, on the figures \ref{IG_ex1} and \ref{IG_ex2}. Since there is no stochasticity, we only represent $u$, the stationary distribution corresponding to the initial condition:
 \begin{equation*}
@@ -561,7 +568,7 @@ where the invariant state $y_{\infty}$ is the solution of the linear system:
 \begin{equation*}
 	(A+B)y_{\infty} = -(a+b).
 \end{equation*}
-We assume that the real parts of the eigenvalues of $A+B$ are negative in order for $y_{\infty}$ to be the stationary state of \eqref{EDO_linear} and for all the matrices at stake to be invertible, to simplify the presentation. The invariant states of each vector field satisfy:
+We assume that the real parts of the eigenvalues of $A+B$ are negative in order for $y_{\infty}$ to be the stationary state of \eqref{EDO_linear} and for all the operators at play to be invertible, to simplify the presentation. The invariant states of each vector field satisfy:
 \begin{equation*}
 	Ay_{\infty}^1 = -a \text{ et } By_{\infty}^2 = -b.
 \end{equation*}
@@ -606,7 +613,7 @@ Therefore for $\eta \in \left]0,\frac{5}{8}\right[$:
 \begin{equation*}
 	\theta_{\infty} (\eta)= \dfrac{2}{5-8\eta}.
 \end{equation*}
-For two learning rates tested, the stationary state equals:
+Let us test two learning rates, two of the ones tested in figures \ref{IG_ex1}. The stationary state equals:
 \begin{equation*}
 	\left\{
 	\begin{array}{ll}
@@ -615,8 +622,10 @@ For two learning rates tested, the stationary state equals:
 	\end{array}
 	\right.
 \end{equation*}
-We recover the stationary states of the simulation and notice that it is impossible to achieve exactly the minimum of $\R$ at $\theta=\frac{2}{5}$ if $\eta \neq 0$. \\
-The splitting approach enables to suggest a plausible explanation to the artificial steady states that we have detected on SGD, RRGD, IG and Strang when $\eta$ does not tend to 0. Such a phenomenon is called an imbalance of the splitting. Therefore, the artificial steady states (or the predilection towards the interpolating local minimum) are related to the \textbf{non-commutativity} of the vector fields $\nR_1$ and $\nR_2$. 
+We recover the stationary states of the simulations of figure \ref{IG_ex1} and notice that it is impossible to achieve exactly the minimum of $\R$ at $\theta=\frac{2}{5}$ if $\eta \neq 0$. \\
+The splitting approach enables to suggest a plausible explanation to the artificial steady states that we have detected on SGD, RRGD, IG and Strang when $\eta$ does not tend to 0.
+Such a phenomenon is called an imbalance of the splitting. Therefore, the artificial steady states (or the predilection towards the interpolating local minimum) are related to the
+\textbf{non-commutativity} of the vector fields $F_1$ and $F_2$ (i.e. $\nR_1$ and $\nR_2$ for any mini-batch version of GD). 
 
 \paragraph{Construction of balanced schemes}
 ~~\\
@@ -687,6 +696,7 @@ Despite its benefits, the Speth splitting suffers from two drawbacks in our cont
 	\item when $y_{n+1}$ is computed \eqref{splitting_speth}, the evaluation of $F_1$ used in the balancing $c_n$ does not exploit the most recent value, namely $F_1(y_n)$, but rather $F_1(y_{n-1/2})$. But in the ML context, it is possible to employ the most recent evaluation because at every iteration, it is possible to evaluate the batch we want since all the batches have more or less the same computational cost. 
 	\item We want to be able to use different learning rates for every iteration (adaptive method in the end): $\eta^1$ and $\eta^2$. It is possible to keep the balance property in this context with some modifications, for example by replacing the division by $\eta$ by $\frac{2}{\eta^1+\eta^2}$. Nevertheless, exploiting the most recent evaluation (mentioned above), this issue is settled immediately. 
 \end{itemize}
+For these two main reasons, in the following paragraph, we suggest an adjustment of Speth's splitting, convenient in our ML context. 
 
 \paragraph{Adjustment of the Speth splitting}
 ~~\\
@@ -768,12 +778,12 @@ The scheme is initialized at $n=0$ with:
 for all $i \in \{1,\dots,m\}$. 
 %The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
 The scheme \eqref{RAGL_splitting} is well-balanced	since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
-The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. We are going to see that this formula can be implemented with a storage involving $3N$.
+The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. This formula can be implemented with a storage involving $3N$.
 
 \paragraph{Stopping criterion}
 ~~\\
 Something important which seems, to our knowledge, to not have been noticed in the litterature is that 
-  expression \eqref{gni} is consistent with $F=\sum_{i=1}^m F_i$ in the sense that $\forall i\in\{1,...,m\}$ 
+  expression \eqref{gni} (or its equivalent in \eqref{RAGL_splitting}) is consistent with $F=\sum_{i=1}^m F_i$ in the sense that $\forall i\in\{1,...,m\}$ 
   \begin{equation}
     \label{stopping_criterion}
     g_n^i = F(y_n) +\mathcal{O}(\eta). 
@@ -807,7 +817,7 @@ The initialization of the scheme ($n=0$) can be done in two ways:
 
 \paragraph{Example: application to Momentum}
 ~~\\
-The simplest choice for $F_i$ is $F_i=-\nR_i$ which is equivalent to IAG (SAG without random permutation) if memory reduction is not taken into account. 
+The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG without random permutation) if memory reduction is not taken into account. % and RR-SARAH (without random permutation) otherwise. 
 	The splitting scheme we suggest in this paper can be applied to any differential equation $y'(t)=F(y(t))$. For example in the case of the Momentum/Heavy-Ball equation \cite{momentum_sutskever_RNN,Polyak,polyak_momentum_stability,continuous_general} a natural decomposition of the vector field is given by:
 	\begin{equation*}
 		F_i(\theta,v) = 
@@ -817,7 +827,7 @@ The simplest choice for $F_i$ is $F_i=-\nR_i$ which is equivalent to IAG (SAG wi
 		\end{pmatrix},
 	\end{equation*}
         where $m$ is the number of batches.\\ 
-        We suggest testing the mini-batch optimizer obtained with this choice. Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with S-Momentum (stochastic Momentum) with $\beta_1=0.9$. 
+        We suggest testing the low memory mini-batch optimizer obtained with this choice. Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with S-Momentum (stochastic Momentum) with $\beta_1=0.9$. 
         The learning rate is chosen as $\eta=0.125$, which is larger than the most restrictive stability condition dictated by the Lipschitz constants for GD for these benchmarks:
         Momentum is indeed more stable than GD for example, at least on these benchmarks. 
         The distributions are displayed at two epochs: for epoch $n=20$, stationarity is not yet reached with S-Momentum whereas for epoch $n=2000$, it is.  
@@ -865,7 +875,7 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
 \ \\
 
 In this section, we have highlighted the necessity of having resort to a balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
-points of $F$). Finally, we have suggested a balanced splitting formula which differ from the classical ones (and encompass some classical ones) %by their memory complexity and 
+points of $F$) with constant learning rates. Finally, we have suggested a balanced splitting formula which differs from the classical ones (and encompass some classical ones) %by their memory complexity and 
 depending on the particular approximation of $F$. 
 \ \\ \ \\
 
@@ -918,14 +928,14 @@ adaptativeness. \\ %It will be applied to Speth-GD but, once again, the adaptive
 
 Figure \ref{SPETH_exs} presents the results obtained with Speth-GD on the eight examples described in section \ref{subsection_beyond_interpolation}. 
 The results are of the same type as the one of all the previous figures (but only \exOne and \exTwo were tackled in the latter): the final distributions of the weights are
-displayed at a final $t_f$, for some learning rates $\eta$ (their values will be detailed and commented on later on).  
+displayed at a final $t_f$, for some constant learning rates $\eta$ (their values will be detailed and commented on later on).  
 In practice, the final time $t_f$ is not explicitly calculated as it is either obtained when the stopping criterion \eqref{stopping_criterion} is fulfilled or when the maximum number of iteration is reached
 $n_{max} = 10000$.  
 Note that for Speth-GD, the final time always corresponds to the activation of the stopping criterion \eqref{stopping_criterion}, representative of the full gradient being smaller than $\epsilon =
 10^{-4}$ here. We remind the reader that stopping criterion \eqref{stopping_criterion} never needs the estimation on the full batch: it is estimated {\em on-the-fly} during the successive
 epochs/batches.  
 \ \\ \ \\
-For the eight next benchmarks, the first step was to tune of the learning rate $\eta$ and the total number of epochs $n_{max}$ for Speth-GD (figure \ref{SPETH_exs}). 
+For the eight next benchmarks, the first step was to tune of the (constant) learning rate $\eta$ and the total number of epochs $n_{max}$ for Speth-GD (figure \ref{SPETH_exs}). 
 By tuning the learning rate for Speth-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
 have stable resolutions. 
 By tuning $n_{max}$, we mean ensuring stationarity of the distributions for the algorithms which suffer from not having a stopping criterion.
@@ -941,7 +951,8 @@ For all the other benchmarks, the larger learning rates have been (coarsely) man
  $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
  $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
  $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
-As can be seen on figure \ref{SPETH_exs}, the distributions obtained with Speth-GD are all peaked on the different local and global minimums, for the eight benchmarks, with learning
+As can be seen on figure \ref{SPETH_exs}, the distributions obtained with Speth-GD are all peaked on the different local and global minimums, for the eight benchmarks, with
+constant learning
 rates which are tractable. Note that on example \exHeight, figure \ref{SPETH_exs} (f), the Speth-GD optimiser does not find the global minimum and remains stuck on the local one:
 we will see in part II of this paper that adaptivity is necessary in order to capture this stiff global minimum.  
 In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as

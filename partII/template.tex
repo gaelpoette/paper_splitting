@@ -313,7 +313,7 @@ what we call, the aggregator $g_n^i$. A reduction of memory cost can be made, go
 	\label{RAGL_splitting}
 \end{multline}
 for all $i \in \{1,\dots,m\}$. Here, the aggregator is the factor of $\eta$. The previous algorithm with reduced memory cost remains balanced in the sense it keeps the good properties of mini-batch update \eqref{RAG_scheme}
-with respect to the non-interpolatory condition. 
+with respect to the non-interpolatory condition: it is easy checking that (for both \eqref{RAG_scheme} and \eqref{RAGL_splitting}) if a limit $y_\infty$ for $y_{n+i/m}$ exists as $n\rightarrow \infty$, then it satisfies $F(y_\infty)=0$. 
 For $F=-\nR$, the mini-batch update is close to the one of algorithm RR-SARAH \cite{RR_SARAH}.
 
 All in all, in part I of this paper, it has been numerically emphasized on analytical one dimensional benchmarks that the new family of mini-batch optimizers can efficiently
@@ -397,7 +397,7 @@ $g_n^i$ (more generally the factor of $\eta$). The gradient of batch $i$, namely
 
 \paragraph{Backtracking without interaction}
 ~~\\
-The first backtracking described by algorithm \ref{linesearch_batch1} is a dichotomous search similar to the one described in the chapter 2 of \cite{Bilel_thesis} (the memory effect introduced in \cite{Rondepierre,Lyap_Theory_Bilel} discussed later is present but will appear in the whole algorithm). The difference is that the Armijo condition is verified for the function $\R_i$ in the direction $-\nR_i$, in other words the linesearch returns a learning rate $\eta$, satisfying for the point $\theta \in \Rb^N$ (entry of the function):
+The first backtracking described by algorithm \ref{linesearch_batch1} is a dichotomous search similar to the one described in the chapter 2 of \cite{Bilel_thesis} (the memory effect introduced in \cite{Rondepierre,Lyap_Theory_Bilel} discussed later is present but will appear in the whole algorithm). The difference is that the Armijo condition is verified for the function $\R_i$ in the direction $-\nR_i$: in other words the linesearch returns a learning rate $\eta$, satisfying for the point $\theta \in \Rb^N$ (entry of the function):
 \begin{equation}
 	\R_i(\theta-\eta\nR_i(\theta))-\R_i(\theta) \leq -\lambda \eta \|\nR_i(\theta)\|^2.
 	\label{armijo_batch1}
@@ -409,7 +409,7 @@ Note that having access to $\eta$ fulfilling the above inequality also gives acc
   L_i=\frac{2(1-\lambda)}{\eta},
 \end{equation}
 gives an estimation for the local Lipschitz constant of $\nR_i$ in the considered direction.
-This typically means that if we store this estimation, information about the stiffness of
+This typically means that if we store this (scalar) estimation, information about the stiffness of
 batch $i$ will be available when dealing with the other ones, even if slightly out of date (because evaluated at a former location).  
 
 
@@ -421,7 +421,7 @@ But, as previously put forward, the aggregator is always consistent with the ful
 \paragraph{Backtracking with interaction}
 ~~\\
 The second linesearch described by algorithm \ref{linesearch_batch2} 
-is motivated by the fact that Speth-GD provides more than only a local information on batch $i$: the aggregator $g$ provides a consistent 
+is motivated by the fact that Speth-GD provides more than a local information on batch $i$: the aggregator $g$ provides a consistent 
 approximation of the full gradient. We are able to use it as follows: 
 contrary to the first linesearch which evaluates the stiffness of $\R_i$ in the direction $-\nR_i$, this one evaluates it in the update direction, namely $g$: 
 this will typically be helpful if the variations of $\R_i$ are high in the direction of $-\nR_i$ whereas they are not in the direction of $g$. 
@@ -529,7 +529,7 @@ We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version 
 \end{enumerate}    
 
 \begin{algorithm}[h!]
-	\caption{Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$)}
+  \caption{Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$, $\newG{i}$)}
 	\label{algo_dist}
 	\begin{algorithmic}
 		\STATE $d \leftarrow d-dTab[i]$
@@ -624,7 +624,7 @@ We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version 
 The previously described algorithm is consequently adaptive and relies on updating the weights at each batch according to a well-balanced aggregator. 
 But the memory complexity remains high in the sense that the aggregator needs the storage of $m$ gradients of size $N$, i.e. of the size of $y$. In section \ref{section_results},
 we will see that the algorithm is very efficient in practice and is certainly 
-to one to be applied if a good compromise data into memory/size of the architecture can be reached. Otherwise, we suggest a lighter alternative, algorithm RAGL of section
+the one to be applied if a good compromise "data into memory vs. size of the architecture" can be reached. Otherwise, we suggest a lighter alternative, algorithm RAGL of section
 \ref{RAGL}. 
 But before, in section \ref{RAGL_proto}, we insist on probably the most intuitive algorithm based on both the previous adaptive strategy and a light aggregator, to mainly 
 explain why the less straightforward strategy of section \ref{RAGL} is needed in practice. 
@@ -703,7 +703,7 @@ explain why the less straightforward strategy of section \ref{RAGL} is needed in
 %\end{algorithm}
 
 
-As stated in the previous section, we now would like to reduce the memory cost the previous adaptive well-balanced mini-batch optimizer. 
+As stated in the previous section, we now would like to reduce the memory cost of the previous adaptive well-balanced mini-batch optimizer. 
 The mini-batch optimizer RAGL-prototype is born from the intuition
 that the adaptive procedures of the previous sections can easily be combined to 
  update \eqref{RAGL_splitting} and its lighter aggregator.
@@ -715,6 +715,17 @@ It is of complexity $3\times N$ and can also be viewed as a deterministic adapti
 \newG{ICI, IL FAUT EXPLIQUER POURQUOI IL ETS PAS ADAPTÉ AU PB STIFF parce qu'on fait ref a cette section plus tard...}\\
 TODO: et il faut aussi développer un peu ce qui est fait - même si c'est assez normal.
 
+\newG{Idealement, ici, on montre qu'on est content avec RAG. On montre qu'on perd des bonnes proprietes avec RAGL proto. On propose RAGL et on montre qu'on les retrouve... Voir si
+on peut faire ça en l'état, en remaniant... Ou s'il faut faire autre chose... Il faudrait limite 
+la sensitivity map de RAG, RAGL-proto et RAGL sur PolyAllStiff (le cas du tableau). On pourrait rendre le truc plus progressif. }
+
+\newG{Question dans les algo:
+\begin{itemize}
+  \item encapsuler les linesearches? Pourrait ne pas suffire pour bien mettre en evidence les differences de manière progressive
+  \item $eta_s$ n 'est ni $eta_1$ ni $eta_2$... qui ne sont pas initialisés quant à eux
+  \item renommer $\eta_1$ par $\eta_{BFI}$ et l'autre $\eta_{BWI}$? 
+\end{itemize}
+}
 
 \subsection{The RAGL optimizer: {\it Rebalanced Aggregated Gradient Light}}
 \label{RAGL}
@@ -740,7 +751,7 @@ Some comments are necessary:
 	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to suppress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
         \item Since the learning rate is adaptative, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain the most the learning rate. Therefore, the
           iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$. \\
-{This strategy is implemented in practice by using the largest estimated Lipschitz constant given by the algorithm.}
+    {This strategy is implemented in practice by using the largest estimated Lipschitz constant given by the algorithm \newG{? (mettre un number)}.}
 \end{itemize} 
 
 
@@ -751,7 +762,8 @@ First, we present the adaptive implementation of the splitting formula \eqref{RA
 \begin{enumerate}
 	\item The initialization \ref{algo_init_RAGL} is the same as RAG with the exception that it is not necessary to store the values $\nR_i$ in an array $gTab$.
 	\item Lines 8-9 and 13-17 correspond to the scheme \eqref{RAGL_splitting}.
-	\item By default, the number of operators is $4m-1$ (line 2 or 35). This is in fact an upper bound since at batch $i$, $2m+2i-1$ operators are involved: the $m$ operators $\left(\nR_j\right)_{1\leq j \leq m}$ and the delays:
+        \item By default, the number of operators is $4m-1$ (line 2 or 35). This is in fact an upper bound since at batch $i$, $2m+2i-1$ operators are involved\footnote{\newG{Trop
+          raide ici je pense}}: the $m$ operators $\left(\nR_j\right)_{1\leq j \leq m}$ and the delays:
 	\begin{multline*}
 		\left(\theta_{n+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j<i} \text{ , } \left(\theta_{n-1+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j \leq m} \\ 
 		\text{ and } \left(\theta_{n+(j-1)/m}-\theta_{n+(j-2)/m}\right)_{1\leq j \leq i}.
@@ -761,12 +773,14 @@ First, we present the adaptive implementation of the splitting formula \eqref{RA
 		\sum_{j=1}^m \nR_j\left(\theta_{n+(i-1)/m}\right) - \sum_{j=1}^m \nR_j\left(\theta_{n-1+(j-1)/m}\right) \\
 		 + \displaystyle{\sum_{j=1}^i} \left[\nR_j\left(\theta_{n+(j-1)/m}\right)-\nR_j\left(\theta_{n+(j-2)/m}\right)\right]. 
 	\end{multline*}
-	\item Line 43 evaluates $d$ (as RAG). The difference is that on batch $i$, $d$ corresponds to the variations of the $i$ last gradients: here we wait for $d$ to accumulate the variations of the last $m$ gradients (no "early" stopping). In fact, in the meantime, $g$ is a perturbed approximation of $\nR$, see formula \eqref{RAGL_splitting}.
+	\item Line 43 evaluates $d$ (as RAG). The difference is that on batch $i$, $d$ corresponds to the variations of the $i$ last gradients: here we wait for $d$ to accumulate
+          the variations of the last $m$ gradients (no "early" stopping). In fact, in the meantime, $g$ is a perturbed approximation of $\nR$, see formula \eqref{RAGL_splitting}
+          and the stopping criterion remark \eqref{stopping_criterion}.
 \end{enumerate}
 The RAGL algorithm \ref{algo_RAGL} implements the formula \eqref{RAGL2_splitting}. It is similar with the difference that the function \eqref{algo_comparaison} called at line 44 enables to store the point $\theta_2$ associated to the stiffest batch of the running epoch: $L_{max}$ is not necessary equal to $\tilde{L}_{max}$. Therefore at the end of an epoch, $\theta_2$ assigned to $\theta_1$, is the point associated to the stiffest batch of this epoch. \\
 
 \begin{remark}
-  The goal of this article is to develop free-hyperparameters mini-batch algorithms. But aside from the heuristic, the algorithms RAG, RAGL, RAGL-prototype introduce three new hyperparameters $\lambda, f_1$ and $f_2$. As explained in \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}, they do not influence the convergence of the algorithm (contrary to $\eta$ for GD) but only the nature of the critical points found and the time complexity. It is also possible to estimate the number of evaluations of $\R$ (in the full-batch case). Theorem 2.5 of \cite{Bilel_thesis} and 5.1 of \cite{Bilel_ICML} stipulate that the mean number of evaluations is upper bounded by ($C_n$ the number of evaluations until the $n$-th epoch):
+  One of the goal of this article is to develop free-hyperparameters mini-batch algorithms. But aside from the heuristic, the algorithms RAG, RAGL, RAGL-prototype introduce three new hyperparameters $\lambda, f_1$ and $f_2$. As explained in \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}, they do not influence the convergence of the algorithm (contrary to $\eta$ for GD) but only the nature of the critical points found and the time complexity. It is also possible to estimate the number of evaluations of $\R$ (in the full-batch case). Theorem 2.5 of \cite{Bilel_thesis} and 5.1 of \cite{Bilel_ICML} stipulate that the mean number of evaluations is upper bounded by ($C_n$ the number of evaluations until the $n$-th epoch):
 \begin{equation}
 	\displaystyle{\limsup_{n\to \infty}}\dfrac{C_n}{n} \leq 1+\frac{\log(f_2)}{\log(f_1)}+p,
 	\label{complexity_law}

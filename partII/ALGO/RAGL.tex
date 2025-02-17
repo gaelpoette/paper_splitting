@@ -51,7 +51,8 @@
 		\ENDIF
 		
                 \STATE \newG{$\theta \leftarrow \theta -\eta g$}
-		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
+		%\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
+                \IF{$\|g\|>\epsilon$ and $\newG{\eta}>\epsilon_m$}
 		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
 		\ENDIF
 		

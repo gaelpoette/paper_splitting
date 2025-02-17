@@ -3,7 +3,7 @@
 	\label{algo_RAGL_proto}
 	\begin{algorithmic}[1]
                 \REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
-                \STATE $\theta_0 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$
+                \STATE $\theta_1 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$
 		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
 		\STATE $RTab$ and $LTab$ arrays of size $m$
                 \STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$, \newG{$\eta_{init}$, $\epsilon$})
@@ -14,9 +14,9 @@
 		\FOR{i=1,...,m}
 		
 		\IF{$i\leq m-1$}
-		\STATE $gs \leftarrow -\nR_i(\theta_0)$
+		\STATE $gs \leftarrow -\nR_i(\theta_1)$
 		\ENDIF
-		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
+		\STATE $\theta_1 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
 		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
 		\STATE $gSum \leftarrow g+g_i$
 		\IF{$i\leq m-1$}
@@ -51,7 +51,8 @@
 		\ENDIF
 		
 		\STATE $\theta \leftarrow \theta -\eta g$
-		\IF{$\|g\|>\epsilon$ and $\eta_0>\epsilon_m$}
+		%\IF{$\|g\|>\epsilon$ and $\eta_0>\epsilon_m$}
+                \IF{$\|g\|>\epsilon$ and $\newG{\eta}>\epsilon_m$}
 		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
 		\ENDIF
 		

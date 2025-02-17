@@ -319,8 +319,8 @@ where every $\tilde{m}$ iterations, the estimation $g_n$ is the full batch gradi
     of each epoch) by replacing the full-batch gradient by a stochastic gradient. Coupling variance reduction with random reshuffling, the authors of \cite{RR_SARAH} suggest very
     recently RR-SARAH: its memory cost involves $3N$ and not $mN$ and it does not need computation of the full-batch gradient $\nR$. To the best of our knowledge, it is the only
     optimizer that enjoys these properties. However, the analysis is limited to strongly convex functions under strong assumption on the noise. Besides, the numerical experiments
-    are limited to the logistic regression (for only one initialization).  {Finally, the non-interpolating condition with a constant learning rate, central in the present paper,
-    has, to our knowledge, never been studied.} 
+    are limited to the logistic regression (for only one initialization). Finally, the relation between the non-interpolating condition and the limiting points obtained under
+    constant learning rate, central in the present paper, has, to our knowledge, never been studied. 
 \end{itemize}
 
 \paragraph{Objectives}

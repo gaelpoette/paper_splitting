@@ -319,8 +319,8 @@ where every $\tilde{m}$ iterations, the estimation $g_n$ is the full batch gradi
     of each epoch) by replacing the full-batch gradient by a stochastic gradient. Coupling variance reduction with random reshuffling, the authors of \cite{RR_SARAH} suggest very
     recently RR-SARAH: its memory cost involves $3N$ and not $mN$ and it does not need computation of the full-batch gradient $\nR$. To the best of our knowledge, it is the only
     optimizer that enjoys these properties. However, the analysis is limited to strongly convex functions under strong assumption on the noise. Besides, the numerical experiments
-    are limited to the logistic regression (for only one initialization).  \newG{Finally, the interpolation condition, central in the present paper,
-    is never explicitly studied.} 
+    are limited to the logistic regression (for only one initialization).  {Finally, the non-interpolating condition with a constant learning rate, central in the present paper,
+    has, to our knowledge, never been studied.} 
 \end{itemize}
 
 \paragraph{Objectives}
@@ -339,7 +339,8 @@ This recap of the mini-batch litterature encourages us to require the six follow
           optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge).
         \item Finally, we absolutely want an \textbf{adaptive learning rate method}. 
           One of the main goal of this paper and its following second part is to avoid tuning hyperparameters. In an adaptive context, all the methods of the litterature that do
-          not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory \newG{ICI METTRE UNE REF}. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. \\
+          not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory
+          \cite{armijo_batch_size,armijo_variance_reduction,sto_TR_sampling}. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. \\
           This last point deserves its own paper, which is the purpose of part II.
 \end{enumerate}
 Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the
@@ -848,7 +849,7 @@ The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG w
   In other words, the appearance of artificial minimums strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimisers
   (other $F$) and is not only restricted to SGD or RRGD. 
 
-  On the other hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with Speth-Momentum \newG{(with memory reduction)}, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
+  On the other hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with Speth-Momentum {(with memory reduction)}, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
 \begin{figure}[!h]
 	\centering
 	\rotatebox{90}{\quad \quad epoch=20}  \scalebox{0.45}{\input{chapitre5_img/speth_mom_exs.pgf}}
@@ -883,7 +884,7 @@ depending on the particular approximation of $F$.
 \label{num_res}
 
 
-In this section, we suggest applying the new previously described \newG{low memory} splitting combined to GD, i.e. {Speth-GD} to the 
+In this section, we suggest applying the new previously described {low memory} splitting combined to GD, i.e. {Speth-GD} to the 
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. The study hence numerically emphasizes that this mini-batch optimiser also
 satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). Part II of this paper will be dedicated to condition 6, namely

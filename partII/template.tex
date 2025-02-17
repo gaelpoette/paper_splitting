@@ -313,7 +313,7 @@ what we call, the aggregator $g_n^i$. A reduction of memory cost can be made, go
 	\label{RAGL_splitting}
 \end{multline}
 for all $i \in \{1,\dots,m\}$. Here, the aggregator is the factor of $\eta$. The previous algorithm with reduced memory cost remains balanced in the sense it keeps the good properties of mini-batch update \eqref{RAG_scheme}
-with respect to the non-interpolatory condition: it is easy checking that (for both \eqref{RAG_scheme} and \eqref{RAGL_splitting}) if a limit $y_\infty$ for $y_{n+i/m}$ exists as $n\rightarrow \infty$, then it satisfies $F(y_\infty)=0$. 
+with respect to the non-interpolatory condition: in part I of this paper, care has been taken to ensure that (for both \eqref{RAG_scheme} and \eqref{RAGL_splitting}) if a limit $y_\infty$ for $y_{n+i/m}$ exists as $n\rightarrow \infty$, then it satisfies $F(y_\infty)=0$. 
 For $F=-\nR$, the mini-batch update is close to the one of algorithm RR-SARAH \cite{RR_SARAH}.
 
 All in all, in part I of this paper, it has been numerically emphasized on analytical one dimensional benchmarks that the new family of mini-batch optimizers can efficiently
@@ -713,11 +713,23 @@ The RAGL-prototype algorithm we first suggest, explicited in algorithm \ref{algo
 It is of complexity $3\times N$ and can also be viewed as a deterministic adaptive version of RR-SARAH. 
 
 \newG{ICI, IL FAUT EXPLIQUER POURQUOI IL ETS PAS ADAPTÉ AU PB STIFF parce qu'on fait ref a cette section plus tard...}\\
-TODO: et il faut aussi développer un peu ce qui est fait - même si c'est assez normal.
 
 \newG{Idealement, ici, on montre qu'on est content avec RAG. On montre qu'on perd des bonnes proprietes avec RAGL proto. On propose RAGL et on montre qu'on les retrouve... Voir si
 on peut faire ça en l'état, en remaniant... Ou s'il faut faire autre chose... Il faudrait limite 
-la sensitivity map de RAG, RAGL-proto et RAGL sur PolyAllStiff (le cas du tableau). On pourrait rendre le truc plus progressif. }
+\begin{itemize}
+  \item la sensitivity map de LC-GD, RAG, RAGL-proto et RAGL sur PolyAllStiff (le cas du tableau). 
+  \item On pourrait rendre le truc plus progressif avec 
+    \begin{itemize}
+      \item Dans la section RAG: on montre LC-GD vs. RAG et on dit que c'est quasi pareil, c'esy assez fort mais surtout ça insiste sur le fait qu'on attend pas plus que d'avoir au
+        mieux les meêms perf qu'en full batch (en opposition a plein d'autres qui cherchent mystiquement à sortir d'un point selle ou d'un minimum global (ahah)
+      \item RAG vs. proto (qui est proche de SARAH): catastrophe, faut faire qqs chose... Et ça montrera bien que l'astuce de SARAH, existante, ne suffit pas.
+      \item RAG vs. RAGL: youpi
+    \end{itemize}
+      \item Et dans la suite, on ne regarde que LC-GD, RAG, RAGL (et le fait d'introduire LC-GD plus tôt dans le discours, il sortira moins du chapeau)
+    \end{itemize}
+    A reussir a introduire: si on avait acces aux $L_i$, on aurait moins besoin d'un algo adaptif. On pourrait avoir acces a un nouvel algo a pas constant... Mais comme on a un pas
+    de temps, autant l'utiliser... N'empeche que si un jour on sait evaluer les $L_i$ autrement, on propose un algo a base de ces $L_i$. 
+    }
 
 \newG{Question dans les algo:
 \begin{itemize}
@@ -812,6 +824,7 @@ RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL,
 		\toprule
 		\begin{bf} \diagbox{Algos}{} \end{bf} & \begin{bf}nonConv\end{bf} & \begin{bf}Time(s)\end{bf} \\
 		\midrule
+                \begin{bf}\newG{LC-GD (full batch)}\end{bf} & ??? & ???? \\ \midrule
 		\begin{bf}RAG\end{bf} & 6e-4 & 3600 \\ \midrule
 		\begin{bf}RAGL-prototype\end{bf} & 0.251 & 4902 \\ \midrule
 		\begin{bf}RAGL-prototype ($h_{max}=1$)\end{bf} & 3.6e-5 & 13661 \\ \midrule
@@ -1011,7 +1024,7 @@ In a nutshell, the analytic examples enable us to check the following aspects fo
 From now on, we evaluate the practical performances of RAG and RAGL on ML tasks. These algorithms are mainly executed on three problems with several batch sizes. These problems are
 meticulously selected to discuss the interpolation condition. The latter is at the heart of mini-batch optimization, in the ML litterature. For these benchmarks, it is not possible
 to know analytically if this condition is satisfied. But the more the neural network is overparametrized and the more likely this condition is satisfied. As a result, we mainly test three configurations: $N\gg P$, $N\approx P$ et $N\ll P$. \\
-These tests were also selected so that all the data fit into memory, in such a way, the full-batch optimizers can be used as a standard. Although the aim to develop mini-batch
+These tests were also selected so that all the data fit into memory, in such a way, the full-batch optimizers can be used as a baseline. Although the aim to develop mini-batch
 optimizers is to overcome the RAM restriction, this choice does not change the relevance of the numerical results (since the values of $m$ are very scattered) and make the
 conclusions more thorough.\\ 
 %Additional benchmarks will also be briefly tested\footnote{\newG{Limite j'enlèverais bien cette phrase. Je comprends que tu l'aies mise compte tenu des

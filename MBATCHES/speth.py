@@ -198,6 +198,63 @@ def u0(x,typeCI="uniform"):
     
 
 #Dans nos examples, P=m
+def speth_red_mem(x0,m,lr_init,eps,maxEpoch,typeR):
+    epoch=0
+    P=m
+    x    = x0
+    eta  = 0.
+    g    = 0. 
+    grad = 0.
+    grad_tab =0.
+    gNorm = 1000
+    R = 0.
+    gsum = 0.
+    g = 0.
+    x_inter = x
+    L = np.zeros(m)
+    imax = 0
+
+    while epoch < maxEpoch and gNorm/P > eps:
+      
+      if epoch > 0:
+        eta=lr_init; 
+      #print(epoch)
+      
+
+      for i in range(m):
+        x_prec = x
+        if i < m-1:
+            gs = gradR(x_inter,i,typeR)
+        gi = gradR(x,i,typeR) 
+        if   L[i] > abs(gi):
+            L[i] = abs(gi)
+            imax = i
+        if i == 0:
+            gsum = gi
+        else: 
+            gsum = gsum + gi
+        if i < m-1:
+            g = g -gs
+            g = g +gi
+        else:
+            g = gsum
+        #print(g, gsum, gi, -gradR(x0,0,typeR)-gradR(x,1,typeR), eta, x, x0)
+
+        if imax == i:
+          x_inter = x_prec
+        x=x_prec-eta*g
+
+      #if epoch == 2:
+      #    abort
+      x0 = x
+      epoch+=1
+      gNorm=np.linalg.norm(g)
+    if epoch == maxEpoch:
+        print("max epoch reached")
+    return x, epoch
+
+
+#Dans nos examples, P=m
 def speth(x0,m,lr_init,eps,maxEpoch,typeR):
     epoch=0
     P=m
@@ -423,6 +480,10 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
 
     lr_init0 = lr_init
 
+    #optim = "RAG"
+    #optim = "SPETH"
+    optim = "SPETH_RED_MEM"
+
     #for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2)]:
     #for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2), ("ex5",3), ("ex6",3), ("ex7",3), ("ex8",4)]:
     #for (typeR,m,L1,L2) in [("ex1",2, 2, 8), ("ex2",2, 22, 150), ("ex3",2, 100, 100), ("ex4",2, 20, 20), ]:
@@ -430,13 +491,16 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
 
         lr_init = 1./ (L1+L2) * lr_init0
 
-        print(typeR)
+        print(typeR, optim)
         for p in range(nbParticules):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
-            #x,epoch = RAG  (x0,m,lr_init,eps,maxEpoch,typeR)
-            x,epoch = speth(x0,m,lr_init,eps,maxEpoch,typeR)
             #x,epoch = DGD  (x0,m,lr_init,eps,maxEpoch,typeR)
+            #x,epoch = RAG  (x0,m,lr_init,eps,maxEpoch,typeR)
+            if optim == "SPETH":
+                x,epoch = speth(x0,m,lr_init,eps,maxEpoch,typeR)
+            if optim == "SPETH_RED_MEM":
+                x,epoch = speth_red_mem(x0,m,lr_init,eps,maxEpoch,typeR)
 
 
             if(x>a and x<b):
@@ -484,7 +548,9 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
     
     #fig.show()
     #plt.show()
-    plt.savefig('SGD_exs_001.pgf')
+    #plt.savefig('SGD_exs_001.pgf')
+    plt.savefig(optim+"_exs.pgf")
+
 
 typeCI="uniform"
 N=1
@@ -497,8 +563,8 @@ lr_init=1
 #lr_init=0.1/3.
 eps=10**(-4); maxEpoch=10000
 
-# pour la dernière
-lr_init=0.01
-eps=10**(-4); maxEpoch=1000000
+## pour la dernière
+#lr_init=0.01
+#eps=10**(-4); maxEpoch=1000000
 
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

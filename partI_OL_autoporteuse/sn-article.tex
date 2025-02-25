@@ -199,15 +199,19 @@
 %%==================================%%
 
 \abstract{
-	Mini batch optimizers are at the center of neural network training. 
-        These are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
-        In practice, these optimizers need an extensive tuning of the hyperparameters (learning rate, batch size,...) to converge and exhibit expected behaviours. %give appropriate performances. 
+	Mini-batch optimizers are at the center of neural network training. 
+        They are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
+        %In practice, these optimizers need an extensive tuning of the hyperparameters (learning rate, batch size,...) to converge and exhibit expected behaviours. %give appropriate performances. 
         In theory, many stochastic algorithms used in this setting rely on the interpolation condition for convergence. 
         This condition is closely related to the overparametrization of the network. 
-        In this first part, we investigate numerically the non-interpolating case and highlight some new undesirable behaviors for the stationary distributions of the most popular stochastic optimizers. 
-        Moreover, we exploit the notion of balanced splitting to explain such behavior.
-        The combination of balanced splittings and classical optimizers (GD, Momentum, RMSProp etc.) leads to the construction of 
-        new mini-batch optimizers (and even allow revisiting some known ones as special cases of the suggested strategy, namely IAG, SARAH).
+        %In this first part,
+        Here, we investigate the non-interpolating case and highlight some undesirable behaviors for the stationary distributions of %the most popular stochastic
+        optimizers. 
+        %Moreover, we exploit the notion of balanced splitting to explain such behavior.
+        These behaviors are explained thanks to the interpretation of mini-batch optimizers as operator splitting.
+        Furthermore, a simple modification which balances them is proposed which leads to the construction of a new family of mini-batch optimizers based on classical ones.
+        %The combination of balanced splittings and classical optimizers (GD, Momentum, RMSProp etc.) leads to the construction of 
+        %new mini-batch optimizers (and even allow revisiting some known ones as special cases of the suggested strategy, namely IAG, SARAH).
         %A second part of this paper is dedicated to adaptiveness.
         %which work without tuning and without interpolation assumption. 
         %These new algorithms are rigorously tested on a set of analytic and Machine Learning benchmarks where they outperform the famous Adam algorithm.

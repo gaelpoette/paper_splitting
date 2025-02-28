@@ -200,16 +200,16 @@
 
 \abstract{
 	Mini-batch optimizers are at the center of neural network training. 
-        They are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
+        Most of them are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
         %In practice, these optimizers need an extensive tuning of the hyperparameters (learning rate, batch size,...) to converge and exhibit expected behaviours. %give appropriate performances. 
-        In theory, many stochastic algorithms used in this setting rely on the interpolation condition for convergence. 
+        In theory, many mini-batch algorithms used in this setting rely on the interpolation condition for convergence. 
         This condition is closely related to the overparametrization of the network. 
         %In this first part,
         Here, we investigate the non-interpolating case and highlight some undesirable behaviors for the stationary distributions of %the most popular stochastic
         optimizers. 
         %Moreover, we exploit the notion of balanced splitting to explain such behavior.
-        These behaviors are explained thanks to the interpretation of mini-batch optimizers as operator splitting.
-        Furthermore, a simple modification which balances them is proposed which leads to the construction of a new family of mini-batch optimizers based on classical ones.
+        These behaviors are explained thanks to the interpretation of mini-batch optimizers as unbalanced operator splittings.
+        From this observation, a simple modification which balances them is proposed which leads to the construction of a new family of mini-batch optimizers based on classical ones.
         %The combination of balanced splittings and classical optimizers (GD, Momentum, RMSProp etc.) leads to the construction of 
         %new mini-batch optimizers (and even allow revisiting some known ones as special cases of the suggested strategy, namely IAG, SARAH).
         %A second part of this paper is dedicated to adaptiveness.
@@ -701,11 +701,10 @@ Figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distributio
 
 Despite its benefits, the Speth splitting suffers from drawbacks in our context:
 \begin{itemize}
-	\item when $y_{n+1}$ is computed \eqref{splitting_speth}, the evaluation of $F_1$ used in the balancing $c_n$ does not exploit the most recent value, namely $F_1(y_n)$, but rather $F_1(y_{n-1/2})$. But in the ML context, it is possible to employ the most recent evaluation. Indeed, it is possible to evaluate the batch we want at each iteration since all the batches have more or less the same computational cost. 
-	\item We want to be able to use different learning rates for every iteration (adaptive method in the end): $\eta^1$ and $\eta^2$. It is possible to keep the balance property in this context with some modifications, for example by replacing the division by $\eta$ by $\frac{2}{\eta^1+\eta^2}$. Nevertheless, exploiting the most recent evaluation (mentioned above), this issue is settled immediately.
-        \item Moreover, the method shall be able to take any number of batches into account.
+        \item the method shall be able to take any number of batches into account.
+	\item When $y_{n+1}$ is computed \eqref{splitting_speth}, the evaluation of $F_1$ used in the balancing $c_n$ does not exploit the most recent value, namely $F_1(y_n)$, but rather $F_1(y_{n-1/2})$. But in the ML context, it is possible to employ the most recent evaluation. Indeed, it is possible to evaluate the batch we want at each iteration since all the batches have more or less the same computational cost. 
 \end{itemize}
-For these main reasons, in the following paragraph, we suggest an adjustment of Speth's splitting, convenient in our ML context. 
+For these main reasons, in the following paragraph, we introduce an adjustment of Speth's splitting, convenient in our ML context. 
 
 \paragraph{Adjustment of the Speth splitting}
 ~~\\
@@ -719,6 +718,10 @@ We therefore suggest the following scheme where the "balance" vector is slightly
 	\right.
 	\label{RAG_2batch}
 \end{equation}
+Note that in the previous expression, we enable the possibility to use different learning rates per batch. 
+This may be useful for instance if {\em a priori} knowledge of the batch stiffnesses are available. 
+%want to be able to use different learning rates for every iteration (adaptive method in the end): $\eta^1$ and $\eta^2$. It is possible to keep the balance property in this context with some modifications, for example by replacing the division by $\eta$ by $\frac{2}{\eta^1+\eta^2}$. Nevertheless, exploiting the most recent evaluation (mentioned above), this issue is settled immediately.
+
 Asymptotically, $F_1(y_{\infty})+F_2(y_{\infty})=0$ hence $F(y_{\infty})=0$.
 Up to a factor $\frac{1}{2}$ on the learning rate, 
 \eqref{RAG_2batch} can be written in the same form as the Speth scheme with:
@@ -748,7 +751,7 @@ Both on \exOne and \exTwo, the stationary distributions of \eqref{RAG_2batch} ar
 
 For $m$ operators, \eqref{RAG_2batch} can naturally be extended to the form:
 \begin{equation}
-	y_{n+i/m} = y_{n+(i-1)/m}+\eta g_n^i,
+	y_{n+i/m} = y_{n+(i-1)/m}+\eta^i g_n^i,
 	\label{RAG_scheme}
 \end{equation}
 where:
@@ -785,7 +788,7 @@ The initialization of the scheme ($n=0$) can be done in two ways:
 		\left\{
 		\begin{array}{ll}
 			y_{n+i/m}=y_0 \text{ if } 1\leq i<m, \\
-			y_{n+i/m} = y_{n+(i-1)/m}+\eta F(y_0) \text{ if } i=m.
+			y_{n+i/m} = y_{n+(i-1)/m}+\eta^i F(y_0) \text{ if } i=m.
 		\end{array}
 		\right.
 	\end{equation*}
@@ -817,7 +820,7 @@ The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG w
 	\centering
         \rotatebox{90}{\quad \quad epoch=20}  \scalebox{0.45}{\input{chapitre5_img/mom_exs.pgf}}
 	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.45}{\input{chapitre5_img/mom_long_exs.pgf}}
-        \caption{Stationary distributions of Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for epoch number $20$ (stationarity is not reached) and epoch number $2000$ (stationarity is reached). The green straight line represents the position of the global minimum of $\R$.}
+        \caption{Stationary distributions of S-Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for epoch number $20$ (stationarity is not reached) and epoch number $2000$ (stationarity is reached). The green straight line represents the position of the global minimum of $\R$.}
 	\label{mom_ex1_ex2}
 \end{figure}
   The last line of figure \ref{mom_ex1_ex2} displays the results at epoch $n=2000$, for which we verified that stationarity is reached:  S-Momentum captures respectively
@@ -853,15 +856,17 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
 ~~\\
 Now, the issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Therefore, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
 %The previous algorithm has been described as if all the batches were in memory. 
-In this section, we show that 
-the memory cost can easily be reduced while preserving the balanced property. 
-We suggest the following balanced splitting for $n\geq 1$:
+The main ingredient of the previous algorithm consists in using an aggregator which is consistent with the full batch gradient.
+The memory cost question hence resumes to being able to build a lighter but still consistent aggregator.
+It seems natural that the main source of inaccuracy of the aggregator comes from the stiffest batch. 
+With this in mind, we suggest the following modification of \eqref{RAG_scheme}, for $n\geq 1$:
 \begin{multline}
 	y_{n+i/m} = y_{n+(i-1)/m} \\
-	+\eta
+	+\eta^i
 	\left\{
 	\begin{array}{ll}
-		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
+		%g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
+          g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{{n-1+(i_{\max}-1})/m}\right)\right] \text{ if } 1\leq i<m,\\
 		g_{n+1} \text{ if } i=m,
 	\end{array}
 	\right.
@@ -873,14 +878,17 @@ where:
 \end{equation*}
 The scheme is initialized at $n=0$ with:
 \begin{equation*}
-	y_{n+i/m} = y_0 + \eta \mathds{1}_{i=m} g_0 \text{ with } g_0 = F(y_0),
+	y_{n+i/m} = y_0 + \eta^i \mathds{1}_{i=m} g_0 \text{ with } g_0 = F(y_0),
 \end{equation*}
 for all $i \in \{1,\dots,m\}$. 
 %The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
 The scheme \eqref{RAGL_splitting} is well-balanced since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
 %The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. 
-\newG{et cette histoire de $\theta_1$ qu'on garde? Elle est pas là?}
-This formula can be implemented with a memory cost of $3N$.
+{The substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{\max}-1)/m}\right)$ enables to suppress exactly the
+part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations. It now only remains to choose a criterion in order to define the
+stiffest batch. We suggest: $i_{\max}$ as
+$$i_{\max} = \argmax_{j\in\{1,...,m\}} \|F_j(y_{n-1+(j-1)/m})\|.$$}
+This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
 
 
 \ \\
@@ -902,28 +910,28 @@ The section also emphasizes the fact that the next step for further improvements
 %Part II of this paper will be dedicated to condition 6, namely adaptativeness. \\ %It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 
 
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.45}{\input{chapitre5_img/SPETH_exs.pgf}}
-        \caption{
-          Application of Speth-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
- $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
- $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
- $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
- $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
-}
-	\label{SPETH_exs}
-\end{figure}
+%\begin{figure}[h!]
+%	\centering
+%	\scalebox{0.45}{\input{chapitre5_img/SPETH_exs.pgf}}
+%        \caption{
+%          Application of Speth-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
+% $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
+% $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
+% $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
+% $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
+% $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
+% $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
+% $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
+% $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
+%}
+%	\label{SPETH_exs}
+%\end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/SPETH_RED_MEM_exs.pgf}}
         \caption{
-          Application of Speth-GD \newG{RED MEM avec le inter le batch avec le plus fort gradient} for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+          Application of low memory Speth-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
  $\eta = 1   \times 10^{-1}$  for \exOne    (a),
  $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
  $\eta = 1   \times 10^{-3}$  for \exThree  (c),
@@ -933,7 +941,7 @@ The section also emphasizes the fact that the next step for further improvements
  $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
  $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
 }
-	\label{SPETH_RED_MEM_exs}
+	\label{SPETH_exs}
 \end{figure}
 
 \begin{figure}[h!]
@@ -981,10 +989,12 @@ For all the other benchmarks, the larger learning rates have been (coarsely) man
  $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
 As can be seen on figure \ref{SPETH_exs}, the distributions obtained with Speth-GD are all peaked on the different local and global minimums, for the eight benchmarks, with
 constant learning
-rates which are tractable. Note that on example \exHeight, figure \ref{SPETH_exs} (f), the Speth-GD optimiser does not find the global minimum and remains stuck on the local one:
-in this case, decreasing the time step does help. It hints toward the fact that adaptivity may be necessary here in order to capture this stiff global minimum.  
-Still, we will see in the descriptions of the behaviors of RRGD in the same conditions that the balanced splitting already provides significant benefits (with a way smaller cost
-than reducing and tuning the learning rate. \\ 
+rates which are tractable. 
+%Note that on example \exHeight, figure \ref{SPETH_exs} (f), the Speth-GD optimiser does not find the global minimum and remains stuck on the local one: 
+Note that on these benchmarks, we noticed that decreasing the time step does help giving more weight to the global minimum. 
+It hints toward the fact that adaptivity may be necessary here in order to capture stiff global minima.  
+We will see in the descriptions of the behaviors of RRGD in the same conditions that the balanced splitting already provides significant benefits (with a way smaller cost
+than reducing and tuning the learning rate). \\ 
 Now, in the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
 soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. 
 The benchmarks also point out that

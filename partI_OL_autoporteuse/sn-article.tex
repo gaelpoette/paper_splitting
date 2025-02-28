@@ -305,7 +305,7 @@ It is interesting to see that this algorithm is a random version of a former det
 \begin{equation*}
 	\theta_{n+1} = \theta_n -\eta \left[\nR_{i_n}(\theta_n)-\nR_{i_n}(\tilde{\theta})+\nR(\tilde{\theta})\right].
 \end{equation*}
-Let us note two important facts: the introduction of a new hyperparameter $\tilde{m}$ representing the frequence of full-batch gradient evaluation and the computation of such a
+    Let us note two important facts: the introduction of a new hyperparameter $\tilde{m}$ representing the frequence of full-batch gradient evaluation and the computation of such a
     gradient. This is typical of many variance reduction methods, but it is an issue in our case because we want to avoid evaluation of $\R$ or $\nR$ because of the storage
     requirement. Based on the same ideas, we could mention SAGA \cite{SAGA_first} or SNVRG \cite{SNVRG_first}. For bounded variance noise, this algorithm admits a complexity that
     may be better than GD for large $b$. 
@@ -744,7 +744,7 @@ Both on \exOne and \exTwo, the stationary distributions of \eqref{RAG_2batch} ar
 
 For $m$ operators, \eqref{RAG_2batch} can naturally be extended to the form:
 \begin{equation}
-	y_{n+i/m} = y_{n+(i-1)/m}+\eta^i g_n^i,
+	y_{n+i/m} = y_{n+(i-1)/m}+\eta g_n^i,
 	\label{RAG_scheme}
 \end{equation}
 where:
@@ -781,7 +781,7 @@ The initialization of the scheme ($n=0$) can be done in two ways:
 		\left\{
 		\begin{array}{ll}
 			y_{n+i/m}=y_0 \text{ if } 1\leq i<m, \\
-			y_{n+i/m} = y_{n+(i-1)/m}+\eta^i F(y_0) \text{ if } i=m.
+			y_{n+i/m} = y_{n+(i-1)/m}+\eta F(y_0) \text{ if } i=m.
 		\end{array}
 		\right.
 	\end{equation*}
@@ -854,7 +854,7 @@ the memory cost can easily be reduced while preserving the balanced property.
 We suggest the following balanced splitting for $n\geq 1$:
 \begin{multline}
 	y_{n+i/m} = y_{n+(i-1)/m} \\
-	+\eta^i
+	+\eta
 	\left\{
 	\begin{array}{ll}
 		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
@@ -873,8 +873,10 @@ The scheme is initialized at $n=0$ with:
 \end{equation*}
 for all $i \in \{1,\dots,m\}$. 
 %The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
-The scheme \eqref{RAGL_splitting} is well-balanced	since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
-The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ and $\eta^i=\eta$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. This formula can be implemented with a memory cost of $3N$.
+The scheme \eqref{RAGL_splitting} is well-balanced since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
+%The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. 
+\newG{et cette histoire de $\theta_1$ qu'on garde? Elle est pas là?}
+This formula can be implemented with a memory cost of $3N$.
 
 
 \ \\

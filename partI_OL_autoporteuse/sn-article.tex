@@ -352,7 +352,8 @@ This recap of the mini-batch litterature encourages us to require the six follow
 \end{enumerate}
 Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the
 second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented here). 
-Therefore the goal of this paper and its following second part is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies the five first
+Therefore the goal of this paper %and its following second part 
+is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies the five first
 criteria}. The last point will be tackled in further publications, based on the work described in this paper. We think these are crucial steps in order to develop smaller machine learning models. 
 
 \paragraph{Organization of the paper}
@@ -428,7 +429,8 @@ The same for $u^2$ with the initial condition:
 Let us denote by $L_1$ and $L_2$ the Lipschitz constants of $\nR_1$ and $\nR_2$ on $[-1,1]$ respectively. Figure \ref{sgd_ex1} presents the results obtained by the applications of SGD on \exOne
 for four different values of the learning rates: $\frac{1}{\max(L_1,L_2)}$ is the associated learning rate related to the stiffest batch whereas $\frac{1}{L_1+L_2}$ is an estimation of
 $\frac{1}{L}$, that is to say the stiffness of $\R$ (where $L$ denotes the Lipschitz constant of $\nR$), since $L \leq L_1+L_2$. At each time, the third of these learning rates is also
-considered in order to test a smaller value: the factor 3 could seem arbitrary for the moment but it will be explained in part II. The figures
+considered in order to test a smaller value. %: the factor 3 could seem arbitrary for the moment but it will be explained in part II. 
+The figures
 \ref{sgd_ex2}, \ref{RRGD_ex1} and \ref{RRGD_ex2} correspond respectively to \exTwo with SGD, \exOne with RRGD and \exTwo with RRGD, for the same choices of learning rates ($L_1,L_2$ depends on the benchmark). 
 
 \begin{figure}[!h]
@@ -770,7 +772,7 @@ Something important which seems, to our knowledge, to not have been noticed in t
     g_n^i = F(y_n) +\mathcal{O}(\eta). 
   \end{equation}
   This typically means that $g_n^i$ can be used as such in order to define a stopping criterion for the optimizer.
-  Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(y_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as $\|g_{n+1}\|/P \leq
+  Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(y_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as $\|g_{n+1}^m\|/P \leq
   \epsilon$, with $\epsilon$ prescribed by the user, and this without resorting to a full batch evaluation of $\nR$. This will be numerically verified in section \ref{num_res}. \\
 \ \\
 
@@ -829,18 +831,18 @@ The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG w
   In other words, the appearance of artificial minimums strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimisers
   (other $F$) and is not only restricted to SGD or RRGD. 
 
-  On the other hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with Speth-Momentum {(with memory reduction)}, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
+  On the other hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with e-Speth-Momentum, for {\em extended Speth Momentum} {(without memory reduction)}, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
 \begin{figure}[!h]
 	\centering
 	\rotatebox{90}{\quad \quad epoch=20}  \scalebox{0.45}{\input{chapitre5_img/speth_mom_exs.pgf}}
 	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.45}{\input{chapitre5_img/speth_mom_long_exs.pgf}}
-        \caption{Stationary distributions of Speth-Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
+        \caption{Stationary distributions of e-Speth-Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
 	\label{speth_mom_ex1_ex2}
 \end{figure}
-For the Speth-Momentum optimizer, stationarity is very close to being reached with only $20$ epochs: the supports of the obtained distributions are way tighter around the local and
+For the e-Speth-Momentum optimizer, stationarity is very close to being reached with only $20$ epochs: the supports of the obtained distributions are way tighter around the local and
 global minimums of $\R$. A faster convergence rate is consequently numerically observed.  
   At epoch $n=2000$, for which stationarity is reached (in fact, the aformentionned stopping criterion \eqref{stopping_criterion} involving $g_n^i$ is activated at $n\approx 40 - 60 \ll 2000$ depending on the
-  initialization), the Speth-Momentum algorithm recovers the 
+  initialization), the e-Speth-Momentum algorithm recovers the 
   position of the global and local minimums with a perfect accuracy, with a constant learning rate. 
 
         Note that the application of our extension of Speth's splitting gives an update that is fundamentally different than STORM (variance reduction on Momentum). 
@@ -902,8 +904,10 @@ depending on the particular approximation of $F$.
 \label{num_res}
 
 
-In this section, we suggest applying the new previously described {low memory} splitting combined to GD, i.e. {Speth-GD} to the 
-analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. The study hence numerically emphasizes that this mini-batch optimiser also
+In this section, we suggest applying the new previously described {low memory} splitting combined to GD to the 
+analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. 
+It is denoted as {e-Speth-GD} for {\em extended Speth GD}.
+The study hence numerically emphasizes that this mini-batch optimiser also
 satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). 
 The section also emphasizes the fact that the next step for further improvements may be closely related to adaptiveness. 
@@ -931,7 +935,7 @@ The section also emphasizes the fact that the next step for further improvements
 	\centering
 	\scalebox{0.45}{\input{chapitre5_img/SPETH_RED_MEM_exs.pgf}}
         \caption{
-          Application of low memory Speth-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+          Application of low memory e-Speth-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
  $\eta = 1   \times 10^{-1}$  for \exOne    (a),
  $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
  $\eta = 1   \times 10^{-3}$  for \exThree  (c),
@@ -962,17 +966,17 @@ The section also emphasizes the fact that the next step for further improvements
 	\label{SGD_exs}
 \end{figure}
 
-Figure \ref{SPETH_exs} presents the results obtained with Speth-GD on the eight examples described in section \ref{subsection_beyond_interpolation}. 
+Figure \ref{SPETH_exs} presents the results obtained with e-Speth-GD on the eight examples described in section \ref{subsection_beyond_interpolation}. 
 The results are of the same type as the one of all the previous figures (but only \exOne and \exTwo were tackled in the latter): the final distributions of the weights are
 displayed at a final $t_f$, for some constant learning rates $\eta$ (their values will be detailed and commented on later on).  
 In practice, the final time $t_f$ is not explicitly calculated as it is either obtained when the stopping criterion \eqref{stopping_criterion} is fulfilled or when the maximum number of iteration is reached
 $n_{max} = 10000$.  
-Note that for Speth-GD, the final time always corresponds to the activation of the stopping criterion \eqref{stopping_criterion}, representative of the full gradient being smaller than $\epsilon =
+Note that for e-Speth-GD, the final time always corresponds to the activation of the stopping criterion \eqref{stopping_criterion}, representative of the full gradient being smaller than $\epsilon =
 10^{-4}$ here. We remind the reader that stopping criterion \eqref{stopping_criterion} never needs the estimation on the full batch: it is estimated {\em on-the-fly} during the successive
 epochs/batches.  
 \ \\ \ \\
-For the eight next benchmarks, the first step was to tune of the (constant) learning rate $\eta$ and the total number of epochs $n_{max}$ for Speth-GD (figure \ref{SPETH_exs}). 
-By tuning the learning rate for Speth-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
+For the eight next benchmarks, the first step was to tune of the (constant) learning rate $\eta$ and the total number of epochs $n_{max}$ for e-Speth-GD (figure \ref{SPETH_exs}). 
+By tuning the learning rate for e-Speth-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
 have stable resolutions. 
 By tuning $n_{max}$, we mean ensuring stationarity of the distributions for the algorithms which suffer from not having a stopping criterion.
 For all the benchmarks, $n_{max}=10000$ seems to be a qualitatively good choice. 
@@ -987,10 +991,10 @@ For all the other benchmarks, the larger learning rates have been (coarsely) man
  $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
  $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
  $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
-As can be seen on figure \ref{SPETH_exs}, the distributions obtained with Speth-GD are all peaked on the different local and global minimums, for the eight benchmarks, with
+As can be seen on figure \ref{SPETH_exs}, the distributions obtained with e-Speth-GD are all peaked on the different local and global minimums, for the eight benchmarks, with
 constant learning
 rates which are tractable. 
-%Note that on example \exHeight, figure \ref{SPETH_exs} (f), the Speth-GD optimiser does not find the global minimum and remains stuck on the local one: 
+%Note that on example \exHeight, figure \ref{SPETH_exs} (f), the e-Speth-GD optimiser does not find the global minimum and remains stuck on the local one: 
 Note that on these benchmarks, we noticed that decreasing the time step does help giving more weight to the global minimum. 
 It hints toward the fact that adaptivity may be necessary here in order to capture stiff global minima.  
 We will see in the descriptions of the behaviors of RRGD in the same conditions that the balanced splitting already provides significant benefits (with a way smaller cost
@@ -1018,7 +1022,7 @@ our stopping criterion seems sufficient: when {\em a posteriori} computing the f
 \end{figure}
 
 
-Figure \ref{SGD_exs} is obtained in the previous configurations of learning rates and maximum of epochs, the same as the ones of figure \ref{SPETH_exs} for Speth-GD, but with RRGD. 
+Figure \ref{SGD_exs} is obtained in the previous configurations of learning rates and maximum of epochs, the same as the ones of figure \ref{SPETH_exs} for e-Speth-GD, but with RRGD. 
 On \exTwo, the results are satisfactory. But they are far from being acceptable for all the other benchmarks: for \exOne, \exThree, \exFour, \exFive, \exSeven and \exHeight,
 artificial minimums are captured. These artificial minimums can be quite far from the true ones, see \exFour, \exSeven, \exHeight.    
 Very often, the distributions are not peaked in the vicinities of the minimums.
@@ -1034,8 +1038,8 @@ Globally, without the balanced splitting we suggest in this paper, interpolatory
 
 \ \\
 In this numerical study, the learning rate being constant, it had to be tuned to produce stable trajectories. 
-It is the only hyperparameter to tune because we considered Speth-GD here. 
-But other variations such as Speth-Momentum or Speth-Adam for example would have needed to tune other hyperparameters (classically denoted by $\beta_1,\beta_2, \epsilon_a$ in the litterature, see
+It is the only hyperparameter to tune because we considered e-Speth-GD here. 
+But other variations such as e-Speth-Momentum or e-Speth-Adam for example would have needed to tune other hyperparameters (classically denoted by $\beta_1,\beta_2, \epsilon_a$ in the litterature, see
 \cite{Bilel_thesis}). %Part II will be focused to overcoming this tedious tuning phase.  
 
 

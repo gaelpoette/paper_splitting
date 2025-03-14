@@ -238,7 +238,7 @@ This objective function has the particularity to involve a sum-structure on all 
 \begin{equation*}
 	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)},
 \end{equation*}
-where $(x_p,y_p)_{1\leq p \leq P}$ are the data of the problems, $u(\theta,x)$ a parametrized model (for example a neural network) and $\loss$ a loss function measuring the distance between predictions $u(\theta,x)$ and real data. In practice, the memory complexity is proportional to the number of data $P$ and $P$ is big. Therefore, the memory cost exceeds the RAM storage. To overcome this difficulty, the data are splitted into $m$ batches of size $b$ (except the last batch of size $P-(m-1)b$):
+where $(x_p,y_p)_{1\leq p \leq P}$ are the data of the problems, $u(\theta,x)$ a parametrized model (for example a neural network) and $\loss$ a loss function measuring the distance between predictions $u(\theta,x)$ and real data. In practice, the memory complexity is proportional to the number of data $P$ and $P$ is large. Therefore, the memory cost exceeds the RAM storage. To overcome this difficulty, the data are splitted into $m$ batches of size $b$ (except the last batch of size $P-(m-1)b$):
 \begin{equation}
 	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)} = \sum_{i=1}^m \R_i(\theta),
 	\label{pb_somme_fini}
@@ -261,7 +261,7 @@ The most studied optimizer to minimize \eqref{pb_somme_fini} is the stochastic g
 	\label{SGD}
 \end{equation}
 The convergence of SGD was studied under several assumptions:
-bounded variance \cite{sgd_general_diminishing_lr,Bertsekas_basis,sgd_dynamical_basis,bertsekas_theorem,SGD_upper_bound}, relaxed strong growth condition \cite{RG_mean,RG_almost_sure}, gradient confusion \cite{gradient_confusion}, sure-smoothness \cite{sure_smoothness_sgd} and expected smoothness \cite{ES_sgd,sgd_descent_condition,ES_sgd,sgd_global_KL}. In all these studies, learning rates need to decrease as
+bounded variance \cite{sgd_general_diminishing_lr,Bertsekas_basis,sgd_dynamical_basis,bertsekas_theorem,SGD_upper_bound}, relaxed strong growth condition \cite{RG_mean,RG_almost_sure}, gradient confusion \cite{gradient_confusion}, sure-smoothness \cite{sure_smoothness_sgd} and expected smoothness \cite{ES_sgd,sgd_descent_condition,ES_sgd,sgd_global_KL}. In all these studies, learning rates need to decrease so that
 \begin{equation}
 	\sum_{n\geq 0} \eta_n = +\infty \text{ , } \sum_{n\geq 0} \eta_n^{2}<+\infty
 	\label{diminishing_step}
@@ -271,7 +271,7 @@ to ensure convergence. In practice, SGD is used with constant learning rate. How
   \nR(\theta)=0 \implies \forall i\in\{1,\dots,m\}, \nR_i(\theta)=0.
 	\label{interpolation}
 \end{equation}
-This assumption is very strong. For example, concerning neural networks, this assumption is related to the surparametrization ($N\gg P$) of the network \cite{ESG_upper_bound,ESG_IG}. 
+This assumption is very strong. For example, concerning neural networks, this assumption is related to the overparametrization ($N\gg P$) of the network \cite{ESG_upper_bound,ESG_IG}. 
 In a sense, this work aims at helping answering the question: is it possible to build efficient small networks using SGD?
 Accurate shallow networks certainly present interesting properties in a {scientific ML context \cite{FV_scheme,reentry,acc_newt,FRANCK,plasma,KluthRipoll,DESPRES2020109275}}. 
 %Then it is not possible to build efficient small networks using SGD. 
@@ -279,7 +279,7 @@ Hence, one of the main concern of this work will be to overcome the interpolatio
 
 \paragraph{Random reshuffle gradient descent (RRGD)}
 ~~\\
-In practice, the reshuffle versions are prefered to classical ones \cite{RR_use1,RR_use2,RG_mean}. For example, the version of SGD with random reshuffling is called Random Reshuffle GD (RRGD) or SGD without replacement. It consists, at the beginning of every epoch, in sampling a random permutation and then to apply the $m$ updates \eqref{SGD} in the order given by the permutation. Empirically, it seems that RRGD converges faster than SGD and gives better performances \cite{RR_use1,RR_use_superior}. Many works \cite{RR_outperforms_quadratics,RR_use3,RR_outperforms_convex,RR_small_epochs} try to explain this superiority theoretically, especially for well-conditionned convex functions.
+In practice, the reshuffled versions are prefered to classical ones \cite{RR_use1,RR_use2,RG_mean}. For example, the version of SGD with random reshuffling is called Random Reshuffle GD (RRGD) or SGD without replacement. It consists, at the beginning of every epoch, in sampling a random permutation and then to apply the $m$ updates \eqref{SGD} in the order given by the permutation. Empirically, it seems that RRGD converges faster than SGD and gives better performances \cite{RR_use1,RR_use_superior}. Many works \cite{RR_outperforms_quadratics,RR_use3,RR_outperforms_convex,RR_small_epochs} try to explain this superiority theoretically, especially for well-conditionned convex functions.
 
 \paragraph{Variance reduction}  
 ~~\\
@@ -365,7 +365,7 @@ To reach such a construction, the paper is organized as follows:
           identified: SGD and RRGD may recover the critical points of the $\R_i$ in the long run, and not always the ones of $\R$ or even recover artificial critical points (in the
           sense they are neither critical points of $\R$ nor of the $\R_i, i\in\{1,...,m\}$). 
         \item An interpretation of RRGD as a specific splitting of operators is suggested in section \ref{section_splitting_schemes}. This enables to relate some "strange"
-          stationary distributions (and critical points) to a disequilibrium of the splitting. 
+          stationary distributions (and critical points) to an imbalance of the splitting. 
 	\item The construction of a balanced splitting gives birth to a new family of optimizer in section \ref{new_splitting}. This family extends the method developed by Speth \cite{rebalanced_splitting} for balancing convection-diffusion. It is shown to overcome the aforementioned issue and satisfies the first five criteria.
 	\item In section \ref{num_res}, the newly developed methods are tested on analytical benchmarks. 
 \end{itemize}
@@ -1050,11 +1050,11 @@ But other variations such as eS-Momentum or eS-Adam for example would have neede
 The goal of this paper is to serve as a first step towards an extension of full-batch adaptive methods \cite{Bilel} to mini-batch algorithms which ensures well-balancedness.
 More precisely, the following points are tackled:
 \begin{itemize}
-	\item the interpolation hypothesis is largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new steady states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
-	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the
+	\item the interpolation hypothesis is largely discussed through different configurations in one dimension. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new steady states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
+	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied to the gradient flow. This turns the
           classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an explicit Euler scheme. This
           splitting approach makes it possible to explain the appearance of "artificial" steady states that are related to the unbalancing of the splitting: the steady states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
-         \item A new family of algorithm is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch
+         \item A new family of algorithms is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch
            decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping
            criterion which doesn't require to compute full batch gradients. 
 \end{itemize}

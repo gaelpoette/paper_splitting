@@ -38,17 +38,17 @@
 		\ELSE
 		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
 		\IF{$op==2m-1$}
-		\STATE $\eta \leftarrow \frac{2}{op \times L}$
+                \STATE $\eta \leftarrow \frac{2\newG{(1-\lambda)}}{op \times L}$
 		\ELSE
-		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
+		\STATE $\eta \leftarrow \frac{2\newG{(1-\lambda)}}{h \times op \times L}$
 		\ENDIF
 		\ENDIF
 		
 		\STATE $\theta \leftarrow \theta -\eta g$
                 \STATE Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$, $\newG{i}$)
-		%\IF{$\|g\|/P<\epsilon$ and $d/P<\epsilon$} % c'est la condition de sortie du while non?
-		%\STATE stop
-		%\ENDIF
+		\IF{$\|g\|/P<\epsilon$ and $d/P<\epsilon$} % c'est la condition de sortie du while non? OK, elle peut être appelée pendant les iter du batch
+		\STATE stop
+		\ENDIF
 
 		\ENDFOR
 		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $2m-1$)

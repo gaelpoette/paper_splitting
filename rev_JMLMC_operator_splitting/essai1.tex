@@ -1,0 +1,218 @@
+\documentclass[a4paper,11pt]{report}
+%draft sert à compiler sans charger les images, c'est beaucoup moins long
+% charger des modules à utiliser ...
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{delarray}
+\usepackage{afterpage}
+\usepackage{graphicx}
+\usepackage{makeidx}
+\usepackage{xcolor}
+
+%\usepackage[T1]{fontenc}
+\usepackage{latexsym}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+% c'est moche mais c'est pratique pour repérer les liens morts etc...
+%\usepackage{hyperref}
+\usepackage{backref}
+\usepackage{setspace}
+\singlespacing
+
+\bibliographystyle{plain}
+
+\usepackage{listings}
+\usepackage{calc}
+\usepackage{epsfig}
+
+
+
+% NOUVEAUX ENVIRONNEMENTS
+%\newtheorem{theoreme}{Théorème}[chapter]
+%\newtheorem{corollaire}{Corollaire}[chapter]
+%\newtheorem{lemme}{Lemme}[chapter]
+%\newtheorem{proposition}{Proposition}[chapter]
+%\newtheorem{definition}{Définition}[chapter]
+%\newtheorem{propriete}{Propriété}[chapter]
+%\newtheorem{hypotheses}{Hypothèses}[chapter]
+\newenvironment{preuve}[1][Preuve]{\begin{trivlist}\item[\hskip \labelsep {\bfseries #1}]}{\hfill$\blacksquare$ \end{trivlist}}
+\newenvironment{remarque}[1][Remarque]{\begin{trivlist}\item[\hskip \labelsep {\bfseries #1}]}{\hfill$\bullet$ \end{trivlist}}
+\newenvironment{temporaire}[1][Commentaire temporaire]{\begin{trivlist}\item[\hskip \labelsep {\bfseries #1}]}{\hfill\checkmark \end{trivlist}}
+
+\newcommand{\sousparagraphe}[1]{\textbf{\textit{#1}}}
+\newcommand{\cacher}[1]{}
+\newcommand{\mbf}[1]{{\mathversion{bold} #1}}
+\newcommand{\Frac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+\newcommand{\Lim}[2]{\displaystyle \lim_{#1}{#2}}
+\newcommand{\Int}{\displaystyle \int}
+
+\newcommand{\INT}[4]{\Int_{#1}^{#2} #3 \: \textnormal{d}#4}
+\newcommand{\Sum}{\displaystyle \sum}
+\newcommand{\Prod}{\displaystyle \prod}
+\newcommand{\SUM}[3]{\Sum_{#1}^{#2} #3}
+\newcommand{\PD}[3]{\left.\Frac{\partial #1}{\partial #2}\right|_{#3}}
+\newcommand{\TD}[2]{\Frac{\textnormal{d} #1}{\textnormal{d} #2}}
+\newcommand{\dif}[1]{\textnormal{d} #1}
+\newcommand{\pdt}{\partial_t}
+\newcommand{\pdx}{\partial_x}
+\newcommand{\pdy}{\partial_y}
+\newcommand{\pdz}{\partial_z}
+\newcommand{\pdX}{\partial_X}
+\newcommand{\pdm}{\partial_m}
+\newcommand{\pdtt}{\partial_{t^2}^2}
+\newcommand{\pdxx}{\partial_{x^2}^2}
+\newcommand{\pdxi}{\partial_{x_i}}
+\newcommand{\pdxj}{\partial_{x_j}}
+\newcommand{\pdxixi}{\partial_{x_i x_i}^2}
+\newcommand{\pdxjxj}{\partial_{x_j x_j}^2}
+\newcommand{\pdxixj}{\partial_{x_i x_j}^2}
+\newcommand{\pdxjxi}{\partial_{x_j x_i}^2}
+\newcommand{\pdmm}{\partial_{m^2}^2}
+\newcommand{\pdvi}{\partial_{v_i}}
+\newcommand{\pdvj}{\partial_{v_j}}
+\newcommand{\pdma}{\partial_{m^\alpha}}
+\newcommand{\pdmb}{\partial_{m^\beta}}
+\newcommand{\iR}{_{i+\Frac{1}{2}}}
+\newcommand{\iL}{_{i-\Frac{1}{2}}}
+\newcommand{\iRR}{_{i+1}}
+\newcommand{\iLL}{_{i-1}}
+\newcommand{\nR}{^{n+\Frac{1}{2}}}
+\newcommand{\nRR}{^{n+1}}
+\newcommand{\vm}[1]{\left< #1 \right>}
+\newcommand{\vmt}[1]{\left< #1 \: |_t\right>}
+\newcommand{\vmE}[1]{\left< #1 \: |_E\right>}
+\newcommand{\vmL}[1]{\left< #1 \: |_L\right>}
+\newcommand{\vmm}[1]{\left< #1 \: |_m\right>}
+\newcommand{\vmEs}[1]{\left< #1 \: |_E^*\right>}
+\newcommand{\vms}[1]{\left< #1 \: |_v^s \right>}
+\newcommand{\pdcg}{\left[\kern-0.12em\left[}
+\newcommand{\pdcd}{\right]\kern-0.12em\right]}
+\newcommand{\gdcg}{\left[\kern-0.25em\left[}
+\newcommand{\gdcd}{\right]\kern-0.25em\right]}
+\newcommand{\indic}{{\chi}}
+
+\newtheorem{remarquenum}{Remark}[section]
+
+
+\makeindex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% infos sur le document
+%\title{Sujet de thèse} 
+
+\date{\today}
+%\author{Ga\"el Po\"ette}
+
+\begin{document}
+
+%insérer la page de titre
+%\maketitle
+
+
+
+
+%remarque, pour les encadrés oranges pour mettre les formules, il faut faire begin{block}{ (et peut etre mettre en taille \footnotesize
+
+
+%\setcounter{page}{3}
+%insérer le sommaire
+\textbf{\large{Answer to reviewers for paper (JMLMC-59453): {\it NUMERICAL SPLITTING SCHEMES AS THE CORNERSTONE FOR MINI-BATCH OPTIMIZATION: ON THE IMPORTANCE OF WELL-BALANCED METHODS
+}}} \\
+
+
+\bigskip
+\bigskip
+\bigskip
+
+We would like to thank the referees for taking the time to carefully read the article. 
+The document has been edited under consideration of the remarks made in
+the reviews. The attached documents contain a version of the paper where all changes are highlighted
+in blue. In the following paragraphs, we address each of the remarks individually.
+
+\ \\
+\ \\
+In the following paragraphs are our answers to the reviewers' questions and comments. The reviewers' comments are recalled in \textit{italic} while our answers follow. \\ \ \\ 
+\begin{enumerate}
+  \item {\bf Empirical Evaluation Limited to Determinisitic Settings}
+
+    {\it While the proposed balanced splitting schemes are empirically compelling, the
+paper would benefit from a more formal characterization of their convergence
+properties in the stochastic mini-batch setting. Specifically, how does the
+introduction of the correction term (e.g., $c_n$ in the Speth-style scheme) interact
+with stochastic noise when using truly randomized mini-batches (as opposed to
+deterministic cyclic updates)?
+In practice, most training routines involve sampling batches with replacement or
+random reshuffling. It's unclear whether the balance mechanism remains effective
+under such stochasticity, especially in high-dimensional, non-convex landscapes.
+A theoretical analysis-or at least empirical investigation-of this point would
+strengthen the paper and clarify the robustness of the method under realistic
+    training conditions.} \\
+  \item {\bf Simplified Empirical Evaluation.}
+
+    {\it While the proposed method is evaluated extensively across several synthetic 1D
+benchmarks, these settings-though illustrative-are quite limited in complexity
+and dimensionality. Since mini-batch optimization is primarily used in high
+dimensional and highly non-convex problems (e.g., neural networks), it would be
+important to test whether the proposed balanced schemes scale to such settings.
+Can the authors provide empirical evidence (even preliminary) that their methods
+remain effective in higher-dimensional problems or small neural networks?
+Alternatively, a discussion of computational bottlenecks, potential scalability
+issues, or future plans to test on real-world tasks would help clarify the practical
+    applicability of the approach. }\\
+
+  \item dimensional and highly non-convex problems (e.g., neural networks), it would be
+important to test whether the proposed balanced schemes scale to such settings.
+Can the authors provide empirical evidence (even preliminary) that their methods
+remain effective in higher-dimensional problems or small neural networks?
+Alternatively, a discussion of computational bottlenecks, potential scalability
+issues, or future plans to test on real-world tasks would help clarify the practical
+applicability of the approach.
+Minor Comments
+Redundant Figures and Length:
+a. Several empirical figures across Sections 2, 3, and 5 are quite repetitive,
+especially those showing stationary distributions for all learning rates and
+optimizers across multiple similar benchmark types. While they are useful
+for exhaustiveness, some of them might be moved to an appendix or
+summarized more concisely in the main text.
+b. For example, Figures 1-4 and 13-17 contain overlapping insights that could
+be summarized in fewer plots with aggregate comparisons or referenced
+from supplementary material.
+Potential to Improve Summary and Discussion:
+a. The paper is quite lengthy, and while it is thorough, condensing some
+sections-particularly those reviewing existing optimizers and background-
+could improve readability. Streamlining parts of Sections 1.0.0.3 and 1.0.0.4,
+for instance, would help sharpen the focus on the core contributions and
+make the paper more accessible to the reader. 
+
+
+\item Other Comments:
+  \begin{itemize}
+    \item  Typo in multiple places: 'litterature' ->'literature'.
+    \item  Clarify early on that the proposed methods allow use of a constant learning rate
+without requiring full gradient evaluations, as this is particularly relevant for the
+machine learning community.
+\item Please ensure the caption text in all figures is clear and that axis labels and legends
+are readable, particularly in the 1D plots.
+\item The github link attached to the paper appears to be not available. Please fix this.
+  \end{itemize}
+
+\item Final thoughts:
+The clarity of the operator splitting interpretation and the construction of the benchmarks
+are appreciated. This paper could generate interest in both the ML optimization and
+numerical analysis communities
+   \end{enumerate}
+\ \\ \ \\
+
+Thanks again for your remarks and questions, we hope the paper is now ready for publication. 
+
+{
+\bibliography{./refs}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+
+

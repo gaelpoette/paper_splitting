@@ -129,7 +129,7 @@
 We would like to thank the referees for taking the time to carefully read the article. 
 We are happy that they found the results of the paper to be "promising", "insightful", "that it offers fresh perspectives explaining the origin of optimization pathologies" and that they can "generate interest in both the ML optimization and numerical analysis
 communities".  
-We also thank the editor for giving us a second chance despite the two "reject" and one "accept" verdicts. 
+We also thank the editor for giving us a second chance. 
 The document has been edited under consideration of the remarks made in all
 the reviews. The attached documents contain a version of the paper where all changes are highlighted
 in blue. 
@@ -232,12 +232,9 @@ Note that it is easy not considering a reshuffle...
 
     {\it While the proposed method is evaluated extensively across several synthetic 1D
 benchmarks, these settings-though illustrative-are quite limited in complexity
-and dimensionality. Since mini-batch optimization is primarily used in high}\\
-
-
-  \item {\bf dimensional and highly non-convex problems (e.g., neural networks)}
-
-    {\it it would be
+and dimensionality. Since mini-batch optimization is primarily used in high
+dimensional and highly non-convex problems (e.g., neural networks)
+    it would be
 important to test whether the proposed balanced schemes scale to such settings.
 Can the authors provide empirical evidence (even preliminary) that their methods
 remain effective in higher-dimensional problems or small neural networks?
@@ -318,6 +315,7 @@ We thank the reviewer for identifying the strengths of the paper.\\
 \begin{itemize}
   \item {\it Lacks theoretical guarantees: no convergence or stability theorem is provided for the proposed method in nonlinear or high-dimensional settings.}
 
+    We are already nonlinear, even non-convex.  
     The question of the theoretical guarantees is a thorny one. We here must insist on the fact that, to our knowledge, all theoretical results are based on the {\em interpolation
     condition} (closely related to balancedness). With this paper, we mainly wanted to put forward the fact that numerical difficulties may occur as soon as this property is not
     fulfilled. 
@@ -386,6 +384,8 @@ if only for display reasons. But new multi-dimensional non convex benchmarks hav
 
     [TODO] We added some pseudo codes and insist more on the memory implications of the complexity we already study on the first version. We also provided runtimes for comparisons
     but these runtimes are often not very relevant as it is really hard comparing the imbalanced and balanced strategies with {\em equivalent} accuracies. 
+
+    $+$ sur une iteration, pas de surcout significatif.
 
   \item {\it Substantially revise the manuscript to correct grammar, improve figure quality, and ensure references are complete and properly formatted.}
 

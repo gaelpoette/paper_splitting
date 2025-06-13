@@ -270,7 +270,7 @@ def s_speth(x0,m,lr_init,eps,maxEpoch,typeR):
         eta=lr_init; 
       #print(eta, x) 
       x_prec=x0
-      batches = [0,1]
+      batches = list(range(m))
       np.random.shuffle(batches)
       batches = [batches[0]]
       #print(batches)
@@ -308,9 +308,8 @@ def rr_speth(x0,m,lr_init,eps,maxEpoch,typeR):
         eta=lr_init; 
       #print(eta, x) 
       x_prec=x0
-      batches = [0,1]
+      batches = list(range(m)) 
       np.random.shuffle(batches)
-      #print(batches)
       for i in batches:
         grad=gradR(x,i,typeR) 
         g -= grad_tab[i]

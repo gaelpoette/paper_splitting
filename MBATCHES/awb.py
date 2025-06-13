@@ -464,8 +464,8 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
             
             #x,epoch = awb_fb(x0,m,lr_init,eps,maxEpoch,typeR, p)
             #x,epoch = awb_fb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
-            #x,epoch = awb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
-            x,epoch = speth_awb_F(x0,m,lr_init,eps,maxEpoch,typeR, p)
+            x,epoch = awb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
+            #x,epoch = speth_awb_F(x0,m,lr_init,eps,maxEpoch,typeR, p)
 
 
 
@@ -523,7 +523,7 @@ typeCI="uniform"
 N=1
 nbPoints=1000
 nbParticules=10000
-lr_init=0.001
-eps=10**(-4); maxEpoch=2000
+lr_init=0.0125
+eps=10**(-4); maxEpoch=5000
 
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

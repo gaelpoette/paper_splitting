@@ -547,9 +547,9 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         ax.legend()
     
     #fig.show()
-    #plt.show()
     #plt.savefig('SGD_exs_001.pgf')
     plt.savefig(optim+"_exs.pgf")
+    plt.show()
 
 
 typeCI="uniform"

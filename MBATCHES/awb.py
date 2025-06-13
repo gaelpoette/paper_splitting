@@ -196,18 +196,20 @@ def u0(x,typeCI="uniform"):
         mu=0; sigma=1
         return 1/(sigma*np.sqrt(2*np.pi))*np.exp(-0.5*((x[0]-mu)/sigma)**2)
     
-
 #Dans nos examples, P=m
-def mom_full_batch(x0,m,lr_init,eps,maxEpoch,typeR, num):
+def awb_fb(x0,m,lr_init,eps,maxEpoch,typeR, num):
     epoch=0
     P=m
     v0 = 0
+    m0 = 0
     x  = x0
     v  = v0 
+    m   = m0
     b1   = 0.9
+    b2=0.999
+    epsilon=1e-8
     bb   = 1.0
     eta  = 0.
-    v_a  = 0.
     grad = 0.
     grad_tab =np.zeros(m)
     gNorm = 1000
@@ -218,54 +220,22 @@ def mom_full_batch(x0,m,lr_init,eps,maxEpoch,typeR, num):
         eta=lr_init; 
       x_prec=x0
       v_prec=v0
-      for i in range(1):
-        grad=gradR(x,0,typeR)+gradR(x,1,typeR)  
-        #v_n+1 = beta v + eta grad
-        #x_n+1 = x_n - eta *v_n+1 
-        v = b1 *  v_prec - eta * grad
-        x =       x_prec + eta * v
-        x_prec = x
-        v_prec = v
-      x0 = x
-      v0 = v
-      epoch+=1
-    if epoch == maxEpoch:
-        print(num+" max epoch reached")
-    #print(num, x, epoch) 
-    return x, epoch
+      m_prec=m0
+      grad=gradR(x,0,typeR) +gradR(x,1,typeR)  
+      m = (1-b1) * m + b1 * grad
+      v = (1-b2) * v + b2 * (grad** 2)
+      f = 1. #np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
+      x -= eta * f * m / (np.sqrt(v) + epsilon)
+      x_prec = x
+      v_prec = v
+      m_prec = m
+      #print(x,v,m)
+      #if epoch > 2:
+      #  abort
 
-
-#Dans nos examples, P=m
-def mom(x0,m,lr_init,eps,maxEpoch,typeR, num):
-    epoch=0
-    P=m
-    v0 = 0
-    x  = x0
-    v  = v0 
-    b1   = 0.9
-    bb   = 1.0
-    eta  = 0.
-    v_a  = 0.
-    grad = 0.
-    grad_tab =np.zeros(m)
-    gNorm = 1000
-
-    while epoch < maxEpoch and gNorm/P > eps:
-       
-      if epoch > 0:
-        eta=lr_init; 
-      x_prec=x0
-      v_prec=v0
-      for i in range(m):
-        grad=gradR(x,i,typeR)  
-        #v_n+1 = beta v - eta grad
-        #x_n+1 = x_n - eta *v_n+1 
-        v = b1 *  v_prec - eta * grad
-        x =       x_prec + eta * v
-        x_prec = x
-        v_prec = v
-      x0 = x
-      v0 = v
+      x0 = x_prec
+      v0 = v_prec
+      m0 = m_prec
       epoch+=1
     if epoch == maxEpoch:
         print(str(num)+" max epoch reached")
@@ -273,89 +243,65 @@ def mom(x0,m,lr_init,eps,maxEpoch,typeR, num):
     print(num, x)
     return x, epoch
 
-#Dans nos examples, P=m
-def speth_mom_red_mem(x0,m,lr_init,eps,maxEpoch,typeR, num):
+def F(m, v, f, eta, grad, b1, b2, epsilon):
+   m_n = (1-b1) * m + b1 * grad
+   v_n = (1-b2) * v + b2 * (grad** 2)
+   x_n = -f * m_n / (np.sqrt(v_n) + epsilon)
+   m_n -=m
+   v_n -=v
+   m_n /=  eta
+   v_n /=  eta
+   F = [m_n, v_n, x_n]
+   return F
+
+def awb_fb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
     epoch=0
     P=m
     v0 = 0
+    m0 = 0
     x  = x0
     v  = v0 
+    m   = m0
     b1   = 0.9
+    b2=0.999
+    epsilon=1e-8
     bb   = 1.0
-    eta  = 0.
-    v_a  = 0.
+    eta  = 1.e-15
     grad = 0.
-    g = 0.
-    grad_tab =0.
-    gNorm = 1000
-
-    while epoch < maxEpoch and gNorm/P > eps:
-      if epoch > 0:
-        eta=lr_init; 
-      x_prec=x0
-      v_prec=v0
-      for i in range(m):
-        grad=gradR(x,i,typeR)  
-        g -= grad_tab
-        g += grad
-        #v_n+1 = beta v - eta grad
-        #x_n+1 = x_n - eta *v_n+1 
-        v = b1 *  v_prec/m - eta * g
-        x =       x_prec + eta * v
-        grad_tab = grad 
-        x_prec = x
-        v_prec = v
-      x0 = x
-      v0 = v
-      epoch+=1
-      gNorm=np.linalg.norm(g)
-    if epoch == maxEpoch:
-        print(str(num)+" max epoch reached")
-    print(num, x, epoch) 
-    return x, epoch
-
-
-#Dans nos examples, P=m
-def speth_mom(x0,m,lr_init,eps,maxEpoch,typeR, num):
-    epoch=0
-    P=m
-    v0 = 0
-    x  = x0
-    v  = v0 
-    b1   = 0.9
-    bb   = 1.0
-    eta  = 0.
-    v_a  = 0.
-    grad = 0.
-    g = 0.
     grad_tab =np.zeros(m)
     gNorm = 1000
 
     while epoch < maxEpoch and gNorm/P > eps:
        
+
       if epoch > 0:
         eta=lr_init; 
       x_prec=x0
       v_prec=v0
-      for i in range(m):
-        grad=gradR(x,i,typeR)  
-        g -= grad_tab[i]
-        g += grad
-        #v_n+1 = beta v - eta grad
-        #x_n+1 = x_n - eta *v_n+1 
-        v = b1 *  v_prec/m - eta * g
-        x =       x_prec + eta * v
-        grad_tab[i] = grad 
-        x_prec = x
-        v_prec = v
-      x0 = x
-      v0 = v
+      m_prec=m0
+      grad=gradR(x,0,typeR) +gradR(x,1,typeR)  
+      f = 1. #np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
+      Fl = F(m_prec, v_prec, f, eta, grad, b1, b2, epsilon)
+      m += eta * Fl[0]
+      v += eta * Fl[1]
+      x += eta * Fl[2]
+      x_prec = x
+      v_prec = v
+      m_prec = m
+      #print(x, v, m)
+      #if epoch > 2:
+      #   abort
+
+      x0 = x_prec
+      v0 = v_prec
+      m0 = m_prec
       epoch+=1
-      gNorm=np.linalg.norm(g)
     if epoch == maxEpoch:
         print(str(num)+" max epoch reached")
-    print(num, x, epoch) 
+    #print(num, x, epoch) 
+    print(num, x)
     return x, epoch
+
 
 
 def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
@@ -382,13 +328,8 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         for p in range(nbParticules):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
-            #x,epoch = RAG  (x0,m,lr_init,eps,maxEpoch,typeR)
-            #x,epoch = mom_full_batch(x0,m,lr_init,eps,maxEpoch,typeR, p)
-            #x,epoch = mom(x0,m,lr_init,eps,maxEpoch,typeR, p)
-            x,epoch = speth_mom(x0,m,lr_init,eps,maxEpoch,typeR, p)
-            #x,epoch = speth_mom_red_mem(x0,m,lr_init,eps,maxEpoch,typeR, p)
-            #x,epoch = DGD  (x0,m,lr_init,eps,maxEpoch,typeR)
-
+            #x,epoch = awb_fb(x0,m,lr_init,eps,maxEpoch,typeR, p)
+            x,epoch = awb_fb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
 
             if(x>a and x<b):
                 #print(x) 
@@ -436,18 +377,15 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         print(f"time = {t1-t0:e}")
  
     plt.show()
-    #plt.savefig('speth_mom_exs.pgf')
-    plt.savefig('speth_mom_red_mem_exs.pgf')
-    #plt.savefig('mom_exs.pgf')
+    plt.savefig('adam_exs.pgf')
 
 
 
-#OK speth_mom
 typeCI="uniform"
 N=1
 nbPoints=1000
 nbParticules=10000
-lr_init=0.125
-eps=10**(-4); maxEpoch=20
+lr_init=0.001
+eps=10**(-4); maxEpoch=2000
 
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

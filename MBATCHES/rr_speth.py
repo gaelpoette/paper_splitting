@@ -198,6 +198,136 @@ def u0(x,typeCI="uniform"):
     
 
 #Dans nos examples, P=m
+def speth_red_mem(x0,m,lr_init,eps,maxEpoch,typeR):
+    epoch=0
+    P=m
+    x    = x0
+    eta  = 0.
+    g    = 0. 
+    grad = 0.
+    grad_tab =0.
+    gNorm = 1000
+    R = 0.
+    gsum = 0.
+    g = 0.
+    x_inter = x
+    L = np.zeros(m)
+    imax = 0
+
+    while epoch < maxEpoch and gNorm/P > eps:
+      
+      if epoch > 0:
+        eta=lr_init; 
+      #print(epoch)
+      
+
+      for i in range(m):
+        x_prec = x
+        if i < m-1:
+            gs = gradR(x_inter,i,typeR)
+        gi = gradR(x,i,typeR) 
+        if   L[i] > abs(gi):
+            L[i] = abs(gi)
+            imax = i
+        if i == 0:
+            gsum = gi
+        else: 
+            gsum = gsum + gi
+        if i < m-1:
+            g = g -gs
+            g = g +gi
+        else:
+            g = gsum
+        #print(g, gsum, gi, -gradR(x0,0,typeR)-gradR(x,1,typeR), eta, x, x0)
+
+        if imax == i:
+          x_inter = x_prec
+        x=x_prec-eta*g
+
+      #if epoch == 2:
+      #    abort
+      x0 = x
+      epoch+=1
+      gNorm=np.linalg.norm(g)
+    if epoch == maxEpoch:
+        print("max epoch reached")
+    return x, epoch
+
+#Dans nos examples, P=m
+def s_speth(x0,m,lr_init,eps,maxEpoch,typeR):
+    epoch=0
+    P=m
+    x    = x0
+    eta  = 0.
+    g    = 0. 
+    grad = 0.
+    grad_tab =np.zeros(m)
+    gNorm = 1000
+
+    while epoch < maxEpoch and gNorm/P > eps:
+       
+      if epoch > 0:
+        eta=lr_init; 
+      #print(eta, x) 
+      x_prec=x0
+      batches = [0,1]
+      np.random.shuffle(batches)
+      batches = [batches[0]]
+      #print(batches)
+      for i in batches:
+        grad=gradR(x,i,typeR) 
+        g -= grad_tab[i]
+        g += grad
+        x=x_prec-eta*g
+        grad_tab[i] = grad
+        x_prec = x
+
+      x0 = x
+      epoch+=1
+      gNorm=np.linalg.norm(g)
+    if epoch == maxEpoch:
+        print("max epoch reached")
+    return x, epoch
+
+
+
+#Dans nos examples, P=m
+def rr_speth(x0,m,lr_init,eps,maxEpoch,typeR):
+    epoch=0
+    P=m
+    x    = x0
+    eta  = 0.
+    g    = 0. 
+    grad = 0.
+    grad_tab =np.zeros(m)
+    gNorm = 1000
+
+    while epoch < maxEpoch and gNorm/P > eps:
+       
+      if epoch > 0:
+        eta=lr_init; 
+      #print(eta, x) 
+      x_prec=x0
+      batches = [0,1]
+      np.random.shuffle(batches)
+      #print(batches)
+      for i in batches:
+        grad=gradR(x,i,typeR) 
+        g -= grad_tab[i]
+        g += grad
+        x=x_prec-eta*g
+        grad_tab[i] = grad
+        x_prec = x
+
+      x0 = x
+      epoch+=1
+      gNorm=np.linalg.norm(g)
+    if epoch == maxEpoch:
+        print("max epoch reached")
+    return x, epoch
+
+
+#Dans nos examples, P=m
 def speth(x0,m,lr_init,eps,maxEpoch,typeR):
     epoch=0
     P=m
@@ -225,33 +355,30 @@ def speth(x0,m,lr_init,eps,maxEpoch,typeR):
       x0 = x
       epoch+=1
       gNorm=np.linalg.norm(g)
-
+    if epoch == maxEpoch:
+        print("max epoch reached")
     return x, epoch
 
 def DGD(x0,m,lr_init,eps,maxEpoch,typeR):
     epoch=0
     P=m
     x    = x0
-    eta  = lr_init
-    g = 0.
+    eta  = 0.
+    g    = 0. 
     grad = 0.
+    grad_tab =np.zeros(m)
     gNorm = 1000
 
     while epoch < maxEpoch and gNorm/P > eps:
        
-      #print(epoch, eta, x) 
-      g = 0.
-      batches = [0,1]
-      np.random.shuffle(batches)
-      for i in batches:
-        #J = np.random.randint(0,2)
-        #print(J)
-        J = i
-        grad=gradR(x0,J,typeR) 
-        g+=grad
-        x=x0-eta*grad
-        x0 = x
+      #print(eta, x) 
+      x_prec=x0
+      for i in range(m):
+        grad=gradR(x,i,typeR) 
+        x=x_prec-eta*grad
+        x_prec = x
 
+      x0 = x
       epoch+=1
       gNorm=np.linalg.norm(g)
 
@@ -426,6 +553,12 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
 
     lr_init0 = lr_init
 
+    #optim = "RAG"
+    #optim = "SPETH"
+    #optim = "SPETH_RED_MEM"
+    optim = "RR-SPETH"
+    #optim = "S-SPETH"
+
     #for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2)]:
     #for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2), ("ex5",3), ("ex6",3), ("ex7",3), ("ex8",4)]:
     #for (typeR,m,L1,L2) in [("ex1",2, 2, 8), ("ex2",2, 22, 150), ("ex3",2, 100, 100), ("ex4",2, 20, 20), ]:
@@ -433,15 +566,21 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
 
         lr_init = 1./ (L1+L2) * lr_init0
 
-        print(typeR)
+        print(typeR, optim)
         t0 = time.time()
         for p in range(nbParticules):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
+            #x,epoch = DGD  (x0,m,lr_init,eps,maxEpoch,typeR)
             #x,epoch = RAG  (x0,m,lr_init,eps,maxEpoch,typeR)
-            #x,epoch = speth(x0,m,lr_init,eps,maxEpoch,typeR)
-            x,epoch = DGD  (x0,m,lr_init,eps,maxEpoch,typeR)
-
+            if optim == "SPETH":
+                x,epoch = speth(x0,m,lr_init,eps,maxEpoch,typeR)
+            if optim == "SPETH_RED_MEM":
+                x,epoch = speth_red_mem(x0,m,lr_init,eps,maxEpoch,typeR)
+            if optim == "RR-SPETH":
+                x,epoch = rr_speth(x0,m,lr_init,eps,maxEpoch,typeR)
+            if optim == "S-SPETH":
+                x,epoch = s_speth(x0,m,lr_init,eps,maxEpoch,typeR)
 
             if(x>a and x<b):
                 #print(x) 
@@ -487,30 +626,24 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         ax.legend()
         t1 = time.time()
         print(f"time = {t1-t0:e}")
- 
     
-    plt.savefig('SGD_exs_'+str(lr_init0)+'.pgf')
-    plt.show()
+    plt.savefig(optim+"_exs.pgf")
+    #plt.show()
 
 
 typeCI="uniform"
 N=1
 nbPoints=1000
 nbParticules=10000
+
+# les deux principales
 lr_init=1
 #lr_init=0.1/3.
 #lr_init=0.1/3.
+eps=10**(-4); maxEpoch=10000
+
+## pour la dernière
 #lr_init=0.01
-eps=10**(-4); maxEpoch=1000
-print("SGD")
-exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)
+#eps=10**(-4); maxEpoch=1000000
 
-
-lr_init=0.01
-#lr_init=0.1/3.
-#lr_init=0.1/3.
-#lr_init=0.01
-eps=10**(-4); maxEpoch=1000
-
-print("SGD smaller learning rate")
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

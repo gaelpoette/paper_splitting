@@ -155,14 +155,17 @@ is analyzed across various benchmarks to explain its behavior.}
 
 {\it Unfortunately, this reviewer finds that the quality of the manuscript does not meet the standards of the Journal of Machine Learning for Modeling and Computing for the
 following reasons. First, the impact on the scientific community is unclear. The manuscript does not clearly state the scientific contribution of the proposed method. In the
-current form of presentation, the proposed modification appears to be a minor incremental improvement of the original work of Speth et al. [80]. Additionally, the validation study
-is limited to relatively simple benchmark problems, and a larger scale validation on real-world data and algorithms is missing, despite that the authors mention deep learning and
-the relevant practical concerns as the motivation for this work.}\\
+current form of presentation, the proposed modification appears to be a minor incremental improvement of the original work of Speth et al. [80]. }\\
 
 [TODO] 
 We regret that the reviewer found the scientific contribution of the manuscript unclear. In the revised version, we have made a stronger effort to highlight and clarify it (see revisions marked in blue).
 
-We respectfully disagree with the assessment that the paper offers only an incremental improvement over Speth's work. In our view, Speth's contribution remains under-recognized, not only by the machine learning optimization community but even within the numerical analysis community to which it was originally addressed.
+We respectfully disagree with the assessment that the paper offers only an incremental improvement over Speth {\it et al}'s work.
+For instance, the aggregator $c_{n+1}$ (see (10)) is never explicitely computed in our algorithm.
+
+Furthermore, in our view, Speth's contribution remains under-recognized, not only by the machine learning optimization community but even within the numerical analysis community to which it was originally addressed.\\
+
+{\it Additionally, the validation study is limited to relatively simple benchmark problems, and a larger scale validation on real-world data and algorithms is missing, despite that the authors mention deep learning and the relevant practical concerns as the motivation for this work.}\\
 
 Our primary goal with this paper was to provide a pedagogical and convincing case for the need for balanced strategies. We believe this can only be achieved through a carefully
 constructed progression of simple yet meaningful test cases - an approach that naturally requires both time and space. We acknowledge that the paper is lengthy, a concern also
@@ -221,7 +224,9 @@ strengthen the paper and clarify the robustness of the method under realistic
 Note that it is easy not considering a reshuffle...
     The question is now, at least, empirically investigated in the revised version. 
     As for theoretical analysis, we just want to insist on the fact that almost all the theoretical studies make the "interpolation hypothesis", i.e. assume the batches are quite
-    balanced. 
+    balanced.
+
+    [TODO] rajouter l'argument comme quoi si l'algo converge alors c'est vers un point critique.
 
   \item {\bf Simplified Empirical Evaluation.}
 

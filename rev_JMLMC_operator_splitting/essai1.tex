@@ -132,7 +132,8 @@ communities".
 We also thank the editor for giving us a second chance despite the two "reject" and one "accept" verdicts. 
 The document has been edited under consideration of the remarks made in all
 the reviews. The attached documents contain a version of the paper where all changes are highlighted
-in blue. In the following paragraphs, we stash together the common demands of all the reviewers and, in later paragraphs, address each of the reviewers' remarks individually.
+in blue. 
+In the following paragraphs, we first group together the reviewers' common requests. We then respond to each reviewer's specific comments individually.
 
 \ \\
 \ \\
@@ -158,22 +159,28 @@ current form of presentation, the proposed modification appears to be a minor in
 is limited to relatively simple benchmark problems, and a larger scale validation on real-world data and algorithms is missing, despite that the authors mention deep learning and
 the relevant practical concerns as the motivation for this work.}\\
 
-[TODO] We are sorry the reviewer found the manuscript does not state clearly the scientific contribution. In the revised version, we insists more on it (in blue). 
-Besides, we do not think the paper is only an incremental improvement of the original work of Speth. Speth's paper is, in our opinion, far from being acknowledged by the ML
-optimization community. In our opinion, it is even not well enough acknowledged by the numerical analysis community to which Speth's paper is addressed. Our first intention with
-this paper was to pedagogically explain and convince the need for balanced strategies. And we thought it could only be done {\em via} progressive well chosen simple test problems.
-This, definitely, takes time and length. And reviewers \#2 and \#3 both agree with the fact that the paper is already long. We are sorry
-the intention was not obvious enough for the reviewer. We hope it is better in the revised version.  \\ 
+[TODO] 
+We regret that the reviewer found the scientific contribution of the manuscript unclear. In the revised version, we have made a stronger effort to highlight and clarify it (see revisions marked in blue).
+
+We respectfully disagree with the assessment that the paper offers only an incremental improvement over Speth's work. In our view, Speth's contribution remains under-recognized, not only by the machine learning optimization community but even within the numerical analysis community to which it was originally addressed.
+
+Our primary goal with this paper was to provide a pedagogical and convincing case for the need for balanced strategies. We believe this can only be achieved through a carefully
+constructed progression of simple yet meaningful test cases - an approach that naturally requires both time and space. We acknowledge that the paper is lengthy, a concern also
+raised by Reviewers \#2 and \#3, and we apologize if our intention was not sufficiently clear in the initial submission. We hope the revised version makes this clearer.\\ 
 
 {\it Second, the experiments presented in the paper do not appear to have a strong connection to real-world practice in modern data science and machine learning. Stochastic
 gradient descent in its basic form is rarely the choice for the training of real-world algorithms today. Many of the assumptions and the design of experiments appear to be too
 simplistic and idealized. Such disconnection may be due to the weak literature review of the relevant literature in the deep learning community.}\\
 
-[TODO] It is true that the first version of the paper lacked multi-dimensional benchmarks. But we insist the 1D ones, which are (to our opinion and to the opinions of reviewers \#2 and
-\#3) important to insist on the need for balancedness and visual and pedagogical. Still, some real-world benchmarks have been added, MNIST with MLP, as suggested by reviewers \#3.
-Finally, we insist on the fact that we observed an undesirable behavior in 1D. It is true it is hard prooving it occurs in multi-D. But it is also hard prooving it does not appear
-in multi-D. We think this 1D results may help the ML optimization
-community have in mind this possibility and help in many ways. \\
+[TODO] 
+It is true that the initial version of the paper lacked multi-dimensional benchmarks. However, we maintain that the one-dimensional examples - which, in our view and in the
+opinions of Reviewers \#2 and \#3 - are pedagogically valuable and crucial for illustrating the importance of balancedness, particularly through clear visualizations.
+
+That said, we have followed Reviewer \#3's suggestion and included additional real-world benchmarks, specifically experiments on MNIST using a multi-layer perceptron (MLP).
+
+Finally, we emphasize that the one-dimensional setting revealed an undesirable behavior. While it is admittedly difficult to prove whether this issue persists in higher-dimensional
+settings, it is equally difficult to prove that it does not. We believe that highlighting this behavior in 1D raises an important point for the machine learning optimization
+community - one that could inspire further investigation and lead to deeper insights.\\
 
 {\it This reviewer also believes that the manuscript can benefit from thorough proofreading and English editing. Additionally, many of the discussions are presented in the form of
 bullet lists that lack a coherent flow of logic, making it harder to comprehend the message that the authors try to convey.} \\

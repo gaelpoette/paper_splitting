@@ -237,6 +237,7 @@ def awb_fb(x0,m,lr_init,eps,maxEpoch,typeR, num):
       v0 = v_prec
       m0 = m_prec
       epoch+=1
+      gNorm=np.linalg.norm(grad)
     if epoch == maxEpoch:
         print(str(num)+" max epoch reached")
     #print(num, x, epoch) 
@@ -253,6 +254,18 @@ def F(m, v, f, eta, grad, b1, b2, epsilon):
    v_n /=  eta
    F = [m_n, v_n, x_n]
    return F
+
+def Fi(s, v, f, eta, grad, grad2, b1, b2, epsilon, m):
+   s_n = (1-b1) * s /m + b1 * grad
+   v_n = (1-b2) * v /m + b2 * (grad2) / m
+   x_n = -f * s_n / m  / (np.sqrt(v_n) + epsilon)
+   s_n -=s
+   v_n -=v
+   s_n /=  eta
+   v_n /=  eta
+   F = [s_n, v_n, x_n]
+   return F
+
 
 def awb_fb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
     epoch=0
@@ -296,11 +309,132 @@ def awb_fb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
       v0 = v_prec
       m0 = m_prec
       epoch+=1
+      gNorm=np.linalg.norm(grad)
     if epoch == maxEpoch:
         print(str(num)+" max epoch reached")
     #print(num, x, epoch) 
     print(num, x)
     return x, epoch
+
+def awb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
+    epoch=0
+    P=m
+    v0 = 0
+    s0 = 0
+    x  = x0
+    v  = v0 
+    s   = s0
+    b1   = 0.9
+    b2=0.999
+    epsilon=1e-8
+    bb   = 1.0
+    eta  = 1.e-15
+    grad = 0.
+    grad_tab =np.zeros(m)
+    gNorm = 1000
+
+    while epoch < maxEpoch and gNorm/P > eps:
+       
+      if epoch > 0:
+        eta=lr_init; 
+      x_prec=x0
+      v_prec=v0
+      s_prec=s0
+      for i in range(m):
+        grad=gradR(x,i,typeR)  
+        f = 1. #np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
+        Fl = F(s_prec, v_prec, f, eta, grad, b1, b2, epsilon)
+        s += eta * Fl[0]
+        v += eta * Fl[1]
+        x += eta * Fl[2]
+        x_prec = x
+        v_prec = v
+        s_prec = s
+        #print(x, v, m)
+        #if epoch > 2:
+        #   abort
+
+      x0 = x_prec
+      v0 = v_prec
+      s0 = s_prec
+      epoch+=1
+      #print(epoch, gNorm) 
+
+    if epoch == maxEpoch:
+        print(str(num)+" max epoch reached")
+    #print(num, x, epoch) 
+    print(num, x)
+    return x, epoch
+
+
+def speth_awb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
+    epoch=0
+    P=m
+    v0 = 0
+    s0 = 0
+    x  = x0
+    v  = v0 
+    s   = s0
+    b1   = 0.9
+    b2=0.999
+    epsilon=1e-8
+    bb   = 1.0
+    eta  = 1.e-15
+    grad = 0.
+    grad_tab=np.array([0.,0.])
+    grad_tab[0] = gradR(x,0,typeR)
+    grad_tab[1] = gradR(x,1,typeR)
+    g  = grad_tab[0]    + grad_tab[1]
+    g2 = (grad_tab[0] + grad_tab[1])**2
+
+    F_tab =np.array([[0.,0.,0.],[0.,0.,0.]])
+    gNorm = 1000
+    Fl =np.array([0.,0.,0.])
+
+    while epoch < maxEpoch and gNorm/P > eps:
+      if epoch > 0:
+        eta=lr_init; 
+      x_prec=x0
+      v_prec=v0
+      s_prec=s0
+      for i in range(m):
+        grad=gradR(x,i,typeR)  
+        g  -= grad_tab[i]
+        g2 -= grad_tab[i]**2
+        g += grad
+        g2+= grad**2
+        f = 1. #np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
+        F_cur = np.array(Fi(s_prec, v_prec, f, eta, g, g2, b1, b2, epsilon, m))
+        Fl -= F_tab[i]
+        Fl += F_cur
+        #print(f"from speth {eta * Fl}")
+        #Fl = F_cur  # SANS 
+        #print(f"from class {eta * Fl}")
+        s += eta * Fl[0]
+        v += eta * Fl[1]
+        x += eta * Fl[2]
+        F_tab[i]    = F_cur
+        grad_tab[i] = grad
+        x_prec = x
+        v_prec = v
+        s_prec = s
+        #print(f"epoch: {x, v, s}")
+        #if epoch > 2:
+        #   abort
+
+      x0 = x_prec
+      v0 = v_prec
+      s0 = s_prec
+      epoch+=1
+      gNorm=np.linalg.norm(g)
+      #print(epoch, gNorm) 
+    if epoch == maxEpoch:
+        print(str(num)+" max epoch reached "+str(g)+"")
+    #print(num, x, epoch) 
+    print(num, x)
+    return x, epoch
+
+
 
 
 
@@ -329,7 +463,11 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
             #x,epoch = awb_fb(x0,m,lr_init,eps,maxEpoch,typeR, p)
-            x,epoch = awb_fb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
+            #x,epoch = awb_fb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
+            #x,epoch = awb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
+            x,epoch = speth_awb_F(x0,m,lr_init,eps,maxEpoch,typeR, p)
+
+
 
             if(x>a and x<b):
                 #print(x) 

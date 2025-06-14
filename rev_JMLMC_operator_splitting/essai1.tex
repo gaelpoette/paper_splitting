@@ -161,7 +161,7 @@ current form of presentation, the proposed modification appears to be a minor in
 We regret that the reviewer found the scientific contribution of the manuscript unclear. In the revised version, we have made a stronger effort to highlight and clarify it (see revisions marked in blue).
 
 We respectfully disagree with the assessment that the paper offers only an incremental improvement over Speth {\it et al}'s work.
-For instance, the aggregator $c_{n+1}$ (see (10)) is never explicitely computed in our algorithm.
+For instance, the aggregator $c_{n+1}$ (see (10)) is never explicitly computed in our algorithm.
 
 Furthermore, in our view, Speth's contribution remains under-recognized, not only by the machine learning optimization community but even within the numerical analysis community to which it was originally addressed.\\
 
@@ -176,17 +176,20 @@ gradient descent in its basic form is rarely the choice for the training of real
 simplistic and idealized. Such disconnection may be due to the weak literature review of the relevant literature in the deep learning community.}\\
 
 [TODO] 
-We do not understand this comment about weak literature. I mean, once the importance of balancedness identified, we looked for paper way outside the ML optimization community.
-Besides, reviewer \#2 thinks it is too exhaustive for the purpose of the paper.  
+We are somewhat puzzled by the comment regarding weak literature coverage. Once the importance of balancedness was identified, we intentionally explored works well beyond the core
+machine learning optimization literature (Speth {\it et all}'s paper is a good example). In fact, Reviewer \#2 noted that the literature review might even be too exhaustive for the scope of the paper.
 
-It is true that the initial version of the paper lacked multi-dimensional benchmarks. However, we maintain that the one-dimensional examples - which, in our view and in the
-opinions of Reviewers \#2 and \#3 - are pedagogically valuable and crucial for illustrating the importance of balancedness, particularly through clear visualizations.
+On another hand, it is true that the original submission lacked multi-dimensional benchmarks. However, we stand by the use of one-dimensional examples, which - as acknowledged by Reviewers \#2 and
+\#3 - offer strong pedagogical value and allow for clear visual demonstrations of the importance of balancedness.
 
-That said, we have followed Reviewer \#3's suggestion and included additional real-world benchmarks, specifically experiments on MNIST using a multi-layer perceptron (MLP).
+That said, we have followed Reviewer \#3's recommendation and added the real-world benchmark MNIST using a multi-layer perceptron (MLP).
+Gains are also obtained. 
 
-Finally, we emphasize that the one-dimensional setting revealed an undesirable behavior. While it is admittedly difficult to prove whether this issue persists in higher-dimensional
-settings, it is equally difficult to prove that it does not. We believe that highlighting this behavior in 1D raises an important point for the machine learning optimization
-community - one that could inspire further investigation and lead to deeper insights.\\
+Finally, we would like to reiterate that the one-dimensional setting revealed an undesirable behavior. While it is indeed challenging to prove whether this issue extends to higher
+dimensions, it is equally difficult to prove that it does not. We believe that documenting this behavior in 1D is a valuable contribution, as it raises an important concern for the
+machine learning optimization community and may inspire further investigation.
+Finally, we insist even more on what the introduction of Speth's splitting can bring to the ML optimization communities with more example (than extended Speth GD and extended Speth
+Momentum). \\
 
 {\it This reviewer also believes that the manuscript can benefit from thorough proofreading and English editing. Additionally, many of the discussions are presented in the form of
 bullet lists that lack a coherent flow of logic, making it harder to comprehend the message that the authors try to convey.} \\
@@ -215,18 +218,16 @@ A theoretical analysis-or at least empirical investigation-of this point would
 strengthen the paper and clarify the robustness of the method under realistic
     training conditions.} \\
 
-    [TODO]    Thanks for this question. It appeared quite obvious to us but we thank the reviewer for giving the opportunity to add a property in the paper. 
+    [TODO]    
+Thank you for pointing out the possibility of formally characterizing the convergence properties of our approach. We're not sure why this was omitted from the initial version of the paper, but we have now added an explicit statement of the property, along with relevant commentary.
+This property do not need the interpolation condition, which, given our results, is certainly too restrictive. 
+In particular, we emphasize that this property naturally leads to the design of new (full-batch) optimization algorithms.
 
-    In fact, we tested the extended Speth strategy with random reshuffle. 
+    In the new version, we tested the extended Speth strategy with random reshuffle. 
     We did not put the results in the first version of the paper because, as you will see in the revised version, they are redundant (for this reason, they are put in the
     appendices) and we thought the use of deterministic mini-batch could ease the reproducibility of the results. But yes, as you will see, the correction term behaves quite well
     with the stochastic noise.  
-Note that it is easy not considering a reshuffle...
     The question is now, at least, empirically investigated in the revised version. 
-    As for theoretical analysis, we just want to insist on the fact that almost all the theoretical studies make the "interpolation hypothesis", i.e. assume the batches are quite
-    balanced.
-
-    [TODO] rajouter l'argument comme quoi si l'algo converge alors c'est vers un point critique.
 
   \item {\bf Simplified Empirical Evaluation.}
 
@@ -243,7 +244,7 @@ issues, or future plans to test on real-world tasks would help clarify the pract
     applicability of the approach.} \\
 
 
-    [TODO] Some benchmarks have been added. We hope they reach the reviewer's expectations.
+    [TODO] Some benchmarks have been added, performance tests too. We hope they reach the reviewer's expectations.
 
   \item {\bf Minor Comments}
 
@@ -255,11 +256,13 @@ optimizers across multiple similar benchmark types. While they are useful
 for exhaustiveness, some of them might be moved to an appendix or
         summarized more concisely in the main text.} \\
 
-        [TODO] We moved the figures to the appendices while the comments on these figures remain in the corpse of the manuscript. We hope this is ok. 
+        [TODO] We moved the figures to the appendices while the comments on these figures remain in the corpse of the manuscript. We hope this is ok.\\
 
       \item [b.] {\it  For example, Figures 1-4 and 13-17 contain overlapping insights that could
 be summarized in fewer plots with aggregate comparisons or referenced
-        from supplementary material.}
+        from supplementary material.} \\
+
+        The new version should be close enough to what the reviewer suggests. 
     \end{itemize}
   \item {\bf Potential to Improve Summary and Discussion:}
     \begin{itemize}
@@ -272,26 +275,35 @@ for instance, would help sharpen the focus on the core contributions and
 
   \item {\bf Other Comments}:
   \begin{itemize}
-    \item  {\it Typo in multiple places: 'litterature' ->'literature'.}
+    \item  {\it Typo in multiple places: 'litterature' ->'literature'.}\\
+
+Typos have been corrected. \\
+
     \item  {\it Clarify early on that the proposed methods allow use of a constant learning rate
 without requiring full gradient evaluations, as this is particularly relevant for the
-      machine learning community.}
+      machine learning community.} \\
+
+      [TODO] This is now done, in blue, in the revised version. \\
+
     \item {\it Please ensure the caption text in all figures is clear and that axis labels and legends
-      are readable, particularly in the 1D plots.}
-    \item {\it The github link attached to the paper appears to be not available. Please fix this.}
+      are readable, particularly in the 1D plots.}\\
+
+      This is now done in the revised version.\\ 
+
+    \item {\it The github link attached to the paper appears to be not available. Please fix this.}\\
+
+      [TODO] {Sorry about that, it is a mistake. We changed the link. }\\
   \end{itemize} \ \\
 
   We made some changes in the presentation of the contributions of the paper (as also demanded by reviewer \#1), we hope the new presentation also corresponds to reviewer \#2's
   remarks. 
 
-
-  [TODO] the github links have been fixed, sorry for that. 
-
-
 \item {\bf Final thoughts:}:
   {\it The clarity of the operator splitting interpretation and the construction of the benchmarks
 are appreciated. This paper could generate interest in both the ML optimization and
-numerical analysis communities}
+numerical analysis communities} \\
+
+Thank you very much for this last comment, this is truly motivating. 
    \end{enumerate}
 \ \\ \ \\
 
@@ -315,20 +327,21 @@ We thank the reviewer for identifying the strengths of the paper.\\
 \begin{itemize}
   \item {\it Lacks theoretical guarantees: no convergence or stability theorem is provided for the proposed method in nonlinear or high-dimensional settings.}
 
-    We are already nonlinear, even non-convex.  
-    The question of the theoretical guarantees is a thorny one. We here must insist on the fact that, to our knowledge, all theoretical results are based on the {\em interpolation
-    condition} (closely related to balancedness). With this paper, we mainly wanted to put forward the fact that numerical difficulties may occur as soon as this property is not
-    fulfilled. 
+    It is true the first version of the paper lacked some theoretical properties. A property has been added in the revised version. 
+    It is not exactly a convergence theorem but it does not need the interpolation condition, which given the numerical results, is certainly too restrictive. 
+
+    Note that some of our benchmarks already were We are already nonlinear, even non-convex.  But it is true they were 1D. 
+    We did as reviewer \#3 suggested and added results on the MNIST benchmark. 
 
   \item {\it Experimental validation is limited entirely to simple 1D benchmarks; no results are shown for neural networks or practical datasets.}
 
     It is true we did not, in the first version of the paper, tackle "real world problems". To our defense, this was because we thought a pedagogical and progressive emphase on the
     importance of using balanced strategies was prior to complex multi-dimensional problem, 
-if only for display reasons. But new multi-dimensional non convex benchmarks have been added in the revised version.  
+if only for display reasons. But results on MNIST benchmark have been added, as suggested.  
 
   \item {\it Extension to adaptive optimizers like Adam is only briefly discussed and not analyzed in depth.}
 
-    [TODO] we added some results comparing RR-Adam and eS-Adam in the revised version. 
+    [TODO] We added some detailed discussion on this point is the revised version. 
 \end{itemize}
 
 {\bf Empirical Limitations}
@@ -361,7 +374,11 @@ if only for display reasons. But new multi-dimensional non convex benchmarks hav
     [TODO] We changed the figures. 
   \item {\it Equations occasionally omit definitions or proper notation.}
 
-    [TODO] \textcolor{blue}{Là, je suis étonné, éventuellement lui demander de pointer du doigt}
+    [TODO] 
+    We carefully reviewed the paper multiple times and, to the best of our knowledge, did not find any missing definitions or inconsistencies in the notation. We apologize if anything was unclear.
+
+Of course, we would be happy to clarify any definitions or notations if the reviewer can indicate the specific points of concern.
+
   \item {\it The reference list is not consistent, many entries lack publication venues, or follow different formatting styles..}
 
     [TODO] We checked the list of publication. It now has the same formatting style. 
@@ -376,16 +393,12 @@ if only for display reasons. But new multi-dimensional non convex benchmarks hav
 
   \item {\it Provide a formal (even local) convergence result for the balanced splitting scheme under reasonable assumptions.}
 
-
-    As previously explained, imbalanced batches are, to our knowledge, never theoretically studied. We only here intend to put forward the need for balanced optimization
-    strategies. We are currently studying additional convergence results. But we are not sure it is consistent with already having a lengthy paper. 
+    We added an important property in the revised version, which does not rely on the interpolation condition. It concerns the convergence toward critical points. 
 
   \item {\it Include clear pseudocode and computational cost analysis (both memory and FLOPs) for the proposed algorithm and its variants.}
 
     [TODO] We added some pseudo codes and insist more on the memory implications of the complexity we already study on the first version. We also provided runtimes for comparisons
     but these runtimes are often not very relevant as it is really hard comparing the imbalanced and balanced strategies with {\em equivalent} accuracies. 
-
-    $+$ sur une iteration, pas de surcout significatif.
 
   \item {\it Substantially revise the manuscript to correct grammar, improve figure quality, and ensure references are complete and properly formatted.}
 

@@ -142,10 +142,9 @@ The most studied optimizer to minimize \eqref{pb_somme_fini} is the stochastic g
 \end{equation}
 The convergence of SGD was studied under several assumptions:
 bounded variance \cite{sgd_general_diminishing_lr,Bertsekas_basis,sgd_dynamical_basis,bertsekas_theorem,SGD_upper_bound}, relaxed strong growth condition \cite{RG_mean,RG_almost_sure}, gradient confusion \cite{gradient_confusion}, sure-smoothness \cite{sure_smoothness_sgd} and expected smoothness \cite{ES_sgd,sgd_descent_condition,ES_sgd,sgd_global_KL}. In all these studies, learning rates need to decrease so that
-\begin{equation}
+$
 	\sum_{n\geq 0} \eta_n = +\infty \text{ , } \sum_{n\geq 0} \eta_n^{2}<+\infty
-	\label{diminishing_step}
-\end{equation}
+$
 to ensure convergence. In practice, SGD is used with constant learning rate. However, the authors of \cite{sgd_prec} showed that even under bounded variance assumption, SGD with any constant learning rate does not converge to a critical point. To expect such a convergence, assumptions like Maximal Strong Growth Condition \cite{MSG_strong_convex,MSG_IG} or Expected Strong Growth Condition \cite{ESG_upper_bound} are necessary. All these hypotheses imply the famous interpolation condition:
 \begin{equation}
   \nR(\theta)=0 \implies \forall i\in\{1,\dots,m\}, \nR_i(\theta)=0.
@@ -234,7 +233,7 @@ Most of the optimizers satisfy only one or two of the aforementioned aspects. IA
 second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented here). 
 Therefore the goal of this paper %and its following second part 
 is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies the five first
-criteria}. \textcolor{blue}{Dans tout le papier, on reste a pas constant et on arrive cf. la remarque}. The last point will be tackled in further publications, based on the work described in this paper. We think these are crucial steps in order to develop smaller machine learning models. 
+criteria}. \textcolor{blue}{In this paper, we focus on these five first points and only consider constant learning rates}. The last point will be tackled in further publications, based on the work described in this paper. We think these are crucial steps in order to develop smaller machine learning models. 
 
 \subsection{Organization of the paper}
 ~~\\
@@ -1067,6 +1066,13 @@ It is the only hyperparameter to tune because we considered eS-GD here.
 But other variations such as eS-Momentum or eS-Adam for example would have needed to tune other hyperparameters (classically denoted by $\beta_1,\beta_2, \epsilon_a$ in the literature, see
 \cite{Bilel_thesis}). %Part II will be focused to overcoming this tedious tuning phase.  
 
+\subsection{MNIST}
+
+\begin{figure}[!h]
+  \includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot.png}
+  \caption{MNIST}
+  \label{mnist}
+\end{figure}
 
 
 \section{Conclusion}

@@ -177,6 +177,8 @@ grestore
 \newcommand{\mg}{gm} %minimum global
 \newcommand{\ml}{lm}
 \newcommand{\ps}{sp}
+\newcommand{\Speth}{eS}
+
 
 %\usepackage{pgfplots}
 %\usepgfplotslibrary{external} 
@@ -215,15 +217,30 @@ grestore
 \maketitle
 
 \begin{abstract}
-  TODO: A MODIFIER!
-	Mini batch optimizers are at the center of neural network training. 
-        These are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
-        In practice, these optimizers need an extensive tuning of the hyperparameters (learning rate, batch size,...) to converge and exhibit expected behaviours. %give appropriate performances. 
-        In theory, many stochastic algorithms used in this setting rely on the interpolation condition for convergence. 
-        This condition is closely related to the overparametrization of the network. 
-        In this paper, we investigate numerically the non-interpolating case and highlight some new undesirable behaviors for the stationary distributions of the most popular stochastic optimizers. 
-        We exploit the notion of balanced splitting to explain such behavior and to build new mini-batch optimizers which work without tuning and without interpolation assumption. 
-        These new algorithms are rigorously tested on a set of analytic and Machine Learning benchmarks where they outperform the famous Adam algorithm.
+%  TODO: A MODIFIER!
+%	Mini batch optimizers are at the center of neural network training. 
+%        These are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
+%        In practice, these optimizers need an extensive tuning of the hyperparameters (learning rate, batch size,...) to converge and exhibit expected behaviours. %give appropriate performances. 
+%        In theory, many stochastic algorithms used in this setting rely on the interpolation condition for convergence. 
+%        This condition is closely related to the overparametrization of the network. 
+%        In this paper, we investigate numerically the non-interpolating case and highlight some new undesirable behaviors for the stationary distributions of the most popular stochastic optimizers. 
+%        We exploit the notion of balanced splitting to explain such behavior and to build new mini-batch optimizers which work without tuning and without interpolation assumption. 
+%        These new algorithms are rigorously tested on a set of analytic and Machine Learning benchmarks where they outperform the famous Adam algorithm.
+
+%A faire:
+%
+% 1) Intro: repartir du précedent en faisant un rappel de ce qui a été fait.
+%
+% 2) enlever cette intro jusqu'à ``Adaptive learning rates''
+%
+% 3) légèrement retoucher ``Objectives''
+%
+% 4) organisation du papier
+%
+% 5) rajouter un paragraphe pour rappeler les notations (et avoir les équations référencées)
+%
+% 6) Lisser les rappels aux sections jusqu'à 4) (qui sont dans la première partie).
+
 \keywords{Non-convex optimization \and Mini-batch algorithms \and Splitting schemes}
 \subclass{65K10 \and 65L05 \and 60H10}
 \end{abstract}
@@ -231,245 +248,292 @@ grestore
 \section{Introduction}
 \label{intro}
 
-A faire:
-
- 1) Intro: repartir du précedent en faisant un rappel de ce qui a été fait.
-
- 2) enlever cette intro jusqu'à ``Adaptive time steps''
-
- 3) légèrement retoucher ``Objectives''
-
- 4) organisation du papier
-
- 5) rajouter un paragraphe pour rappeler les notations (et avoir les équations référencées)
-
- 6) Lisser les rappels aux sections jusqu'à 4) (qui sont dans la première partie).
  
-Deep Learning tasks \cite{image_recognition,language_recognition,plasma} imply the resolution of highly non-convex optimization problems \cite{DL_opti}:
+Mini-batch optimization is very popular in order to solve Deep Learning tasks \cite{image_recognition,language_recognition,plasma}. 
+It consists in the resolution of highly non-convex optimization problems \cite{DL_opti}:
 \begin{equation*}
-\displaystyle{\min_{\theta \in \Rb^N}} \R(\theta).
+\displaystyle{\min_{\theta \in \Rb^N}} \R(\theta),
 \end{equation*}
-This objective function has the particularity to involve a sum-structure on all the data of the problem:
+in which $\R$ has a particular sum-structure on all the labels of the problem:
 \begin{equation*}
-	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)},
+	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)}.
 \end{equation*}
-where $(x_p,y_p)_{1\leq p \leq P}$ are the data of the problems, $u(\theta,x)$ a parametrized model (for example a neural network) and $\loss$ a loss function measuring the distance between predictions $u(\theta,x)$ and real data. In practice, the memory complexity is proportional to the number of data $P$ and $P$ is big. Therefore, the memory cost exceeds the RAM storage. To overcome this difficulty, the data are splitted into $m$ batches of size $b$ (except the last batch of size $P-(m-1)b$):
+In the above expression, $(x_p,y_p)_{1\leq p \leq P}$ are the data of the problems, $u(\theta,x)$ is a parametrized model (for example a neural network) and $\loss$ is a loss function measuring the distance between predictions $u(\theta,x)$ and real data. 
+%In practice, the memory complexity is proportional to the number of data $P$ and $P$ is big. Therefore, the memory cost exceeds the RAM storage. 
+To overcome memory complexity, the cost function is often split into $m$ batches of size $b$:
 \begin{equation}
 	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)} = \sum_{i=1}^m \R_i(\theta),
 	\label{pb_somme_fini}
 \end{equation}
-where each function $\R_i$ is computed on $b$ data and not $P \gg b$. Then at every iteration, the algorithm has only access to one function $\R_i$. This problem is a particular case of stochastic optimization:
+where each function $\R_i$ is computed on $b$ data and not $P \gg b$. 
+Then at every iteration/epoch, the algorithm has only access to one function $\R_i$.
+A thorough review of the existing optimizers allowing to minimize $\R$ in a mini-batch context is provided in \cite{partI}. 
+Note that, in a sense, this paper can be considered the
+logical consequence of paper \cite{partI}: 
+in this same paper, a new family of mini-batch optimizers has been put forward. 
+The construction of this new family has been motivated by the will to alleviate a strong hypothesis, often made in the litterature, 
+on the batch distribution, namely the {\em interpolation assumption} (see \cite{ESG_upper_bound,ESG_IG} for example but also  \cite{sgd_prec,adam1,adam2,zou_rms,rms_not_bounded}
+for Adam-like algorithms).
+This hypothesis is closely related to having an overparametrized network, hence a deep one, whereas 
+in our applications of interest, mainly motivated by physical problems \cite{FV_scheme,reentry,acc_newt,FRANCK,plasma,KluthRipoll}, shallow and accurate networks are necessary to
+be competitive and usable.\\
+In \cite{partI}, the authors noticed an analogy between being able to deal with non-interpolatory batches $\R_i$ and operator splitting between stiff non-commutative operators \cite{rebalanced_splitting}. 
+Based on the work of Speth \cite{rebalanced_splitting}, who designed a balanced splitting for stiff convection-diffusion operators, a new family of mini-batch optimizers has been
+presented.  
+The material of \cite{partI} is in fact an extension of the work of \cite{rebalanced_splitting} and not a direct application.
+In a nutshell, assume that the update of a full-batch optimizer is given by
 \begin{equation}
-	\R(\theta) = \mean \left[\R_{\zeta}(\theta)\right],
-	\label{opti_sto}
-\end{equation}  
-where $\zeta$ is a probability law. Although we study mini-batch optimization for memory consumption issue, some authors are interested in this for other reasons: it is commonly accepted that stochastic noise introduced by the batches helps escaping saddle points \cite{sgd_escape1,sgd_escape2,sgd_escape3,sgd_escape4} or achieving best generalization error \cite{sgd_gen1,sgd_gen2,sgd_gen3,sgd_gen4}. Many optimizers have been suggested these recent years to find critical points for the finite sum problem \eqref{pb_somme_fini}. In the following, we present the most important family of mini-batch optimizers.
-
-\paragraph{Stochastic gradient descent (SGD)}
-~~\\
-The most studied optimizer to minimize \eqref{pb_somme_fini} is the stochastic gradient descent (SGD), introduced in \cite{SGD_Robins}. SGD consists in applying a gradient descent to each function $\R_i$, where $i$ is uniformly sampled in $\{1,\dots,m\}$:
-\begin{equation}
-	\theta_{n+1} = \theta_n-\eta \nR_i(\theta_n).
-	\label{SGD}
+  \label{fb_opt}
+        y_{n+1} = y_{n}+\eta F(y_n),
 \end{equation}
-The convergence of SGD was studied under several assumptions:
-bounded variance \cite{sgd_general_diminishing_lr,Bertsekas_basis,sgd_dynamical_basis,bertsekas_theorem,SGD_upper_bound}, relaxed strong growth condition \cite{RG_mean,RG_almost_sure}, gradient confusion \cite{gradient_confusion}, sure-smoothness \cite{sure_smoothness_sgd} and expected smoothness \cite{ES_sgd,sgd_descent_condition,ES_sgd,sgd_global_KL}. In all these studies, learning rates need to decrease as
+where $\eta$ is the learning rate and $F$ is the flow: for example, 
+for Gradient Descent (GD), $y=\theta$ and $F(y)=-\nR(\theta)$ and 
+for Momentum, $y=(\theta,v)^\top$ and $F(y)=(-v, -\bbetone v +
+\nR(\theta))^\top$. 
+All classical first-order optimizers can be put into the previous expression \eqref{fb_opt}, see \cite{Barakat_bianchi}.  
+The new mini-batch optimizer family based on an extension of Speth's well-balanced splitting
+can then be summed-up as the following update for batch $i\in\{1,..,m\}$ of epoch $n\geq 1$:
 \begin{equation}
-	\sum_{n\geq 0} \eta_n = +\infty \text{ , } \sum_{n\geq 0} \eta_n^{2}<+\infty
-	\label{diminishing_step}
+  \begin{array}{c}
+	y_{n+i/m} = y_{n+(i-1)/m}+\eta g_n^i,\\
+	g_n^i = \sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right).
+  \end{array}
+	\label{RAG_scheme}
 \end{equation}
-to ensure convergence. In practice, SGD is used with constant learning rate. However, the authors of \cite{sgd_prec} showed that even under bounded variance assumption, SGD with any constant learning rate does not converge to a critical point. To expect such a convergence, assumptions like Maximal Strong Growth Condition \cite{MSG_strong_convex,MSG_IG} or Expected Strong Growth Condition \cite{ESG_upper_bound} are necessary. All these hypotheses imply the famous interpolation condition:
-\begin{equation}
-  \nR(\theta)=0 \implies \forall i\in\{1,\dots,m\}, \nR_i(\theta)=0.
-	\label{interpolation}
-\end{equation}
-This assumption is very strong. For example, concerning neural networks, this assumption is related to the surparametrization ($N\gg P$) of the network \cite{ESG_upper_bound,ESG_IG}. 
-In a sense, this work aims at helping answering the question: is it possible to build efficient small networks using SGD?
-Accurate shallow networks certainly present interesting properties in a scientific ML context \cite{mettre_le_paquet_en_refs_ici,..,..,..,..,..,..}. 
-%Then it is not possible to build efficient small networks using SGD. 
-Hence, one of the main concern of this work will be to overcome the interpolation condition \eqref{interpolation}. Note that stochastic inertial algorithms and Adam-like optimizers suffer from the same limitation \cite{sgd_prec,adam1,adam2,zou_rms,rms_not_bounded}.
+As above, the mini-batch optimizer has a memory complexity of $N\times m$ since the gradients of the batches of the previous epoch need to be stored in order to be removed from,
+what we call, the aggregator $g_n^i$. A reduction of memory cost can be made, going from $m\times N$ to $3 \times N$, by applying instead the following update
+\begin{multline}
+	y_{n+i/m} = y_{n+(i-1)/m} \\
+	+\eta
+	\left\{
+	\begin{array}{ll}
+		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
+		g_{n+1} \text{ if } i=m,\\
+                \text{ with } 
+	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right),
+	\end{array}
+	\right.
+	\label{RAGL_splitting}
+\end{multline}
+for all $i \in \{1,\dots,m\}$. Here, the aggregator is the factor of $\eta$. The previous algorithm with reduced memory cost remains balanced in the sense it keeps the good properties of mini-batch update \eqref{RAG_scheme}
+with respect to the non-interpolatory condition: in \cite{partI}, care has been taken to ensure that (for both \eqref{RAG_scheme} and \eqref{RAGL_splitting}) if a limit $y_\infty$ for $y_{n+i/m}$ exists as $n\rightarrow \infty$, then it satisfies $F(y_\infty)=0$. 
+For $F=-\nR$, the mini-batch update is close to the one of algorithm RR-SARAH \cite{RR_SARAH}.
 
-\paragraph{Random reshuffle gradient descent (RRGD)}
-~~\\
-In practice, the reshuffle versions are prefered to classical ones \cite{RR_use1,RR_use2,RG_mean}. For example, the version of SGD with random reshuffling is called Random Reshuflle GD (RRGD) or SGD without replacement. It consists, at the beginning of every epoch, in sampling a random permutation and then to apply the $m$ updates \eqref{SGD} in the order given by the permutation. Empirically, it seems that RRGD converges faster than SGD and gives better performances \cite{RR_use1,RR_use_superior}. Many works \cite{RR_outperforms_quadratics,RR_use3,RR_outperforms_convex,RR_small_epochs} try to explain this superiority theoretically, especially for well-conditionned convex functions.
-
-\paragraph{Variance reduction}  
-~~\\
-Despite being not used in practice, variance reduction optimizers have been extensively studied by ML researchers this last decade, since they can converge with constant learning rate. In broad outline, the aim is to conceive methods that ensure that the variance does not vanish asymptotically:
-\begin{equation*}
-	\displaystyle{\sum_{i=1}^m}\left[\|\nR(\theta_n)/m-\nR_i(\theta_n)\|^2\right] \to 0.
-\end{equation*}
-Now, we will present some of these methods describing their principal features:
-\begin{itemize}
-	\item historically, one of the first method of this kind introduced in the strongly convex case is SAG: Stochastic Average Gradient. The goal is to combine the small computational cost of SGD with the linear convergence of GD on strongly convex functions. The iterations are of the form:
-	\begin{equation*}
-		\theta_{n+1}=\theta_n-\eta \sum_{i=1}^m y_i^n
-	\end{equation*}
-	where at each iteration, one batch $i_n$ is sampled and the variables $y_i^n$ are updated according to:
-	\begin{equation*}
-		y_i^n =
-		\left\{
-		\begin{array}{ll}
-			\nR_i(\theta_n) \text{ if } i=i_n, \\
-			y_i^{n-1} \text{ else}.
-		\end{array}
-		\right.
-	\end{equation*}
-It is interesting to see that this algorithm is a random version of a former deterministic optimizer called IAG \cite{IAG_first}: Incremental Aggregated Gradient Descent. We will come back to this algorithm later. This optimizer needs to store the $m$ last gradients ($m$ is the number of batches). Then the memory cost involves the product $mN$ that may be big.
-\item From now on, $i_n$ denotes a uniform sample in $\{1,\dots,m\}$ at iteration $n$. In order to reduce the memory cost, the authors of \cite{SVRG_first} suggest SVRG: Stochastic Variance Reduced Gradient which is the basis of many other methods. Let us imagine that we keep a weight $\tilde{\theta}$ every $\tilde{m}$ iterations. The SVRG update is:
-\begin{equation*}
-	\theta_{n+1} = \theta_n -\eta \left[\nR_{i_n}(\theta_n)-\nR_{i_n}(\tilde{\theta})+\nR(\tilde{\theta})\right].
-\end{equation*}
-Let us note two important facts: the introduction of a new hyperparameter $\tilde{m}$ representing the frequence of full-batch gradient evaluation and the computation of such a
-    gradient. This is typical of many variance reduction methods, but it is an issue in our case because we want to avoid evaluation of $\R$ or $\nR$ because of the storage
-    requirement. Based on the same ideas, we could mention SAGA \cite{SAGA_first} or SNVRG \cite{SNVRG_first}. For bounded variance noise, this algorithm admits a complexity that
-    may be "better" than GD for large $b$. 
-\item There are also methods called recursive variance reduction gradients . The prototype of these methods is SARAH \cite{SARAH_first}. The idea is to obtain recursively an estimation $g_n$ of $\nR$ without storing previous gradients:
-\begin{equation*}
-	g_n = \nR_{i_n}(\theta_n)-\nR_{i_n}(\theta_{n-1})+g_{n-1}
-\end{equation*}
-where every $\tilde{m}$ iterations, the estimation $g_n$ is the full batch gradient $\nR$. In the same family we find GEOM-SARAH \cite{GEOM_SARAH}, ZERO-SARAH (no computation of $\nR$ but introduction of a new hyperparameter and similar storage as SAG) \cite{ZERO_SARAH}, STORM (add an inertial hyperparameter $\beta$ to tune) \cite{STORM_first}, SPIDER (variance reduction on normalized gradient) \cite{SPIDER_first}, SSRGD (mix between SARAH and perturbed GD in order to escape more efficiently to saddle points) \cite{SSRGD}, PAGE (alternating between SARAH and SGD with some probability) \cite{PAGE}, Katyusha (acceleration on strongly convex functions) \cite{Katyusha}. 
-\item Let us now present variance reduction methods that do not need computation of $\nR$, tuning of a hyperparameter like $\tilde{m}$ or $\beta$, or the storage of $m$ gradients. The first method that fits into this setting is SCSG \cite{SCSG}. The update looks like the one for SARAH (we do not substract the evaluation of the last iterate but of the first of each epoch) by replacing the full-batch gradient by a stochastic gradient. Coupling variance reduction with random reshuffling, the authors of \cite{RR_SARAH} suggest very recently RR-SARAH: its memory cost involves $3N$ and not $mN$ and it does not need computation of the full-batch gradient $\nR$. To the best of our knowledge, it is the only optimizer that enjoys these properties. However, the analysis is limited to strongly convex functions under strong assumption on the noise. Besides, the numerical experiences are limited to the logistic regression (for only one initialization). 
-\end{itemize}
-
-
-\paragraph{Adaptive time steps}
-~~\\
-So far, all the mini-batch optimizers mentioned above use decreasing or constant time step, so tuning is generally necessary to make the methods converge. In fact, there are very few works about adaptive learning rate (time step) mini-batch optimizers (algorithms that do not need tuning):
-\begin{itemize}
-	\item first we could find some extensions of the classical Armijo rule. S.Vaswani \cite{stochastic_armijo} suggested to apply the Armijo rule to each batch iteratively:
-	\begin{equation*}
-		\R_i(\theta_n-\eta_n^i \nR_i(\theta_n))-\R_i(\theta_n) \leq -\lambda \eta_n^i \|\nR_i(\theta_n)\|^2.
-	\end{equation*}
-	Under growth condition, it is proved that the minimum of the gradient converge if $\lambda=0.5$. But it is necessary that the maximal time step allowed in the linesearch (research of the time step satisfying the above inequality) depends on the stiffness of the function and of a constant involved in the growth condition. Then the algorithm is not free from hyperparameters to tune. To get rid of the overparametrized setting (interpolation condition), \cite{armijo_batch_size,armijo_variance_reduction} suggest to make the size $b$ vary in order to control the variance of the estimator of the gradient. Such an approach is not conceivable under memory constraints since $b$ is constrained by the hardware. Another approach consists in approximating the full-batch gradient thanks to a gaussian process \cite{armijo_GP}: non-realistic assumptions of independence between $\R(\theta_n)$ and $\nR(\theta_n)$ are necessary and the approach is limited to very small dimensions since it needs to add a point to the process when a batch is sampled. In the context of bayesian optimization ($\R$ is now a random variable) an approach based on a Taylor development in $L^2$ is proposed in \cite{armijo_L2} but isotropic and gaussian (on the kernel) assumptions are required. 
-	\item After Armijo rule comes the extension of trust regions to the stochastic case. Most of the generalizations necessitate to require strong assumptions on the noise
-          \cite{sto_TR_bounded} or a precise knowledge of it \cite{sto_TR_affine_noise,sto_TR_representative}. To overcome these limitations, \cite{sto_TR_sampling} suggested a
-          trust-region method with adaptive $b$, which is not conceivable for the same reasons as in the previous point. %Armijo. 
-	\item Other works can be mentionned especially for varying batch sizes \cite{adaptive_sampling,adaptive_batch,sgd_lauched}. There are also algorithms called CMA \cite{CMA,CMA_Light} but they require computation of $\R$ at every epoch.
-\end{itemize} 
-
-\paragraph{Objectives}
-~~\\
-This recap of the mini-batch litterature encourages us to require the six following properties in the conception of a mini-batch optimizer, suitable for any networks (even for under-parametrized model/network):
+All in all, in \cite{partI}, it has been numerically emphasized on analytical one dimensional benchmarks that the new family of mini-batch optimizers can efficiently
 \begin{enumerate}
-	\item ideally, we want to \textbf{avoid assumptions on the batch distribution}. Firstly, the bounded variance hypothesis is not reasonable 
-          since it is not even satisfied by a linear regression. Moreover, the major part of stochastic optimizers need interpolation condition (then over-parametrized models) to be used with constant learning rate. At the best of our knowledge, the only optimizers that get rid of these conditions are IAG and DIAG \cite{DIAG}.
-	\item It is essential that the optimizers could achieve an arbitrary precision (concerning the gradient) without requiring decreasing time steps. This is only verified by variance reduction methods. 
-	\item The algorithms can not use the full-batch gradient, at any stage, due to storage requirement. The ones that fit into this category are: SGD, RRGD, IG, IAG, SAG, ZERO-SARAH, STORM, SCSG et RR-SARAH.
-	\item If possible, we do not want to store $m$ gradients. For example, the optimizers that do not need such a storage are:  SGD, RRGD, IG, SVRG, SNVRG, SPIDER, SARAH, SSRGD, PAGE, SCSG et RR-SARAH.
-	\item We absolutely want an \textbf{adaptive time step method} since the main goal of this paper is to avoid tuning hyperparameters. In this case, all the methods that do not necessitate a growth condition or a precise knowledge of the noise make the batch size vary with a risk to exceed the memory. Let us note that such an approach can generate strong slow down due to dynamic memory access. Let us also note that in practice the batch size is not meant to be a hyperparameter to tune since it is given by the quotient between the data size and the RAM size. The only optimizers that overcome this difficulty are the CMA algorithms. 
-	\item Finally, we absolutely need a \textbf{stopping criterion} that ensures that the full-batch gradient is smaller than a fixed arbitrary precision. All the mentionned
-          optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge). 
+	\item {avoid assumptions on the batch distribution}, 
+          %Firstly, the bounded variance hypothesis is not reasonable 
+          %since it is not even satisfied by a linear regression. Moreover, the major part of stochastic optimizers need interpolation condition (then over-parametrized models) to be used with constant learning rate. At the best of our knowledge, the only optimizers that get rid of these conditions are IAG and DIAG \cite{DIAG}.
+	\item achieve an arbitrary precision (concerning the gradient) without requiring too drastic decreasing learning rates. \\ \ \\
+          Moreover: \\
+          %This is only verified by variance reduction methods. 
+	\item The algorithms never use the full-batch gradient, at any stage. 
+          %The ones that fit into this category are: SGD, RRGD, IG, IAG, SAG, ZERO-SARAH, STORM, SCSG et RR-SARAH.
+        \item The reduced memory version do not store $m$ gradients (only $3$). 
+          %mFor example, the optimizers that do not need such a storage are:  SGD, RRGD, IG, SVRG, SNVRG, SPIDER, SARAH, SSRGD, PAGE, SCSG et RR-SARAH.
+	\item All the new algorithms of the family come with a \textbf{stopping criterion} that ensures that the full-batch gradient is smaller than a fixed arbitrary
+          precision, without explicitly computing it: indeed, in \cite{partI}, has been noticed the fact that the aggregators in \eqref{RAG_scheme} or \eqref{RAGL_splitting} are all
+          consistent approximations of $F=\sum_{i=1}^m F_i$ as 
+$\forall i\in\{1,...,m\}$ 
+  \begin{equation}
+    \label{stopping_criterion}
+    g_n^i = F(y_n) +\mathcal{O}(\eta). 
+  \end{equation}
+  This typically means that $g_n^i$ can be used as such in order to define a stopping criterion of the form $\|g_{n+1}\|/P \leq
+  \epsilon$, with $\epsilon$ prescribed by the user. 
+          %All the mentionned optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge). 
 \end{enumerate}
-Most of the optimizers satisfy only one or two of the aforementioned aspects. IAG satisfies the first three criteria. RR-SARAH satisfies the requirements 2, 3 and 4 (for the second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented). Therefore the goal of this paper is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies all these criteria}. This is a crucial step in order to develop smaller machine learning models. 
+However, the well-balanced optimizers of \cite{partI} still need the tedious tuning of the (constant) learning rate $\eta$. 
+Building an adaptative strategy on top of the well-balanced mini-batch
+          optimizers of \cite{partI} is the purpose of this paper. 
 
 \paragraph{Organization of the paper}
 ~~\\
-To reach such a construction, the paper is organized as follows:
+The paper is organised as follows: in section \ref{adapt}, a review of adaptive learning rate strategies
+in a mini-batch context 
+is proposed. 
+In section \ref{section_optimizers}, the adaptive learning rate strategy we suggest is presented: it is based on several linesearches allowing to both tune the learning rate for the
+current batch and estimate its stiffness (local Lipschitz
+constant) to combine them into an original well-balanced adaptive family of algorithms. 
+In section \ref{section_results}, the newly developed algorithms are tested on analytical benchmarks and on classical machine learning tasks. They are compared with RRAdam (Random Reshuffle Adam), which is very popular among the practitioners.   
+
+
+\section{Review on adaptive learning rate strategies}
+\label{adapt}
+~~\\
+Almost all the mini-batch optimizers of the litterature use either a decreasing or a constant learning rate. 
+Tuning is generally necessary to make the methods converge. In fact, there are very few works about adaptive learning rate mini-batch optimizers:
 \begin{itemize}
-	\item in section \ref{section_stationary}, the stationary distribution of SGD and RRGD (with constant learning rate) is investigated empirically on analytic examples.
-          Indeed, it is necessary that SGD and RRGD recover the critical points of $\R$ in the long run, and not the ones of the $\R_i$. To do that, we build new benchmarks (in one
-          dimension) to discuss the negation of the interpolation assumption. Undesirable behaviors (which are, to the best of our knowledge, not documented in the litterature) are identified. 
-	\item An interpretation of RRGD as a specific splitting of operators is suggested in section \ref{section_splitting_schemes}. This enables to relate some "strange" stationary distributions to a disequilibrium of the splitting. 
-	\item The construction of a balanced splitting gives birth to a first optimizer in section \ref{section_optimizers}. But it requires the storage of $m$ gradients. A new
-          splitting formula makes it possible to overcome this limitation and to build the first optimizer satisfying the six aformentioned criteria.
-	\item In section \ref{section_results}, the two newly developped methods are tested on analytical benchmarks and on classical machine learning tasks. They are compared with
-          RRAdam (Random Reshuffle Adam), which seems to be the favorite optimizer of the practitioners.   
+	\item first there are some extensions of the classical Armijo rule. S.Vaswani \cite{stochastic_armijo} suggested to apply the Armijo rule to each batch iteratively:
+	\begin{equation*}
+		\R_i(\theta_n-\eta_n^i \nR_i(\theta_n))-\R_i(\theta_n) \leq -\lambda \eta_n^i \|\nR_i(\theta_n)\|^2.
+	\end{equation*}
+	Under growth condition, it is proved that the minimum of the gradient converge if $\lambda=\frac12$. But it is necessary that the maximal learning rate allowed in the
+        linesearch (research of the learning rate satisfying the above inequality) depends on the stiffness of the function and of a constant involved in the growth condition. Then
+        the algorithm is not free from hyperparameters to tune. To get rid of the overparametrized setting (interpolation condition),
+        \cite{armijo_batch_size,armijo_variance_reduction} suggest to make the size $b$ vary in order to control the variance of the estimator of the gradient. Such an approach is
+        practically hard to apply 
+        %not conceivable 
+        under memory constraints since $b$ is constrained by the hardware. Another approach consists in approximating the full-batch gradient thanks to a gaussian process
+        \cite{armijo_GP}: %non-realistic 
+        independence assumptions between $\R(\theta_n)$ and $\nR(\theta_n)$ are necessary and the approach is limited to very small dimensions since it needs to add a point to the process when a batch is sampled. In the context of bayesian optimization ($\R$ is now a random variable) an approach based on a Taylor development in $L^2$ is proposed in \cite{armijo_L2} but isotropic and gaussian (on the kernel) assumptions are required. 
+	\item After Armijo rule comes the extension of trust regions to the stochastic case. Most of the generalizations necessitate to require strong assumptions on the noise
+          \cite{sto_TR_bounded} or a precise knowledge of it \cite{sto_TR_affine_noise,sto_TR_representative}. To overcome these limitations, \cite{sto_TR_sampling} suggested a
+          trust-region method with adaptive $b$, which is, once again, practically complex to apply 
+          %not conceivable 
+          because, just as in the previous point, the strategy implies a progressive increase of the memory consumption. %Armijo. 
+	\item Other works can be mentionned especially for varying batch sizes \cite{adaptive_sampling,adaptive_batch,sgd_lauched}. There are also algorithms called CMA \cite{CMA,CMA_Light} but they require computation of $\R$ at every epoch.
 \end{itemize}
+In the next section, we present our adaptive well-balanced strategy: it is also based on linesearches relative to the Armijo rule. 
+It is not only applied to the current batch but also on a slight
+modification of it in which the aggregator plays a central role. 
 
 
-\section{Adaptive optimizers}
+
+\section{Adaptive well-balanced optimizers}
 \label{section_optimizers}
 
-In this section, we suggest a way to make the formulas \eqref{RAG_scheme}, \eqref{RAGL_splitting} and \eqref{RAGL2_splitting} adaptative in the case $F_i=-\nR_i$, drawing inspiration from some deterministic Armijo backtrackings \cite{armijo,Rondepierre,Lyap_Theory_Bilel,Bilel_thesis}. To ease the reading, the complete presentation of some algorithms is sent back to appendix \ref{annexe_algo}, especially the backtrackings, the initializations, the RAGL prototype and RAGL.
+In this section, we suggest a way to make the formulas \eqref{RAG_scheme}, \eqref{RAGL_splitting} put forward in \cite{partI} %and \eqref{RAGL2_splitting} 
+adaptative in the case $F_i=-\nR_i$, drawing inspiration from some deterministic Armijo backtrackings \cite{armijo,Rondepierre,Lyap_Theory_Bilel,Bilel_thesis}. 
+For the sake of conciseness, the (non adaptative) well-balanced mini-batch GD optimizer of \cite{partI} will be called \Speth-GD for {\em extended Speth}-GD, see \cite{partI}. 
+{To ease the reading, the complete presentation of some algorithms is sent back to appendix \ref{annexe_algo}, especially the backtrackings, the initializations, the RAGL
+prototype and RAGL\footnote{\newG{peut-etre que ce ne sera plus vrai plus tard...}}}
+We insist on the fact that all the next material could be applied to any $F$ associated to a Lyapunov function $V$, just as done in \cite{partI} with constant learning rates. We
+choose here to focus on a well-balanced adaptative mini-batch version of GD for the sake of clarity and size of the paper. 
+Furthermore, the only hyperparameter to tune in this case is the learning rate (whereas Momentum, RMSProp, Adam etc. also need the tuning of several other coefficients, see \cite{Bilel_thesis}). 
 
 \subsection{The backtrackings}
-Firstly, let us begin by describing the backtrackings necessary to evaluate the current batch stiffness. Let us denote by $\epsilon_m$ the precision of the float representation
-($\approx 10^{-16}$ for doubles in IEEE754). To ease the reading, we also denote by $g$ the update vector for one iteration: for example for the splitting \eqref{RAG_scheme}, it is $g_n^i$ (more generally the term in front of $\eta^i$). The gradient of batch $i$, namely $\nR_i$, is stored in the variable $g_i$. 
+Firstly, let us begin by describing the backtrackings necessary to evaluate some learning rates which ensure stability. 
+We will see that they can also be used to estimate the current batch stiffness. 
+Let us denote by $\epsilon_m$ the precision of the float representation
+($\approx 10^{-16}$ for doubles of the order of 1 in IEEE754 norm). To ease the reading, we also denote by $g$ the update vector for one iteration: for example for the splitting \eqref{RAG_scheme}, it is
+$g_n^i$ (more generally the factor of $\eta$). The gradient of batch $i$, namely $\nR_i$, is stored in the variable $g_i$. 
 
 \paragraph{Backtracking without interaction}
 ~~\\
-The first backtracking described by algorithm \ref{linesearch_batch1} is a dichotomous search similar to the one described in the chapter 2 of \cite{Bilel_thesis} (the memory effect introduced in \cite{Rondepierre,Lyap_Theory_Bilel} discussed later is present but will appear in the whole algorithm). The difference is that the Armijo condition is verified for the function $\R_i$ in the direction $-\nR_i$, in other words the linesearch returns a learning rate $\eta$, satisfying for the point $\theta \in \Rb^N$ (entry of the function):
+The first backtracking described by algorithm \ref{linesearch_batch1} is a dichotomous search similar to the one described in the chapter 2 of \cite{Bilel_thesis} (the memory effect introduced in \cite{Rondepierre,Lyap_Theory_Bilel} discussed later is present but will appear in the whole algorithm). The difference is that the Armijo condition is verified for the function $\R_i$ in the direction $-\nR_i$: in other words the linesearch returns a learning rate $\eta$, satisfying for the point $\theta \in \Rb^N$ (entry of the function):
 \begin{equation}
 	\R_i(\theta-\eta\nR_i(\theta))-\R_i(\theta) \leq -\lambda \eta \|\nR_i(\theta)\|^2.
 	\label{armijo_batch1}
 \end{equation}
-When $\|\nR_i\|<\epsilon$, we can consider that the batch $i$ contribution is negligible and that it is not reasonable to waste computational time to proceed to a linesearch on this batch. 
+When $\|\nR_i\|<\epsilon$, we can consider that batch $i$'s contribution is negligible and that it is not reasonable to waste computational time to proceed to a linesearch on this batch. 
+Note that having access to $\eta$ fulfilling the above inequality also gives access to an additional information: according to the descent lemma (proposition 1 of \cite{Lyap_Theory_Bilel}), 
+\begin{equation}
+  \label{L_i}
+  L_i=\frac{2(1-\lambda)}{\eta},
+\end{equation}
+gives an estimation for the local Lipschitz constant of $\nR_i$ in the considered direction.
+This typically means that if we store this (scalar) estimation, information about the stiffness of
+batch $i$ will be available when dealing with the other ones, even if slightly out of date (because evaluated at a former location).  
+
+
+Now, the risk is that even if $\eta$ satisfies \eqref{armijo_batch1}, the chances that it satisfies the Armijo condition on batch $j\neq i$ are poor, especially in the non-interpolatory
+case: we can easily imagine some situations in which the gradient of batch $i$ is far from the one of the full batch. 
+But, as previously put forward, the aggregator is always consistent with the full-batch gradient: in the next paragraph, we explain how this can be exploited for adaptativity. 
+%\Speth-GD provides this information.  
 
 \paragraph{Backtracking with interaction}
 ~~\\
-The second linesearch described by algorithm \ref{linesearch_batch2} takes into account the interaction between the batches. The latter is only called on the stiffest batch, if the dot product satisfies $g_i \cdot g>0$ and if $g_i \cdot g \leq \|g\|^2$. Contrary to the first linesearch which evaluates the stiffness of $\R_i$ in the direction $-\nR_i$, this one evaluates it in the update direction, namely $g$: in fact, it may be that the variations of $\R_i$ are high in the direction of $-\nR_i$ whereas they are not in the direction of $g$. The condition of positivity on the dot product is required to ensure that $\R_i$ decreases along $g$. To understand the reasons behind the two other conditions, one has to have in mind that the ideal condition is the Armijo one on the objective function:
+The second linesearch described by algorithm \ref{linesearch_batch2} 
+is motivated by the fact that \Speth-GD provides more than a local information on batch $i$: the aggregator $g$ provides a consistent 
+approximation of the full gradient. We are able to use it as follows: 
+contrary to the first linesearch which evaluates the stiffness of $\R_i$ in the direction $-\nR_i$, this one evaluates it in the update direction, namely $g$: 
+this will typically be helpful if the variations of $\R_i$ are high in the direction of $-\nR_i$ whereas they are not in the direction of $g$. 
+As a consequence, the next steps are especially applied when $g_i \cdot g>0$: it is required to ensure that $\R_i$ decreases along $g$. 
+We also impose another condition: we must have $g_i \cdot g \leq \|g\|^2$.
+To understand the reasons behind the latter, one has to have in mind that the ideal condition is the Armijo one on the full-batch objective function:
 \begin{equation*}
 	\R(\theta-\eta \nR(\theta)) - \R(\theta) \leq -\lambda \eta \|\nR(\theta)\|^2.
 \end{equation*}
-We then replace $\nR(\theta)$ by its estimator $g$ (in the long run, the approximation improves), which results in:
+As we do not have access to $\nR(\theta)$, we suggest replacing it by its consistent estimator $g$, which results in:
 \begin{equation}
+  \label{ok_0}
 	\R(\theta-\eta g) - \R(\theta) \leq -\lambda \eta \|g\|^2.
 \end{equation}   
-The inequality between the dot prodct and $\|g\|^2$ makes it possible to guarantee that $\R$ does not dissipate more than in the full-batch setting, since under this condition, the previous inequality becomes:
-\begin{equation*}
+Condition  $g_i \cdot g \leq \|g\|^2$ guarantees that $\R$ does not dissipate more than in the full-batch setting: under this condition, the previous inequality becomes:
+\begin{equation}
+  \label{ok}
 	\R(\theta-\eta g) - \R(\theta) \leq -\lambda \eta \|g\|^2 \leq -\lambda \eta g_i\cdot g.
-\end{equation*}
-Then, we remplace $\R$ by $\R_{i_{max}}$ where $i_{max}$ is the index of the stiffest batch (largest Lipschitz constants of the gradients). Indeed, if we proceed to this linesearch on a little steep batch, we would underestimate the stiffness of $\R$: with the "worst" batch this can not happen. The inequality finally becomes:
+\end{equation}
+{Now, assume that for each batch, $\eta$ satisfies 
+\begin{equation}
+  \label{ok_i}
+	\R_i(\theta-\eta g) - \R_i(\theta) \leq -\lambda \eta \|g\|^2 \leq -\lambda \eta g_i\cdot g,
+\end{equation}
+then inequality \eqref{ok_0} is fulfilled.  
+But for computational cost reasons, we want to avoid performing this additional linesearch for each batch. 
+Now, assume that from the previous backtrackings (the one depicted in the previous paragraph), 
+we have an evaluation of $L_i$, the local Lipschitz constant of $\nR_i$, hence of $L_{i_{max}}=\max_i L_i$. Then $i_{max}$
+is the index of the stiffest batch and if $\eta$ satisfies
 \begin{equation*}
-	\R_{i_{max}}(\theta-\eta g) - \R_{i_{max}}(\theta) \leq -\lambda \eta g_{i_{max}}\cdot g.
+	\R_{i_{max}}(\theta-\eta g) - \R_{i_{max}}(\theta) \leq -\lambda \eta g_{i_{max}}\cdot g,
 \end{equation*}
-Finally, the largest time step $\eta$ (between the two linesearches) is used to estimate the stiffness of the batch $i$: $L_i=\frac{2(1-\lambda)}{\eta}$. According to the descent lemma (proposition 1 of \cite{Lyap_Theory_Bilel}), this gives an estimation for the local Lipschitz constant of $\nR_i$ in the considered direction.
+it will satisfy \eqref{ok_i} for all $i\in\{1,...m\}$ (by definition of being the stiffest) hence \eqref{ok}.} 
+In a nutshell, for the previous reasons, the linesearch suggested in this section is only called on the stiffest batch if the dot product satisfies $g_{i_{max}} \cdot g>0$ and if
+$g_{i_{max}} \cdot g \leq \|g\|^2$. 
+\ \\
 
-\paragraph{Trade-off between balancing and memory cost}
-~~\\
-The perturbation added to $g_n$, the estimator of $F$, may grow if the number of batches become large or if one batch is stiffer than the others (every term in the sum is an increase of $F_j$): in fact, the contributions of the previous epoch (hidden in $g_n$) remain since we only substract the vector fields of the epoch $n+1$ \eqref{RAGL_splitting}. \\ 
-Here, we suggest an intuitive way to reduce this perturbation and empirically confirm its interest in the following section. For simplicity, let us assume that for $i\in \{1,\dots,m\}$, $F_i$ is $L_i$-Lipschitz continuous and let us denote by $i_{max} = \displaystyle{\argmax_{1 \leq i \leq m}} (L_i)$ the index of the stiffest batch. We then define the following splitting:
-\begin{multline}
-	y_{n+i/m} = y_{n+(i-1)/m} \\
-	+\eta^i
-	\left\{
-	\begin{array}{ll}
-		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n-1+(i_{max}-1)/m}\right)\right] \text{ if } 1\leq i<m,\\
-		g_{n+1} \text{ if } i=m,
-	\end{array}
-	\right.
-	\label{RAGL2_splitting}
-\end{multline}
-where $g_n$ and the initialization are defined in the same way as \eqref{RAGL_splitting}. We are going to see that it is possible to implement \eqref{RAGL2_splitting} with a memory cost involving $5N$.
-Some comments are necessary:
-\begin{itemize}
-	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to suppress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
-        \item When the learning rate is adaptative, see part II, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain (the most) the learning rate. Therefore, the
-          iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$. \\
-{The latter strategy assumes one is able to identify the stiffest batch (the having the larger Lipshitz constant) amongst the $m$ ones. 
-In practice, a generalisation of Armijo's rule, see \cite{Bilel_thesis}, precious for adaptiveness, gives an estimation. For this reason, this point will be developed in part II of this paper. }
-\end{itemize} 
+%\paragraph{Identifying the stiffest batch, the $L_i$ etc. }
+%~~\\
+%
+%Finally, the largest learning rate $\eta$ (between the two linesearches) is used to estimate the stiffness of the batch $i$: $L_i=\frac{2(1-\lambda)}{\eta}$. According to the descent lemma (proposition 1 of \cite{Lyap_Theory_Bilel}), this gives an estimation for the local Lipschitz constant of $\nR_i$ in the considered direction.
+%
+%
+%The latter BWI is only called on the stiffest batch
 
-
+With the previous paragraphs, we aimed at giving some intuition behind the algorithms we describe in the next sections. 
+In section \ref{RAG}, we present the RAG (Rebalanced Aggregated Gradient) optimizer. It is adaptative by intensively using the material of the previous paragraphs and well-balanced
+as based on the update \eqref{RAG_scheme}, see \cite{partI}. But the
+algorithm has a memory complexity of $m\times N$ ($m$ gradients must be stored). 
+It must be studied in order to highlight the full potential of the suggested well-balanced adaptative optimizer in terms of performances. 
+In section \ref{RAGL_proto}, we describe a well-balanced adaptative algorithm with memory complexity of $3\times N$. The idea is to apply the same strategy as the one used in
+RR-SARAH for example and update \eqref{RAGL_splitting} together with the adaptative strategy described in the previous paragraphs. The optimizer is called RAG Light (RAGL) "prototype" because
+the
+numerical experiments of section \ref{section_results} will tend to show that a better memory cost/performance compromise can be made with the RAGL optimizer of section \ref{RAGL}
+of memory complexity of $5\times N$. 
 
 
 \subsection{The RAG optimizer: {\it Rebalanced Aggregated Gradient}}
+\label{RAG}
 
-\paragraph{Presentation of the algorithm}
-~~\\
-We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version of the splitting \eqref{RAG_scheme}. Let us explain below all the steps and sub-procedures:
+The first algorithm we suggest is algo. \ref{algo_RAG}. 
+It is called RAG. 
+It is an adaptive version of splitting \eqref{RAG_scheme}. 
+Let us explain below all the steps and sub-procedures:
 \begin{enumerate}
-	\item let us begin by the initialization procedure Init\_RAG described by algorithm \ref{algo_init}. The latter computes the full-batch gradient in the variable $g$ by accumulation, while evaluating Lipschitz constants $L_1, \dots, L_m$ of 
-	$\nR_1,$ $\dots, \nR_m$ thanks to the linesearch without interaction. A possible Lipschitz constant for $\nR$ is then obtained by $L=L_1+\dots+L_m$. The time step is then computed as $2(1-\lambda)L^{-1}$ according to proposition 1 of \cite{Lyap_Theory_Bilel} and a GD step is done. Notice that for the rest of the epochs we define the time step as $2L^{-1}$ (neglect the factor $1-\lambda$) because this choice enables empirically to save time.
-	\item The line 10 of RAG corresponds to the computation of $g_n^i$ \eqref{RAG_scheme}. For a neural network, given that a forward pass is necessary before a backpropagation, we have access to $\R_i$. At line 9, an estimation of $\R$ is computed in a similar way as the one for $\nR$:
+  \item the initialization procedure (Init\_RAG in algo. \ref{algo_RAG}) is described by algorithm \ref{algo_init}. 
+    The latter computes the full-batch gradient in the variable $g$ by accumulation, while evaluating Lipschitz constants $L_1, \dots, L_m$ of 
+	$\nR_1,$ $\dots, \nR_m$ thanks to the linesearch without interaction. A possible estimation of the Lipschitz constant for $\nR$ is then obtained: $L=L_1+\dots+L_m$. 
+        A learning rate ensuring stability can then be computed with expression $\eta \leq 2(1-\lambda)L^{-1}$, see proposition 1 of \cite{Lyap_Theory_Bilel}. 
+        %\newG{Notice that in practice, we even use the majoration $\eta \leq 2L^{-1}$ (neglect the factor $1-\lambda$) because this choice empirically enables to save
+        %time.\footnote{BEN C'EST PAS CE QYI EST DECRIT DANS L'ALGO? JE VIRE LA PHRASE.}}
+        With this learning rate, a GD step is done, all in algorithm \ref{algo_init}. 
+        %Note that this step can be easily done only by setting $\eta=0$ for the first epoch. 
+	\item Line 10 of RAG corresponds to the computation of $g_n^i$ \eqref{RAG_scheme}. For a neural network, given that a forward pass is necessary before a backpropagation, we have access to $\R_i$. At line 9, an estimation of $\R$ is computed in a similar way as the one for $\nR$:
 	\begin{equation}
 		\R_n^i = \sum_{j=1}^i \R_j\left(\theta_{n+(j-1)/m}\right)+\sum_{j=i+1}^m \R_j\left(\theta_{n-1+(j-1)/m}\right).
 		\label{Rni}
 	\end{equation}
-	Then the variable $R_0$ at line 6 corresponds to this quantity at the beginning of the epoch. The comparison between $R$ and $R_0$ at the end of the epoch enables to determine if the objective function diminished since these quantities are supposed to approximate it in the long run. 
-	\item The lines from 12 to 23 are here to evaluate the Lipschitz constants $L_i$ in the direction $g_i$ or $g$, as explained previously. A possible Lipschitz constant for $\nR$ is then obtained at line 25 by summing the individual constants. $L_{max}$ corresponds to the largest Lipschitz constant among the $m$ last gradients: have in mind that some of them have been evaluated at the running epoch $n+1$ and others at the previous epoch $n$.
-	\item This maximum is exploited for the memory effect (see \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}) at line 29. Here, the time step from
+        Both these updates of $\R$ and $\nR$ are simply done by replacing, in $g$, the former values of $\R_n^i$ and $\nR_i$ by the new ones.\\
+	Variable $R_0$, at line 6, corresponds to an approximation of $\R$ at the beginning of the epoch and $R$, at line 9, corresponds to its update.  
+        The comparison between $R$ and $R_0$ at the end of the epoch enables to determine if the objective function diminished. %since these quantities are supposed to approximate it in the long run. 
+	\item From lines 12 to 23, the Lipschitz constants $L_i$ in the direction $g_i$ or $g$ are evaluated. 
+          An estimation of the Lipschitz constant for $\nR$ is then obtained at line 25 by summing-up the individual constants $L_i$. $L_{max}$ corresponds to the largest Lipschitz constant among the last $m$ gradients: have in mind that some of them have been evaluated at the running epoch $n+1$ and others at the previous epoch $n$.
+	\item This largest Lipschitz constant is exploited for the memory effect (see \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}) at line 29. Here, the learning rate from
           which we start the next linesearch is taken as the learning rate corresponding to the stiffest batch multiplied by $f_2$. The idea follows the same as the one of the
-          theorem 5.1 of \cite{Bilel_ICML} and theorem 2.5 of \cite{Bilel_thesis}. The idea is to create a recurrent relation between the admissible time steps of two successive
+          theorem 5.1 of \cite{Bilel_ICML} and theorem 2.5 of \cite{Bilel_thesis} {\it i.e.} creating a recurrent relation between the admissible learning rates of two successive
           epochs for the stiffest batch, in order to get a complexity (number of evaluations of $\R_i$) less dependent on the stiffness. Given that the other batches are less
-          stiff, they require less evaluations. This is empirically verified in section \ref{section_results}.
-	\item At line 31, the effective learning rate $\eta$ is computed from the estimation of the Lipschitz constant of $\nR$ in the same way as in the initialization (factor $(1-\lambda)$ disregarded). The difference is the division by $2m-1$. Indeed, it is common in splitting operator theory to divide the time step by the number of operators involving in the splitting \cite{splitting_ode_review}. There are $m$ gradient operators $\left(\nR_j\right)_{1 \leq j \leq m}$ and also the $m-1$ delay operators for all $i \in \{1,\dots,m\}$ \eqref{RAG_scheme}:
+          stiff, they require less evaluations. This property is empirically verified in section \ref{section_results}.
+	\item At line 31, the effective learning rate $\eta$ is computed from the estimation of the Lipschitz constant of $\nR$ in the same way as in the initialization. %(the factor $(1-\lambda)$ is disregarded). 
+          The difference is the division by $2m-1$. Indeed, it is natural in splitting operator theory to divide the learning rate by the number of operators involved in the splitting \cite{splitting_ode_review}. There are $m$ gradient operators $\left(\nR_j\right)_{1 \leq j \leq m}$ and also the $m-1$ delay operators for all $i \in \{1,\dots,m\}$ \eqref{RAG_scheme}:
 	\begin{equation*}
 		\left(\theta_{n+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j <i} \text{ and } \left(\theta_{n-1+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{i+1\leq j \leq m}.
 	\end{equation*}
-	That is why we have tested SGD, RRGD and the different splittings with learning rates divided by $3=2\times 2-1$ in the previous sections. At line 33, the time step is again divided by a factor $h$ related to the heuristic described later in the paper. The goal is to activate the heuristic when its application conditions are verified at least twice in a row: the only aim of this line is to limit the potential oscillations generated by the heuristic.
-	\item Now, let us deal with the Distance function described by algorithm \ref{algo_dist}. The product $\eta \|g\|$ corresponds to the exact distance between two successive iterates:
+	%\footnote{That is why we have tested SGD, RRGD and the different splittings with learning rates divided by $3=2\times 2-1$ in \cite{partI}.} 
+        At line 33, the learning rate is again divided by a factor $h$ related to the heuristic described later in the paper. 
+        %The goal is to activate the heuristic when its application conditions are verified at least twice in a row: \newG{the only aim of this line is to limit the potential oscillations generated by the heuristic}.
+	\item At the end of the epoch, the Distance function described in algorithm \ref{algo_dist} is called. 
+          The product $\eta \|g\|$ corresponds to the exact distance between two successive iterates:
 	\begin{equation*}
 		\|\theta_{n+i/m}-\theta_{n+(i-1)/m}\|.
 	\end{equation*}
@@ -479,16 +543,22 @@ We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version 
 	\end{equation*}
 	by the product $\frac{2(1-\lambda)}{\eta_1}\eta\|g\|$. Then this quantity gives the variations of the gradient of batch $i$ between two successive iterations. The variable
         $d$ is the sum of the variations associated to the $m$ last gradients. The smaller it is (the littlest the delays), the more accurate the estimator $g$ of $\nR$ is.
-	\item This explains the stopping criterion. It guarantees that $g$ is representative of the full-batch gradient under the fixed precision ($d/P<\epsilon$) and that in this
-          case $g$ is small ($\|g\|/P<\epsilon$). This criterion is also exploited at line 38 to stop the algorithm during an epoch.   
-	\item It remains to detail the heuristic. Its aim is to accelerate the convergence of the algorithm in practice (it is possible to remove it to not take risks but the
-          execution times are longer). If the estimation of $\R$ decreases during the epoch, we permit ourself to be less restrictive on the "CFL" condition $\frac{2}{op\times L}$:
-          this goes through the reduction of the variable $op$ (default value $2m-1$ the number of operators) by a factor $h$. Even though the variable $\R$ is supposed to diminish
-          in the long run, not taking into account "all the operators" might generate oscillations, since we do not come back if $\R$ increases (it would be necessary to suppress an epoch). To restrain this unwelcome effect, the factor $h$ is adapted. Intuitively, we want to "ignore" the delay operators if $d$ (the variations related to the delays) influences a little the estimation $g$ ($d\leq \|g\|$ even if it is rather $d\ll \|g\|$)): the iterates are "quasi mixed up" from the point of view of $\|g\|$. Then $h$ is increased or decreased linearly if we could ignore or not some operators. In the opposite case, we take into account all the operators without exception, in order to not take any risk if $\R$ increases. Despite being intuitive (heuristic), this part works well in practice. In the case where the number of batch is not important ($m<100$), this heuristic can be removed without major deceleration. 
+      \item In a sense, this explains why $g$ can be used for th stopping criterion (while condition at line 5): the previous steps guarantee that $g$ is representative of the
+        full-batch gradient under the fixed precision ($d/P<\epsilon$). This stopping criterion is also exploited at line 38 to stop the algorithm during an epoch.   
+      \item Let us now details the heuristic relative to $h$ and $h_{max}$. Its aim is to accelerate the convergence of the algorithm in practice (it is possible to remove it to not take risks but the
+        execution times are longer). If the estimation of $\R$ decreases during the epoch, we allow ourselves to be less restrictive on the "CFL" (i.e. stability) condition $\frac{2(1-\lambda)}{op\times L}$:
+          this goes through the reduction of the variable $op$ (default value: $2m-1$ times the number of operators) by a factor $h$. Even though the variable $\R$ is supposed to diminish
+          in the long run, not taking into account "all the operators" might generate oscillations, since we do not come back if $\R$ increases (it would be necessary to delete an
+          epoch). To restrain this unwelcome effect, the factor $h$ is adapted. Intuitively, we want to "ignore" the delay operators if $d$ (the variations related to the delays)
+
+          %the iterates are "quasi mixed up" from the point of view of $\|g\|$. 
+          Then $h$ is increased or decreased linearly if we could ignore or not some operators. In the opposite case, we take into account all the operators without exception, in order to take no risk if $\R$ increases. Despite being intuitive (heuristic), this part works well in practice. In the case where the number of batch is not important ($m<100$), this heuristic can be removed without major deceleration. 
 \end{enumerate}    
 
+\input{ALGO/RAG}
+
 \begin{algorithm}[h!]
-	\caption{Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$)}
+  \caption{Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$, $\newG{i}$)}
 	\label{algo_dist}
 	\begin{algorithmic}
 		\STATE $d \leftarrow d-dTab[i]$
@@ -519,73 +589,240 @@ We suggest the algorithm \ref{algo_RAG} called RAG which is an adaptive version 
 	\end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}[h!]
-	\caption{RAG}
-	\label{algo_RAG}
-	\begin{algorithmic}[1]
-		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_2=1000$, $\eta_{init}=0.1$ 
-		\STATE $g \leftarrow 0$, $R \leftarrow 0$
-		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 2m-1$
-		\STATE $gTab$, $RTab$, $dTab$ (initialized at 0) and $LTab$ arrays of size $m$
-		\STATE Init\_RAG ($\theta$, $\eta$, $g$, $R$, $gTab$, $RTab$, $LTab$, $\eta_{init}$, $\epsilon$)
-		
-		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
-		\STATE $R_0 \leftarrow R$
-		
-		\FOR{i=1,...,m}
-		
-		\STATE $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
-		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
-		\STATE $g\leftarrow g-gTab[i]$, $g \leftarrow g+g_i$, $gTab[i] \leftarrow g_i$
-		
-		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$
-		\STATE $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$)
-		\STATE $i_{max} \leftarrow \argmax(LTab)$
-		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
-		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), \STATE $\eta \leftarrow \max(\eta_1,\eta_2)$
-		\ELSE
-		\STATE $\eta \leftarrow \eta_1$
-		\ENDIF
-		
-		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
-		\STATE $LTab[i] \leftarrow 0$
-		\ELSE
-		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
-		\ENDIF
-		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
-		
-		\IF{$L<\epsilon_m$}
-		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
-		\ELSE
-		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
-		\IF{$op==2m-1$}
-		\STATE $\eta \leftarrow \frac{2}{op \times L}$
-		\ELSE
-		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
-		\ENDIF
-		\ENDIF
-		
-		\STATE $\theta \leftarrow \theta - \eta g$
-		\STATE Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$)
-		
-		\STATE Stopping if $\|g\|/P<\epsilon$ and $d/P<\epsilon$
-		
-		\ENDFOR
-		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $2m-1$)
-		\ENDWHILE
-		\RETURN $\theta$
-	\end{algorithmic}
-\end{algorithm} 
+
+%\begin{algorithm}[h!]
+%  \caption{RAG \newG{(en magenta: les trucs qui semblent manquer par rapport aux autres)}}
+%	\label{algo_RAG}
+%	\begin{algorithmic}[1]
+%		%\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_2=1000$, $\eta_{init}=0.1$ 
+%                \REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, \newG{$f_1=30$,} $f_2=1000$, $\eta_{init}=0.1$ 
+%		%\STATE  $g \leftarrow 0$, $R \leftarrow 0$
+%                \STATE \newG{$\theta_0 \leftarrow \theta$,} $g \leftarrow 0$, $R \leftarrow 0$
+%		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 2m-1$
+%		\STATE $gTab$, $RTab$, $dTab$ (initialized at 0) and $LTab$ arrays of size $m$
+%		\STATE Init\_RAG ($\theta$, $\eta$, $g$, $R$, $gTab$, $RTab$, $LTab$, $\eta_{init}$, $\epsilon$)
+%		
+%		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
+%		\STATE $R_0 \leftarrow R$
+%		
+%		\FOR{i=1,...,m}
+%		
+%		\STATE $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
+%		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
+%		\STATE $g\leftarrow g-gTab[i]$, $g \leftarrow g+g_i$, $gTab[i] \leftarrow g_i$
+%		
+%		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$
+%		\STATE $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$)
+%		\STATE $i_{max} \leftarrow \argmax(LTab)$
+%		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
+%		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), \STATE $\eta \leftarrow \max(\eta_1,\eta_2)$
+%		\ELSE
+%		\STATE $\eta \leftarrow \eta_1$
+%		\ENDIF
+%		
+%		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
+%		\STATE $LTab[i] \leftarrow 0$
+%		\ELSE
+%		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
+%		\ENDIF
+%		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
+%		
+%		\IF{$L<\epsilon_m$}
+%		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
+%		\ELSE
+%		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
+%		\IF{$op==2m-1$}
+%		\STATE $\eta \leftarrow \frac{2}{op \times L}$
+%		\ELSE
+%		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
+%		\ENDIF
+%		\ENDIF
+%		
+%		\STATE $\theta \leftarrow \theta - \eta g$
+%		\STATE Distance($d$, $dTab$, $g$, $\eta$, $\eta_1$, $\lambda$, $\epsilon$)
+%		
+%		\STATE Stopping if $\|g\|/P<\epsilon$ and $d/P<\epsilon$
+%		
+%		\ENDFOR
+%		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $2m-1$)
+%		\ENDWHILE
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%\end{algorithm} 
+
+The previously described algorithm is consequently adaptive and relies on updating the weights at each batch according to a well-balanced aggregator. 
+But the memory complexity remains high in the sense that the aggregator needs the storage of $m$ gradients of size $N$, i.e. of the size of $y$. In section \ref{section_results},
+we will see that the algorithm is very efficient in practice and is certainly 
+the one to be applied if a good compromise "data into memory vs. size of the architecture" can be reached. Otherwise, we suggest a lighter alternative, algorithm RAGL of section
+\ref{RAGL}. 
+But before, in section \ref{RAGL_proto}, we insist on probably the most intuitive algorithm based on both the previous adaptive strategy and a light aggregator, to mainly 
+explain why the less straightforward strategy of section \ref{RAGL} is needed in practice. 
+%Due to its characteristics, it will be particularly adapted in the case in which the data can not fit into memory but the architecture can 
+
+%\newG{ICI, J'AIMERAIS BIEN UNE BELLE PHRASE QUI MONTRE QUE C'EST PAS SI  GRAVE: SI ON A BEOSIN DE LA MEMOIRE POUR L'ARCHI ET LES M GRADIENTS, PAS GRAVE, ON MET MOINS EN MÉMOIRE ET L'ALGO ENCAISSE BIEN LES DESEQUILIBRE DE BATCHS. Mais au cas ou blabla... }
+
+\paragraph{A first test to verify the behavior of the mini-batch optimizer with respect to its full batch counterpart}
+\ \\
+\newG{METTRE LES SENSITIVITY MAPS SUR POLYALLSTIFF DE LC-GD ET RAG: DIRE QU'ON A LES MEMES CHOSES = ON ESPERE PAS PLUS EN MINI-BATCH QU'EN FULL ET ON EST CONTENT.}
+\newG{(et le fait d'introduire LC-GD plus tôt dans le discours, il sortira moins du chapeau plus tard)}
+
+\subsection{{The RAGL-prototype optimizer: {\it Rebalanced Aggregated Gradient Light prototype}}}
+\label{RAGL_proto}
+
+
+\input{ALGO/RAGL_proto}
+%\begin{algorithm}[h!]
+%	\caption{RAGL-prototype}
+%	\label{algo_RAGL_proto}
+%	\begin{algorithmic}[1]
+%		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
+%		\STATE $\theta_0 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$
+%		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
+%		\STATE $RTab$ and $LTab$ arrays of size $m$
+%		\STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$)
+%		
+%		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
+%		\STATE $gSum \leftarrow 0$, $d\leftarrow 0$, $R_0 \leftarrow R$
+%		
+%		\FOR{i=1,...,m}
+%		
+%		\IF{$i\leq m-1$}
+%		\STATE $gs \leftarrow -\nR_i(\theta_0)$
+%		\ENDIF
+%		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
+%		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
+%		\STATE $gSum \leftarrow g+g_i$
+%		\IF{$i\leq m-1$}
+%		\STATE $g \leftarrow g-gs$, $g \leftarrow g+g_i$
+%		\ELSE
+%		\STATE $g \leftarrow gSum$
+%		\ENDIF
+%		
+%		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$, $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$), $i_{max} \leftarrow \argmax(LTab)$
+%		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
+%		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), $\eta \leftarrow \max(\eta_1,\eta_2)$
+%		\ELSE
+%		\STATE $\eta \leftarrow \eta_1$
+%		\ENDIF
+%		
+%		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
+%		\STATE $LTab[i] \leftarrow 0$
+%		\ELSE
+%		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
+%		\ENDIF
+%		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
+%		
+%		\IF{$L<\epsilon_m$}
+%		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
+%		\ELSE
+%		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
+%		\IF{$op==4m-1$}
+%		\STATE $\eta \leftarrow \frac{2}{op \times L}$
+%		\ELSE
+%		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
+%		\ENDIF
+%		\ENDIF
+%		
+%		\STATE $\theta \leftarrow \theta -\eta g$
+%		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
+%		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
+%		\ENDIF
+%		
+%		\ENDFOR
+%		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $4m-1$)
+%		\ENDWHILE
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%\end{algorithm}
+
+In the previous section, a new adaptive mini-batch optimizer has been suggested\footnote{\newG{ICI, JE RÉDIGE COMME SI J'AVAIS LES SENSITIVITY MAPS DE LC-GD ET RAG L'UNE À COTE DE
+L'AUTRE DANS LA SECTION PRECÉDENTE.}}. 
+We have seen on a simple yet stiff example that it allows recovering the satisfactory behavior of its full-batch counterpart LC-GD.
+As previously stated, 
+the memory cost of RAG is $m\times N$. 
+We now would like to reduce it. %cost of the previous adaptive well-balanced mini-batch optimizer. 
+The mini-batch optimizer RAGL%-prototype 
+of section \ref{RAGL} is born from the intuition
+that the adaptive procedures of the previous sections can easily be combined to 
+ the lighter update described in \cite{partI}.
+ But first, we would like to emphasize the fact that a simpler is at hand ... \newG{ON POURRAIT METTRE \eqref{RAGL_splitting} and this would be deterministic RR-SARAH...} 
+ It would be of complexity $3\times N$.
+The RAGL-prototype algorithm we suggest, explicited in algorithm \ref{algo_RAGL_proto}, is an adaptive version of the splitting \eqref{RAGL_splitting}. 
+\begin{remark}
+  \label{proto}
+As such, this adaptive strategy can be viewed as a deterministic adaptive version of RR-SARAH. 
+In practice, it is mainly described to point out the differences with the next low memory adaptive strategy of section \ref{RAGL}, of complexity $5\times N$, but much more
+  efficient in practice on stiff problems (i.e. problems with locally unbalanced batches).
+\end{remark}
+
+Algorithm RAGL-prototype is described in algo. \ref{algo_RAGL_proto}. 
+
+%\newG{Idealement, ici, on montre qu'on est content avec RAG. On montre qu'on perd des bonnes proprietes avec RAGL proto. On propose RAGL et on montre qu'on les retrouve... Voir si
+%on peut faire ça en l'état, en remaniant... Ou s'il faut faire autre chose... Il faudrait limite 
+%\begin{itemize}
+%  \item la sensitivity map de LC-GD, RAG, RAGL-proto et RAGL sur PolyAllStiff (le cas du tableau). 
+%  \item On pourrait rendre le truc plus progressif avec 
+%    \begin{itemize}
+%      \item Dans la section RAG: on montre LC-GD vs. RAG et on dit que c'est quasi pareil, c'esy assez fort mais surtout ça insiste sur le fait qu'on attend pas plus que d'avoir au
+%        mieux les meêms perf qu'en full batch (en opposition a plein d'autres qui cherchent mystiquement à sortir d'un point selle ou d'un minimum global (ahah)
+%      \item RAG vs. proto (qui est proche de SARAH): catastrophe, faut faire qqs chose... Et ça montrera bien que l'astuce de SARAH, existante, ne suffit pas.
+%      \item RAG vs. RAGL: youpi
+%    \end{itemize}
+%      \item Et dans la suite, on ne regarde que LC-GD, RAG, RAGL (et le fait d'introduire LC-GD plus tôt dans le discours, il sortira moins du chapeau)
+%    \end{itemize}
+%    }
+
+\paragraph{A first test to verify the behavior of the light mini-batch optimizer with respect to its full memory counterpart}
+\ \\
+\newG{PASSER POLYALLSTIFF AVEC RAGL-PROTO $\approx$ SARAH ET MONTRER QUE MEILLEUR EN MEMOIRE MAIS PAS SUFFISANT}
+\ \\
+
+\newG{Question pour améliorer les algo:
+\begin{itemize}
+  \item $eta_s$ n 'est ni $eta_1$ ni $eta_2$... qui ne sont pas initialisés quant à eux
+  \item renommer $\eta_1$ par $\eta_{BFI}$ et l'autre $\eta_{BWI}$? 
+  \item     A reussir a introduire (pas obligatoire mais si on peut le caser): si on avait acces aux $L_i$, on aurait moins besoin d'un algo adaptif. On pourrait avoir acces a un nouvel algo a pas constant... Mais comme on a un pas
+    de temps, autant l'utiliser... N'empeche que si un jour on sait evaluer les $L_i$ autrement, on propose un algo a base de ces $L_i$. 
+\end{itemize}
+}
 
 \subsection{The RAGL optimizer: {\it Rebalanced Aggregated Gradient Light}}
+\label{RAGL}
+
+\paragraph{Trade-off between balancing and memory cost}
+~~\\
+The perturbation added to $g_n$, the estimator of $F$, may grow if the number of batches becomes large or if one batch is stiffer than the others (every term in the sum is an increase of $F_j$): in fact, the contributions of the previous epoch (hidden in $g_n$) remain since we only substract the vector fields of the epoch $n+1$ \eqref{RAGL_splitting}. \\ 
+Here, we suggest an intuitive way to reduce this perturbation and empirically confirm its interest in the following section. For simplicity, let us assume that for $i\in \{1,\dots,m\}$, $F_i$ is $L_i$-Lipschitz continuous and let us denote by $i_{max} = \displaystyle{\argmax_{1 \leq i \leq m}} (L_i)$ the index of the stiffest batch. We then define the following splitting:
+\begin{multline}
+	y_{n+i/m} = y_{n+(i-1)/m} \\
+	+\eta^i
+	\left\{
+	\begin{array}{ll}
+		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n-1+(i_{max}-1)/m}\right)\right] \text{ if } 1\leq i<m,\\
+		g_{n+1} \text{ if } i=m,
+	\end{array}
+	\right.
+	\label{RAGL2_splitting}
+\end{multline}
+where $g_n$ and the initialization are defined in the same way as \eqref{RAGL_splitting}. We are going to see that it is possible to implement \eqref{RAGL2_splitting} with a memory cost involving $5N$.
+Some comments are necessary:
+\begin{itemize}
+	\item first the substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ enables to suppress exactly the part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations.
+        \item Since the learning rate is adaptative, we can imagine that the batch $i_{max}$ (its number may change adaptively) will constrain the most the learning rate. Therefore, the
+          iterates at epoch $n$ are closer to $y_{n-1+(i_{max}-1)/m}$ than the other iterates of the same epoch. As a result, substracting $F_j\left(y_{n-1+(i_{max}-1)/m}\right)$ to $g_n$ is likely to reduce the residues of epoch $n$. \\
+    {This strategy is implemented in practice by using the largest estimated Lipschitz constant given by the algorithm \newG{? (mettre un number)}.}
+\end{itemize} 
+
+
 
 \paragraph{Algorithm description}
 ~~\\
-Firstly, we present the adaptive implementation of the splitting formula \eqref{RAGL_splitting} described by algorithm \ref{algo_RAGL_proto} in order to reduce the memory cost of RAG. There are a lot of similarities with RAG and we only comment the differences:
+First, we present the adaptive implementation of the splitting formula \eqref{RAGL_splitting} described by algorithm \ref{algo_RAGL_proto} in order to reduce the memory cost of RAG. There are a lot of similarities with RAG and we only comment the differences:
 \begin{enumerate}
 	\item The initialization \ref{algo_init_RAGL} is the same as RAG with the exception that it is not necessary to store the values $\nR_i$ in an array $gTab$.
-	\item The lines 8-9 and 13-17 correspond to the scheme \eqref{RAGL_splitting}.
-	\item By default, the number of operators is $4m-1$ (line 2 or 35). This is in fact an upper bound since at batch $i$, $2m+2i-1$ operators are involved: the $m$ operators $\left(\nR_j\right)_{1\leq j \leq m}$ and the delays:
+	\item Lines 8-9 and 13-17 correspond to the scheme \eqref{RAGL_splitting}.
+        \item By default, the number of operators is $4m-1$ (line 2 or 35). This is in fact an upper bound since at batch $i$, $2m+2i-1$ operators are involved\footnote{\newG{Trop
+          raide ici je pense}}: the $m$ operators $\left(\nR_j\right)_{1\leq j \leq m}$ and the delays:
 	\begin{multline*}
 		\left(\theta_{n+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j<i} \text{ , } \left(\theta_{n-1+(j-1)/m}-\theta_{n+(i-1)/m}\right)_{1\leq j \leq m} \\ 
 		\text{ and } \left(\theta_{n+(j-1)/m}-\theta_{n+(j-2)/m}\right)_{1\leq j \leq i}.
@@ -595,21 +832,20 @@ Firstly, we present the adaptive implementation of the splitting formula \eqref{
 		\sum_{j=1}^m \nR_j\left(\theta_{n+(i-1)/m}\right) - \sum_{j=1}^m \nR_j\left(\theta_{n-1+(j-1)/m}\right) \\
 		 + \displaystyle{\sum_{j=1}^i} \left[\nR_j\left(\theta_{n+(j-1)/m}\right)-\nR_j\left(\theta_{n+(j-2)/m}\right)\right]. 
 	\end{multline*}
-	\item The line 43 evaluates $d$ (as RAG). The difference is that on batch $i$, $d$ corresponds to the variations of the $i$ last gradients: here we wait for $d$ to accumulate the variations of the last $m$ gradients (no "early" stopping). In fact, in the meantime, $g$ is a perturbed approximation of $\nR$, see formula \eqref{RAGL_splitting}.
+	\item Line 43 evaluates $d$ (as RAG). The difference is that on batch $i$, $d$ corresponds to the variations of the $i$ last gradients: here we wait for $d$ to accumulate
+          the variations of the last $m$ gradients (no "early" stopping). In fact, in the meantime, $g$ is a perturbed approximation of $\nR$, see formula \eqref{RAGL_splitting}
+          and the stopping criterion remark \eqref{stopping_criterion}.
 \end{enumerate}
 The RAGL algorithm \ref{algo_RAGL} implements the formula \eqref{RAGL2_splitting}. It is similar with the difference that the function \eqref{algo_comparaison} called at line 44 enables to store the point $\theta_2$ associated to the stiffest batch of the running epoch: $L_{max}$ is not necessary equal to $\tilde{L}_{max}$. Therefore at the end of an epoch, $\theta_2$ assigned to $\theta_1$, is the point associated to the stiffest batch of this epoch. \\
 
-TODO: expliquer la différence entre RAGL-prototype et RAGL!
-
 \begin{remark}
-  The goal of this article is to develop free-hyperparameters mini-batch algorithms. But aside from the heuristic, the algorithms RAG, RAGL, RAGL-prototype\footnote{\newG{Cet algo
-  n'est pas introduit dans le texte non? La différence avec RAG n'est pas explicitée si je ne me trompe pas}} introduce three new hyperparameters $\lambda, f_1$ and $f_2$. As explained in \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}, they do not influence the convergence of the algorithm (contrary to $\eta$ for GD) but only the nature of the critical points found and the time complexity. It is also possible to estimate the number of evaluations of $\R$ (in the full-batch case). Theorem 2.5 of \cite{Bilel_thesis} and 5.1 of \cite{Bilel_ICML} stipulate that the mean number of evaluations is upper bounded by ($C_n$ the number of evaluations until the $n$-th epoch):
+  One of the goal of this article is to develop free-hyperparameters mini-batch algorithms. But aside from the heuristic, the algorithms RAG, RAGL, RAGL-prototype introduce three new hyperparameters $\lambda, f_1$ and $f_2$. As explained in \cite{Lyap_Theory_Bilel,Bilel_ICML} and chapter 2 of \cite{Bilel_thesis}, they do not influence the convergence of the algorithm (contrary to $\eta$ for GD) but only the nature of the critical points found and the time complexity. It is also possible to estimate the number of evaluations of $\R$ (in the full-batch case). Theorem 2.5 of \cite{Bilel_thesis} and 5.1 of \cite{Bilel_ICML} stipulate that the mean number of evaluations is upper bounded by ($C_n$ the number of evaluations until the $n$-th epoch):
 \begin{equation}
 	\displaystyle{\limsup_{n\to \infty}}\dfrac{C_n}{n} \leq 1+\frac{\log(f_2)}{\log(f_1)}+p,
 	\label{complexity_law}
 \end{equation}
 where $p$ denotes the number of dichotomous steps in the linesearches. 
-We will see later that this estimation is also verified empirically in the mini-batch case.
+We will see later that this estimation is also empirically verified in the mini-batch case.
 \end{remark}
 
 \begin{remark}
@@ -617,15 +853,19 @@ We will see later that this estimation is also verified empirically in the mini-
 \end{remark}
 
 \paragraph{A first test to skim off the best}
+\ \\
+\newG{SENSITIVITY MAPS: PASSER POLYALLSTIFF AVEC RAGL-PROTO $\approx$ SARAH ET MONTRER QUE MEILLEUR EN MEMOIRE MAIS PAS SUFFISANT}
+\ \\
+
 ~~\\
-As explained in subsection \ref{new_splitting}, RAGL-prototype\footnote{\newG{aussi, pas clair que c'est expliqué dans la section en question}} is not adapted to deal with stiff
-problems. We are going to confirm this fact on the stiffest analytical example that we have, namely \polyFive: $\R$ is a two variables polynomial, of degree total 10, with
-different degree of degeneracy. Although $m=2$ and the benchmark satisfies the interpolation condition, it is very difficult since $\R_1$ and $\R_2$ do not admit the same order of
+As stated in subsection \ref{RAGL_proto}, RAGL-prototype is not adapted to deal with stiff
+problems. We are going to confirm this fact on the stiffest analytical example that we have, namely \polyFive: $\R$ is a two variables polynomial, of total degree 10, with
+different degrees of degeneracy. Although $m=2$ and the benchmark satisfies the interpolation condition, it is very difficult since $\R_1$ and $\R_2$ do not admit the same order of
 degeneracy around some critical points (for example $(-4,3)$): $\nnR_1$ is non-zero whereas the second and third order derivatives of $\R_2$ are zero. This may generate some
 important slow downs since around these points, two very different scales should be taken into account: it is the main reason behind the linesearch with interaction (i.e.
 algorithm \ref{linesearch_batch2}). \\
 The table \ref{polyFive_ecreme} presents the number of divergent\footnote{\newG{divergent ou non-convergent?}} trajectories on \polyFive as well as the execution time for $28000$ trainings initialized uniformly on $[-5,5]^2$.
-RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL, with similar execution times. It is possible to completely suppress the divergent trajectories by turning off the heuristic ($h_{max}=1$) but the execution time is $2.6$ times larger than RAGL. In fact on the ML benchmarks, the difference is more distinct (factor from 4 to 6). Therefore, we will only test RAG and RAGL in the following.
+RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL, with similar execution times. It is possible to completely suppress the divergent trajectories by turning off the heuristic ($h_{max}=1$) but the execution time is $2.6$ times larger than RAGL. In fact on the ML benchmarks, the difference is even more significant (factor from 4 to 6). Therefore, we will only test RAG and RAGL in the following.
 
 
 \begin{table}[h!]
@@ -635,6 +875,7 @@ RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL,
 		\toprule
 		\begin{bf} \diagbox{Algos}{} \end{bf} & \begin{bf}nonConv\end{bf} & \begin{bf}Time(s)\end{bf} \\
 		\midrule
+                \begin{bf}\newG{LC-GD (full batch)}\end{bf} & ??? & ???? \\ \midrule
 		\begin{bf}RAG\end{bf} & 6e-4 & 3600 \\ \midrule
 		\begin{bf}RAGL-prototype\end{bf} & 0.251 & 4902 \\ \midrule
 		\begin{bf}RAGL-prototype ($h_{max}=1$)\end{bf} & 3.6e-5 & 13661 \\ \midrule
@@ -643,12 +884,12 @@ RAGL-prototype diverges $25 \%$ of the time with the heuristic contrary to RAGL,
 	\label{polyFive_ecreme}
 \end{table} 
 
-In this section, we have introduced new adaptive mini-batch optimizers based on the balanced splitting schemes of section \ref{section_splitting_schemes}.
+%In this section, we have introduced new adaptive mini-batch optimizers based on the balanced splitting schemes of section \ref{section_optimizers}.
 
 \section{Numerical results}
 \label{section_results}
 
-The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most famous stochastic optimizer
+The goal of this section is to evaluate RAG and RAGL in many different configurations and then to compare them to full-batch algorithms and to the most popular stochastic optimizer
 in the Deep Learning litterature, namely RRAdam (called also Adam in the litterature \cite{Adam}), described in appendix \ref{annexe_adam}. Another slight modification of RRAdam without the debiased steps (that we call RRAWB: Random Reshuffle Adam without bias steps) is sometimes tested to illustrate some instability phenomenons. They are also compared to new Armijo-like full-batch optimizers introduced in chapter 2 of \cite{Bilel_thesis} (see \cite{Lyap_Theory_Bilel} for an analysis): LC (Lyapunov control) and LCD (Lyapunov Control Dichotomy) since they have many good properties (stability for example).
 
 \subsection{Analytic benchmarks}
@@ -656,7 +897,7 @@ in the Deep Learning litterature, namely RRAdam (called also Adam in the littera
 
 First of all, we begin by the analytic benchmarks where all the information is available about the $\R_i$ and $\R$, in order to test the behaviors of the new optimizers in several configurations:
 \begin{itemize}
-	\item the examples in dimension one, \exOne to \exHeight, are necessary to know if our algorithms can handle the interpolation deficiency \eqref{interpolation}. Let us remember that the stochastic optimizers used by the ML community, namely SGD and RRGD (the same for RRAdam) are not able of this, even in the simple setups of \exOne and \exTwo. 
+  \item the examples in dimension one (see \cite{partI}), \exOne to \exHeight, are necessary to know if our algorithms can handle the interpolation deficiency. Let us remember that the stochastic optimizers used by the ML community, namely SGD and RRGD (the same for RRAdam) are not able of this, even in the simple setups of \exOne and \exTwo. 
 	\item The question now is: are the minimizations of \polyTwo and \polyThree stable with RAG and RAGL as they are with the Armijo-like algorithms in chapter 2 of \cite{Bilel_thesis}. In \cite{Bilel}, the authors show that it is crucial to develop Lyapunov stable optimizers for ML. Let us recall what a Lyapunov stable dynamical system means: if the initialization $\theta_0$ is close to a critical point, all the trajectory remains close to this critical point. In \cite{Bilel}, the authors empirically evaluate the stability of a given deterministic optimizer, for $N=2$, by a map (called sensitivity map) drawn as follows:
 	\begin{itemize}
 		\item the localization of a point on the plane is the value of $\theta_0$.
@@ -675,7 +916,7 @@ First of all, we begin by the analytic benchmarks where all the information is a
 	\item The next benchmark also allows studying the management of the stiffness (\polyFive) by RAG and RAGL, especially when the functions $\R_i$ tackle distinct order of
           degeneracy. Informally, for \polyFive, $\R_1$ "sees" a quadratic function (possibly degenerated) while $\R_2$ "sees" a quadric one in the neighborhood of some minimums.
           Moreover, the estimation of the Lipschitz constant of $\nR$ by $L_1+L_2$ is coarse in the vicinities of some critical points of \polyFive, like $(-4,3)$ and $(4,-1)$,
-          especially if the linesearch free of interactioni is used. 
+          especially if the linesearch free of interaction is used. 
 	\item Finally, with the next benchmarks, the behavior in the neighborhood of saddle points is studied, especially the ones that are degenerated (comparison between \polyThree and \polyFive). Do RAG and RAGL escape them? This is relevant since some saddle points of $\R$ are global minimums for one of the $\R_i$ (one may see this as a "strong" interpolation property).
 \end{itemize}
 
@@ -688,18 +929,18 @@ In the following, the hyperparameters are the following:
           otherwise specified. These are the most commonly used values by the practitioners.
 \end{itemize}
 
-\paragraph{One dimension benchmark}
+\paragraph{One dimension benchmark (described in \cite{partI})}
 ~~\\
-In the same way as in the section \ref{section_splitting_schemes}, we represent the final distribution of the points $\theta$ on the eight benchmarks using $10000$ points in the Monte-Carlo simulation. Here, we do not stop the algorithm for a time $t_f$ large enough, but we use our stopping criterion with $\epsilon=10^{-4}$ and $n_{max}=200000$: this makes it possible to evaluate its relevancy. 
+In the same way as in \cite{partI}, we represent the final distribution of the points $\theta$ on the eight benchmarks using $10000$ points in the Monte-Carlo simulation. Here, we do not stop the algorithm for a time $t_f$ large enough, but we use our stopping criterion with $\epsilon=10^{-4}$ and $n_{max}=200000$: this makes it possible to evaluate its relevancy. 
 \\
-The figures \ref{RAG_exs} and \ref{RAGL_exs} present the eight distributions, both for RAG and RAGL. The below comments concern the two algorithms given that their distributions are exactly the same.\\
-\newG{A changer In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
+Figures \ref{RAG_exs} and \ref{RAGL_exs} present the eight distributions, both for RAG and RAGL. The below comments concern the two algorithms given that their distributions are exactly the same.\\
+In the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
 soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. This also points out that
-our stopping criterion seems sufficient. In fact, when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$.} \\
+our stopping criterion seems sufficient. In fact, when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
 The global minimum is favored even facing interpolating minimums, except on \exHeight. Even not-mild setups like \exSix ("semi-interpolation": minimum of two functions among three) or \exThree (a local minimum is the intersection of the graphs of $\R_1$ and $\R_2$) do not promote local minimums. The singularity of \exHeight can not be explained by the interpolation condition since any of its minimums is interpolating. We think that this is due to the fact that in the neighborhood of the local minimum, the stiffnesses $L_i$ are uniform whereas the variations of the gradients around the global minimum are largely scattered. \\
 As a result, it is relevant to think that a critical point is not favored depending on their degree of interpolation but rather in accordance with a complex structure between its nature (global or local) and the covariance matrix around this point. In our eyes, it is critical that a minimum is not favored because of its interpolation condition since this property has no meaning from the point of view of the objective function. \\
 It is important to notice that in the litterature, the interpolation hypothesis is always considered on the whole set of critical points and there is no intermediary situation:
-here, we have interpolating critical points and others which are not, some critical points only vanish some of the $\nR_i$ but not all of them like in \exSix.     
+here, we have interpolating critical points and others which are not, some critical points only cancel some of the $\nR_i$ but not all of them like in \exSix.     
 
 \begin{figure}[h!]
 	\centering
@@ -716,7 +957,7 @@ here, we have interpolating critical points and others which are not, some criti
 \end{figure}
 
 \paragraph{}
-Now, we focus on the benchmarks \polyTwo, \polyThree and \polyFive in dimension 2 introduced in \cite{Bilel} ($m=2$) to analyse the stability, the behavior of the saddle points and the speed of convergence. The threshold is fixed to $\epsilon=10^{-4}$ and $n_{max}=200000$. Let us remember that these benchmarks satisfy the interpolation condition for all the critical points. \\
+Now, we focus on the two-dimensional benchmarks \polyTwo, \polyThree and \polyFive introduced in \cite{Bilel} ($m=2$) to analyse the stability, the behavior of the saddle points and the speed of convergence. The threshold is fixed to $\epsilon=10^{-4}$ and $n_{max}=200000$. Let us remember that these benchmarks satisfy the interpolation condition for all the critical points. \\
 In order to be able to compare the optimizers, we have no choice but to compute the full-batch gradient at the end of every epoch for RRGD, RRAWB and RRAdam in the rest of the paper, since there are no stopping criteria for the stochastic optimizers. Of course, this choice increases the running time of these algorithms, but it is the only manner to be fairly comparable.
 
 \paragraph{Stability}
@@ -823,7 +1064,7 @@ In a nutshell, the analytic examples enable us to check the following aspects fo
 \begin{itemize}
 	\item the interpolation assumption is not necessary anymore to guarantee that all the mass of the stationary distribution is concentrated on the critical points of $\R$.
         \item The stopping criterion is sufficient to be close to critical points of $\R$ and to guarantee $\|\nR(\theta)\|\leq \epsilon$ and does {\em not} need an evaluation on a full batch.
-	\item The time step adaptivity seems to ensure the local Lyapunov stability as in \cite{Bilel,Bilel_thesis}.
+	\item The learning rate adaptivity seems to ensure the local Lyapunov stability as in \cite{Bilel,Bilel_thesis}.
 	\item It seems that RAG and RAGL escape the saddle points more efficiently than classical methods disregarded of their level of degeneracy.
 	\item On the benchmarks in two dimensions, the stochastic optimizers are very expensive compared to RAG/RAGL. 
 \end{itemize}
@@ -834,10 +1075,11 @@ In a nutshell, the analytic examples enable us to check the following aspects fo
 From now on, we evaluate the practical performances of RAG and RAGL on ML tasks. These algorithms are mainly executed on three problems with several batch sizes. These problems are
 meticulously selected to discuss the interpolation condition. The latter is at the heart of mini-batch optimization, in the ML litterature. For these benchmarks, it is not possible
 to know analytically if this condition is satisfied. But the more the neural network is overparametrized and the more likely this condition is satisfied. As a result, we mainly test three configurations: $N\gg P$, $N\approx P$ et $N\ll P$. \\
-These tests were also selected so that all the data fit into memory, in such a way, the full-batch optimizers can be used as a standard. Although the aim to develop mini-batch
+These tests were also selected so that all the data fit into memory, in such a way, the full-batch optimizers can be used as a baseline. Although the aim to develop mini-batch
 optimizers is to overcome the RAM restriction, this choice does not change the relevance of the numerical results (since the values of $m$ are very scattered) and make the
-conclusions more thorough. Additional benchmarks will also be briefly tested\footnote{\newG{Limite j'enlèverais bien cette phrase. Je comprends que tu l'aies mise compte tenu des
-retours qu'on a eu mais pour n'importe quel mec raisonable, la premiere phrase suffit.}}.\\
+conclusions more thorough.\\ 
+%Additional benchmarks will also be briefly tested\footnote{\newG{Limite j'enlèverais bien cette phrase. Je comprends que tu l'aies mise compte tenu des
+%retours qu'on a eu mais pour n'importe quel mec raisonable, la premiere phrase suffit.}}.\\
 The stopping criterion for stochastic methods is the same as for the analytical examples. In the following, RRAdam is often shortened by RRA in the figures. Adam denotes the full-batch version in what follows. \\
 For fully-connected networks, let us describe our convention for describing an architecture on an example: 2-15(tanh)-20(gelu)-3(linear). This means the following. The dimension of the input data is two and the dimension of the output data are three. Moreover, the network begins with a layer of $15$ neurons with tanh activation, followed by a layer of $20$ neurons with gelu activation \cite{gelu} and finishes with a layer of $3$. The number of parameters is therefore $N=15\times 2 + 15 + 20\times 15 + 20 + 3\times 20 + 3 = 428$.
 Among the different approximations of gelu proposed in the original paper \cite{gelu}, we choose the approximation using the sigmoid function $\sigma$:
@@ -892,21 +1134,21 @@ than RRAdam and 13 to 34 times more effective than Adam. These results are valid
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Sonar_train.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Sonar_train.pgf}}
 	\caption{Distribution of the proportion of well-classified training points on Sonar.}
 	\label{Sonar_train}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Sonar_test.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Sonar_test.pgf}}
 	\caption{Distribution of the proportion of well-classified testing points on Sonar.}
 	\label{Sonar_test}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Sonar_time.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Sonar_time.pgf}}
 	\caption{Distribution of execution times on Sonar.}
 	\label{Sonar_time}
 \end{figure} 
@@ -947,7 +1189,7 @@ Although RRAdam does not converge for $n_{max}$ epochs, it is logical to wonder 
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Boston_grads.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Boston_grads.pgf}}
 	\caption{Distribution of $\log\left(\|\nR(\theta_{n_{max}})\|\right)$ for RRAdam with $b=4$ on Boston.}
 	\label{Boston_grads}
 \end{figure}
@@ -968,21 +1210,21 @@ $(L_i)_{1\leq i \leq m}$ along the trajectories which seem to play a role in the
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Boston_train.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Boston_train.pgf}}
 	\caption{Distribution of the training costs on Boston.}
 	\label{Boston_train}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Boston_test.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Boston_test.pgf}}
 	\caption{Distribution of the testing costs on Boston.}
 	\label{Boston_test}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Boston_time.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Boston_time.pgf}}
 	\caption{Distribution of the execution time on Boston.}
 	\label{Boston_time}
 \end{figure}
@@ -1025,21 +1267,21 @@ Let us finish with the execution time on figure \ref{Diamonds_time}. Here, LCD i
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Diamonds_train.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Diamonds_train.pgf}}
 	\caption{Distribution of training costs on Diamonds, in logarithmic scale.}
 	\label{Diamonds_train}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Diamonds_test.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Diamonds_test.pgf}}
 	\caption{Distribution of testing costs on Diamonds, in logarithmic scale.}
 	\label{Diamonds_test}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.9}{\input{chapitre5_img/Diamonds_time.pgf}}
+	\scalebox{0.7}{\input{chapitre5_img/Diamonds_time.pgf}}
 	\caption{Distribution of execution times on Diamonds.}
 	\label{Diamonds_time}
 \end{figure}
@@ -1073,8 +1315,8 @@ The goal of this paper is to develop adaptive mini-batch optimizers, mandatory w
 \begin{itemize}
 	\item the interpolation hypothesis was largely discussed through different configurations in dimension one. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new stationary states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
 	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied on the gradient flow. This turns the
-          classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an Euler explicit scheme. This perspective makes it possible to explain the appearance of "artificial" stationary states that are related to the unbalancing of the splitting: the stationary states may depend on the time step. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
-        \item The notion of \textbf{balanced splitting is then crucial} to get an appropriate behavior with constant learning rate and {\em a fortiori} with adaptive time step. We call appropriate behavior the following situation: either the learning rate is too large and then there is no stationary distribution, or it is small enough and then the support is only made up of critical points of $\R$. An intermediary situation is unwanted.
+          classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an Euler explicit scheme. This perspective makes it possible to explain the appearance of "artificial" stationary states that are related to the unbalancing of the splitting: the stationary states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
+        \item The notion of \textbf{balanced splitting is then crucial} to get an appropriate behavior with constant learning rate and {\em a fortiori} with adaptive learning rate. We call appropriate behavior the following situation: either the learning rate is too large and then there is no stationary distribution, or it is small enough and then the support is only made up of critical points of $\R$. An intermediary situation is unwanted.
 	\item In a first time, we build the optimizer RAG that can be seen as the adaptive version of IAG. Given that its memory cost involves the product $mN$, we suggest RAGL that only involves $5N$. This algorithm is the first, at the best of our knowledge, \textbf{to satisfy the six requirements} claimed in the introduction. From the point of view of numerical analysis, the scheme associated to this optimizer is original since the splitting formula is itself adaptative.
 	\item These new optimizers tackle the non-interpolating cases, seem Lyapunov stable and escape from non-strict saddle points (in two dimensions anyway). They present good performances on the studied classification and regression ML tasks, for very different levels of parametrization ($N$ large or smaller than $P$), without any extensive tuning of hyperparameters. In many of these benchmarks, \textbf{Adam-like optimizers do not converge to an arbitrary precision contrary to well-balanced splitting algorithms}. 
 \end{itemize} 
@@ -1102,6 +1344,82 @@ The authors declare that they have no conflict of interest.
 \newpage
 
 \appendix
+
+\section{Classical algorithms}
+\label{annexe_adam}
+
+In this section, we recall the stochastic optimizers used in this paper, since there exists many versions of a same algorithm. 
+
+\begin{algorithm}[h!]
+	\caption{{\it Stochastic Gradient Descent}: SGD}
+	\begin{algorithmic}
+		\REQUIRE initial values $\theta$ and $\eta$.
+		
+		\FOR{$n=0, \dots, mn_{max}-1$}
+		\STATE $i \leftarrow$ uniformly sampled in $\{1,\dots,m\}$
+		\STATE $\theta \leftarrow \theta-\eta \nR_i(\theta)$
+		\ENDFOR
+		
+		\RETURN $\theta$
+	\end{algorithmic}
+	\label{algo_sgd}
+\end{algorithm} 
+
+\begin{algorithm}[h!]
+	\caption{{\it Random Reshuffle Gradient Descent}: RRGD}
+	\begin{algorithmic}
+		\REQUIRE initial values $\theta$ and $\eta$.
+		
+		\FOR{$n=0, \dots, n_{max}-1$}
+		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
+		\FOR{$i=1, \dots, m$}
+		\STATE $\theta \leftarrow \theta-\eta \nR_{\Pi(i)}(\theta)$
+		\ENDFOR
+		\ENDFOR
+		\RETURN $\theta$
+	\end{algorithmic}
+	\label{algo_RRGD}
+\end{algorithm} 
+
+\begin{algorithm}[h!]
+	\caption{{\it Random Reshuffle AWB}: RRAWB}
+	\begin{algorithmic}
+		\REQUIRE initial values $\theta$, $\eta$, $\betone$, $\bettwo$ and $\epsilon_a$.
+		\STATE $v\leftarrow 0$, $s\leftarrow 0$
+		\FOR{$n=0, \dots, n_{max}-1$}
+		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
+		\FOR{$i=1, \dots, m$}
+		\STATE $v \leftarrow(1-\betone)v + \betone \nR_{\Pi(i)}(\theta)$
+		\STATE $s \leftarrow (1-\bettwo)s + \bettwo \nR_{\Pi(i)}(\theta)^2$
+		\STATE $\theta \leftarrow \theta -\eta \dfrac{v}{\epsilon_a+\sqrt{s}}$
+		\ENDFOR
+		\ENDFOR
+		\RETURN $\theta$
+	\end{algorithmic}
+	\label{algo_RRAWB}
+\end{algorithm} 
+
+\begin{algorithm}[h!]
+	\caption{{\it Random Reshuffle Adam}: RRAdam}
+	\begin{algorithmic}
+		\REQUIRE initial values $\theta$, $\eta$, $\betone$, $\bettwo$ and $\epsilon_a$.
+		\STATE $v\leftarrow 0$, $s\leftarrow 0$
+		\FOR{$n=0, \dots, n_{max}-1$}
+		\STATE $\Pi \leftarrow$ random permutation of $\{1,\dots,m\}$
+		\FOR{$i=1, \dots, m$}
+		\STATE $v \leftarrow(1-\betone)v + \betone \nR_{\Pi(i)}(\theta)$
+		\STATE $s \leftarrow (1-\bettwo)s + \bettwo \nR_{\Pi(i)}(\theta)^2$
+		\STATE $\theta \leftarrow \theta -\eta \dfrac{\sqrt{1-\bettwo^{n+1}}}{1-\betone^{n+1}} \dfrac{v}{\epsilon_a+\sqrt{s}}$
+		\ENDFOR
+		\ENDFOR
+		\RETURN $\theta$
+	\end{algorithmic}
+	\label{algo_RRAdam}
+\end{algorithm} 
+
+\begin{remark}
+	We have written above the stochastic algorithms with the classical stopping criterion, namely the maximal number of epochs. All through section \ref{section_results}, they are implemented with different criteria: maximal time $t_f$ and full-batch gradient $\|\nR(\theta)\|/P \leq \epsilon$.
+\end{remark}
 
 
 
@@ -1262,135 +1580,72 @@ Here, we present some of the algorithms (except RAG) involving in the section \r
 	\end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}[h!]
-	\caption{RAGL-prototype}
-	\label{algo_RAGL_proto}
-	\begin{algorithmic}[1]
-		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
-		\STATE $\theta_0 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$
-		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
-		\STATE $RTab$ and $LTab$ arrays of size $m$
-		\STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$)
-		
-		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
-		\STATE $gSum \leftarrow 0$, $d\leftarrow 0$, $R_0 \leftarrow R$
-		
-		\FOR{i=1,...,m}
-		
-		\IF{$i\leq m-1$}
-		\STATE $gs \leftarrow -\nR_i(\theta_0)$
-		\ENDIF
-		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
-		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
-		\STATE $gSum \leftarrow g+g_i$
-		\IF{$i\leq m-1$}
-		\STATE $g \leftarrow g-gs$, $g \leftarrow g+g_i$
-		\ELSE
-		\STATE $g \leftarrow gSum$
-		\ENDIF
-		
-		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$, $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$), $i_{max} \leftarrow \argmax(LTab)$
-		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
-		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), $\eta \leftarrow \max(\eta_1,\eta_2)$
-		\ELSE
-		\STATE $\eta \leftarrow \eta_1$
-		\ENDIF
-		
-		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
-		\STATE $LTab[i] \leftarrow 0$
-		\ELSE
-		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
-		\ENDIF
-		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
-		
-		\IF{$L<\epsilon_m$}
-		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
-		\ELSE
-		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
-		\IF{$op==4m-1$}
-		\STATE $\eta \leftarrow \frac{2}{op \times L}$
-		\ELSE
-		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
-		\ENDIF
-		\ENDIF
-		
-		\STATE $\theta \leftarrow \theta -\eta g$
-		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
-		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
-		\ENDIF
-		
-		\ENDFOR
-		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $4m-1$)
-		\ENDWHILE
-		\RETURN $\theta$
-	\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[h!]
-	\caption{RAGL}
-	\label{algo_RAGL}
-	\begin{algorithmic}[1]
-		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
-		\STATE $\theta_0, \theta_1, \theta_2 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$, $\tilde{L}_{max} \leftarrow 0$
-		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
-		\STATE $RTab$ and $LTab$ arrays of size $m$
-		\STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$)
-		
-		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
-		\STATE $gSum \leftarrow 0$, $d\leftarrow 0$, $R_0 \leftarrow R$
-		
-		\FOR{i=1,...,m}
-		
-		\IF{$i\leq m-1$}
-		\STATE $gs \leftarrow -\nR_i(\theta_1)$
-		\ENDIF
-		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
-		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
-		\STATE $gSum \leftarrow g+g_i$
-		\IF{$i\leq m-1$}
-		\STATE $g \leftarrow g-gs$, $g \leftarrow g+g_i$
-		\ELSE
-		\STATE $g \leftarrow gSum$
-		\ENDIF
-		
-		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$, $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$), $i_{max} \leftarrow \argmax(LTab)$
-		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
-		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), $\eta \leftarrow \max(\eta_1,\eta_2)$
-		\ELSE
-		\STATE $\eta \leftarrow \eta_1$
-		\ENDIF
-		
-		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
-		\STATE $LTab[i] \leftarrow 0$
-		\ELSE
-		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
-		\ENDIF
-		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
-		
-		\IF{$L<\epsilon_m$}
-		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
-		\ELSE
-		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
-		\IF{$op==4m-1$}
-		\STATE $\eta \leftarrow \frac{2}{op \times L}$
-		\ELSE
-		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
-		\ENDIF
-		\ENDIF
-		
-		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
-		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
-		\ENDIF
-		
-		\STATE Comparison($i$, $\theta$, $\theta_2$, $\tilde{L}_{max}$, $LTab$) (update of $\theta_2$)
-		
-		\ENDFOR
-		\STATE $\theta_1 \leftarrow \theta_2$
-		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $4m-1$)
-		\ENDWHILE
-		\RETURN $\theta$
-	\end{algorithmic}
-\end{algorithm}
+\input{ALGO/RAGL}
+%\begin{algorithm}[h!]
+%	\caption{RAGL}
+%	\label{algo_RAGL}
+%	\begin{algorithmic}[1]
+%		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
+%		\STATE $\theta_0, \theta_1, \theta_2 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$, $\tilde{L}_{max} \leftarrow 0$
+%		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
+%		\STATE $RTab$ and $LTab$ arrays of size $m$
+%		\STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$)
+%		
+%		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
+%		\STATE $gSum \leftarrow 0$, $d\leftarrow 0$, $R_0 \leftarrow R$
+%		
+%		\FOR{i=1,...,m}
+%		
+%		\IF{$i\leq m-1$}
+%		\STATE $gs \leftarrow -\nR_i(\theta_1)$
+%		\ENDIF
+%		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
+%		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
+%		\STATE $gSum \leftarrow g+g_i$
+%		\IF{$i\leq m-1$}
+%		\STATE $g \leftarrow g-gs$, $g \leftarrow g+g_i$
+%		\ELSE
+%		\STATE $g \leftarrow gSum$
+%		\ENDIF
+%		
+%		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$, $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$), $i_{max} \leftarrow \argmax(LTab)$
+%		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
+%		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), $\eta \leftarrow \max(\eta_1,\eta_2)$
+%		\ELSE
+%		\STATE $\eta \leftarrow \eta_1$
+%		\ENDIF
+%		
+%		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
+%		\STATE $LTab[i] \leftarrow 0$
+%		\ELSE
+%		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
+%		\ENDIF
+%		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
+%		
+%		\IF{$L<\epsilon_m$}
+%		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
+%		\ELSE
+%		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
+%		\IF{$op==4m-1$}
+%		\STATE $\eta \leftarrow \frac{2}{op \times L}$
+%		\ELSE
+%		\STATE $\eta \leftarrow \frac{2}{h \times op \times L}$
+%		\ENDIF
+%		\ENDIF
+%		
+%		\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
+%		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
+%		\ENDIF
+%		
+%		\STATE Comparison($i$, $\theta$, $\theta_2$, $\tilde{L}_{max}$, $LTab$) (update of $\theta_2$)
+%		
+%		\ENDFOR
+%		\STATE $\theta_1 \leftarrow \theta_2$
+%		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $4m-1$)
+%		\ENDWHILE
+%		\RETURN $\theta$
+%	\end{algorithmic}
+%\end{algorithm}
 
 \clearpage
 

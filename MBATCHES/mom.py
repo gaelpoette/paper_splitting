@@ -274,6 +274,48 @@ def mom(x0,m,lr_init,eps,maxEpoch,typeR, num):
     return x, epoch
 
 #Dans nos examples, P=m
+def speth_mom_red_mem(x0,m,lr_init,eps,maxEpoch,typeR, num):
+    epoch=0
+    P=m
+    v0 = 0
+    x  = x0
+    v  = v0 
+    b1   = 0.9
+    bb   = 1.0
+    eta  = 0.
+    v_a  = 0.
+    grad = 0.
+    g = 0.
+    grad_tab =0.
+    gNorm = 1000
+
+    while epoch < maxEpoch and gNorm/P > eps:
+      if epoch > 0:
+        eta=lr_init; 
+      x_prec=x0
+      v_prec=v0
+      for i in range(m):
+        grad=gradR(x,i,typeR)  
+        g -= grad_tab
+        g += grad
+        #v_n+1 = beta v - eta grad
+        #x_n+1 = x_n - eta *v_n+1 
+        v = b1 *  v_prec/m - eta * g
+        x =       x_prec + eta * v
+        grad_tab = grad 
+        x_prec = x
+        v_prec = v
+      x0 = x
+      v0 = v
+      epoch+=1
+      gNorm=np.linalg.norm(g)
+    if epoch == maxEpoch:
+        print(str(num)+" max epoch reached")
+    print(num, x, epoch) 
+    return x, epoch
+
+
+#Dans nos examples, P=m
 def speth_mom(x0,m,lr_init,eps,maxEpoch,typeR, num):
     epoch=0
     P=m
@@ -336,6 +378,7 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         lr_init = lr_init0 #1./ (L1+L2) * lr_init0
 
         print(typeR)
+        t0 = time.time()
         for p in range(nbParticules):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
@@ -343,6 +386,7 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
             #x,epoch = mom_full_batch(x0,m,lr_init,eps,maxEpoch,typeR, p)
             #x,epoch = mom(x0,m,lr_init,eps,maxEpoch,typeR, p)
             x,epoch = speth_mom(x0,m,lr_init,eps,maxEpoch,typeR, p)
+            #x,epoch = speth_mom_red_mem(x0,m,lr_init,eps,maxEpoch,typeR, p)
             #x,epoch = DGD  (x0,m,lr_init,eps,maxEpoch,typeR)
 
 
@@ -388,10 +432,12 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         ax.set_xticks(np.arange(a, b, step=0.25))
         ax.plot(x_maille, u, label=r"$u$", color="black", ms=5, marker='.')
         ax.legend()
-    
-    #fig.show()
-    #plt.show()
-    plt.savefig('speth_mom_exs.pgf')
+        t1 = time.time()
+        print(f"time = {t1-t0:e}")
+ 
+    plt.show()
+    #plt.savefig('speth_mom_exs.pgf')
+    plt.savefig('speth_mom_red_mem_exs.pgf')
     #plt.savefig('mom_exs.pgf')
 
 

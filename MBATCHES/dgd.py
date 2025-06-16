@@ -434,6 +434,7 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         lr_init = 1./ (L1+L2) * lr_init0
 
         print(typeR)
+        t0 = time.time()
         for p in range(nbParticules):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
@@ -484,10 +485,13 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         ax.set_xticks(np.arange(a, b, step=0.25))
         ax.plot(x_maille, u, label=r"$u$", color="black", ms=5, marker='.')
         ax.legend()
+        t1 = time.time()
+        print(f"time = {t1-t0:e}")
+ 
     
-    #fig.show()
-    #plt.show()
     plt.savefig('SGD_exs_'+str(lr_init0)+'.pgf')
+    plt.show()
+
 
 typeCI="uniform"
 N=1
@@ -498,12 +502,15 @@ lr_init=1
 #lr_init=0.1/3.
 #lr_init=0.01
 eps=10**(-4); maxEpoch=1000
-
+print("SGD")
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)
+
+
 lr_init=0.01
 #lr_init=0.1/3.
 #lr_init=0.1/3.
 #lr_init=0.01
 eps=10**(-4); maxEpoch=1000
 
+print("SGD smaller learning rate")
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

@@ -5,11 +5,51 @@
 	year = {2024}
 }
 
+@unpublished{partI,
+  TITLE = {{Numerical splitting schemes as the cornerstone for mini-batch optimization}},
+  AUTHOR = {Bensaid, Bilel and Po{\"e}tte, Ga{\"e}l and Turpault, Rodolphe},
+  URL = {https://hal.science/hal-04991621},
+  NOTE = {working paper or preprint},
+  YEAR = {2025},
+  MONTH = Mar,
+  KEYWORDS = {Non-convex optimization, Mini-batch algorithms, Splitting schemes},
+  PDF = {https://hal.science/hal-04991621v1/file/BPT-article.pdf},
+  HAL_ID = {hal-04991621},
+  HAL_VERSION = {v1},
+}
+
 @inproceedings{Bilel_ICML,
 	author = {B. Bensaid and G. Poette and R. Turpault},
 	title = {{Convergence of the Iterates for Momentum and RMSProp for Local Lipshitz Functions: Adaptation is the Key}},
 	booktitle = {Arxiv},
 	year = {2024}
+}
+@article{Barakat_bianchi,
+author = {Barakat, Anas and Bianchi, Pascal},
+title = {Convergence and Dynamical Behavior of the ADAM Algorithm for Nonconvex Stochastic Optimization},
+journal = {SIAM Journal on Optimization},
+volume = {31},
+number = {1},
+pages = {244-274},
+year = {2021},
+doi = {10.1137/19M1263443},
+
+URL = { 
+    
+        https://doi.org/10.1137/19M1263443
+    
+    
+
+},
+eprint = { 
+    
+        https://doi.org/10.1137/19M1263443
+    
+    
+
+}
+,
+    abstract = { Adam is a popular variant of stochastic gradient descent for finding a local minimizer of a function. In the constant stepsize regime, assuming that the objective function is differentiable and nonconvex, we establish the convergence in the long run of the iterates to a stationary point under a stability condition. The key ingredient is the introduction of a continuous-time version of Adam, under the form of a nonautonomous ordinary differential equation. This continuous-time system is a relevant approximation of the Adam iterates, in the sense that the interpolated Adam process converges weakly toward the solution to the ODE. The existence and the uniqueness of the solution are established. We further show the convergence of the solution toward the critical points of the objective function and quantify its convergence rate under a Łojasiewicz assumption. Then, we introduce a novel decreasing stepsize version of Adam. Under mild assumptions, it is shown that the iterates are almost surely bounded and converge almost surely to critical points of the objective function. Finally, we analyze the fluctuations of the algorithm by means of a conditional central limit theorem. }
 }
 
 @phdthesis{Bilel_thesis,
@@ -248,7 +288,32 @@
 	doi = {10.1103/PhysRevE.105.055201},
 	url = {https://link.aps.org/doi/10.1103/PhysRevE.105.055201}
 }
-
+@article{FRANCK,
+title = {Approximately well-balanced Discontinuous Galerkin methods using bases enriched with Physics-Informed Neural Networks},
+journal = {Journal of Computational Physics},
+volume = {512},
+pages = {113144},
+year = {2024},
+issn = {0021-9991},
+doi = {https://doi.org/10.1016/j.jcp.2024.113144},
+url = {https://www.sciencedirect.com/science/article/pii/S0021999124003930},
+author = {Emmanuel Franck and Victor Michel-Dansac and Laurent Navoret},
+keywords = {Hyperbolic balance laws, Discontinuous Galerkin schemes, Scientific machine learning, Well-balanced schemes, PINNs},
+abstract = {This work concerns the enrichment of Discontinuous Galerkin (DG) bases, so that the resulting scheme provides a much better approximation of steady solutions to hyperbolic systems of balance laws. The basis enrichment leverages a prior – an approximation of the steady solution – which we propose to compute using a Physics-Informed Neural Network (PINN). To that end, after presenting the classical DG scheme, we show how to enrich its basis with a prior. Convergence results and error estimates follow, in which we prove that the basis with prior does not change the order of convergence, and that the error constant is improved. To construct the prior, we elect to use parametric PINNs, which we introduce, as well as the algorithms to construct a prior from PINNs. We finally perform several validation experiments on four different hyperbolic balance laws to highlight the properties of the scheme. Namely, we show that the DG scheme with prior is much more accurate on steady solutions than the DG scheme without prior, while retaining the same approximation quality on unsteady solutions.}
+}
+@article{acc_newt,
+title = {Accelerating the convergence of Newton’s method for nonlinear elliptic PDEs using Fourier neural operators},
+journal = {Communications in Nonlinear Science and Numerical Simulation},
+volume = {140},
+pages = {108434},
+year = {2025},
+issn = {1007-5704},
+doi = {https://doi.org/10.1016/j.cnsns.2024.108434},
+url = {https://www.sciencedirect.com/science/article/pii/S1007570424006191},
+author = {Joubine Aghili and Emmanuel Franck and Romain Hild and Victor Michel-Dansac and Vincent Vigon},
+keywords = {Newton’s method, Neural networks, Fourier neural operators, Nonlinear elliptic PDEs},
+abstract = {It is well known that Newton’s method can have trouble converging if the initial guess is too far from the solution. Such a problem particularly occurs when this method is used to solve nonlinear elliptic partial differential equations (PDEs) discretized via finite differences. This work focuses on accelerating Newton’s method convergence in this context. We seek to construct a mapping from the parameters of the nonlinear PDE to an approximation of its discrete solution, independently of the mesh resolution. This approximation is then used as an initial guess for Newton’s method. To achieve these objectives, we elect to use a Fourier neural operator (FNO). The loss function is the sum of a data term (i.e., the comparison between known solutions and outputs of the FNO) and a physical term (i.e., the residual of the PDE discretization). Numerical results, in one and two dimensions, show that the proposed initial guess accelerates the convergence of Newton’s method by a large margin compared to a naive initial guess, especially for highly nonlinear and anisotropic problems, with larger gains on coarse grids.}
+}
 @article{FV_scheme,
 	author = {A. Bourriaud and R. Loubère and R. Turpault},
 	year = {2020},

@@ -1,0 +1,68 @@
+\begin{algorithm}[h!]
+	\caption{RAGL}
+	\label{algo_RAGL}
+	\begin{algorithmic}[1]
+		\REQUIRE initial values $\theta$, $n_{max}$, $\epsilon>0$, $f_1=30$, $f_2=1000$, $\eta_{init}=0.1$ 
+		\STATE $\theta_0, \theta_1, \theta_2 \leftarrow \theta$, $g \leftarrow 0$, $R \leftarrow 0$, $\tilde{L}_{max} \leftarrow 0$
+		\STATE $\eta_s \leftarrow \eta_{init}$, $h\leftarrow 1$; $h_{max}\in [1,2]$, $d\leftarrow 0$, $op\leftarrow 4m-1$
+		\STATE $RTab$ and $LTab$ arrays of size $m$
+                \STATE Init\_RAGL ($\theta$, $\eta$, $g$, $R$, $RTab$, $LTab$, \newG{$\eta_{init}$, $\epsilon$})
+		
+		\WHILE{($\|g\|/P > \epsilon$ or $d/P>\epsilon$) and $n\leq n_{max}$}
+		\STATE $R_0 \leftarrow R$, $gSum \leftarrow 0$, $d\leftarrow 0$
+		
+		\FOR{i=1,...,m}
+		
+		\IF{$i\leq m-1$}
+		\STATE $gs \leftarrow -\nR_i(\theta_1)$
+		\ENDIF
+		\STATE $\theta_0 \leftarrow \theta$, $V_0 \leftarrow \R_i(\theta)$, $g_i \leftarrow -\nR_i(\theta)$
+		\STATE $R \leftarrow R-RTab[i]$, $R \leftarrow R+V_0$, $RTab[i] \leftarrow V_0$
+		\STATE $gSum \leftarrow g+g_i$
+		\IF{$i\leq m-1$}
+		\STATE $g \leftarrow g-gs$, $g \leftarrow g+g_i$
+		\ELSE
+		\STATE $g \leftarrow gSum$
+		\ENDIF
+		
+		\STATE $\eta_1, \eta_2 \leftarrow \eta_s$, $\eta_1 \leftarrow$ BFI($\theta$, $\eta_1$, $i$, $V_0$, $g_i$, $\epsilon$), $i_{max} \leftarrow \argmax(LTab)$
+		\IF{$g_i \cdot g>\epsilon_m$ and $g_i \cdot g \leq \|g\|^2$ and $i==i_{max}$}
+		\STATE $\eta_2 \leftarrow$ BWI($\theta$, $\eta_2$, $i$, $V_0$, $g_i$, $g$), \STATE $\eta \leftarrow \max(\eta_1,\eta_2)$
+		\ELSE
+		\STATE $\eta \leftarrow \eta_1$
+		\ENDIF
+		
+		\IF{$\|g_i\|<\epsilon$ or $\eta<\epsilon_m$}
+		\STATE $LTab[i] \leftarrow 0$
+		\ELSE
+		\STATE $LTab[i] \leftarrow \frac{2(1-\lambda)}{\eta}$
+		\ENDIF
+		\STATE $L \leftarrow$ sum(LTab), $L_{max} \leftarrow \max(LTab)$
+		
+		\IF{$L<\epsilon_m$}
+		\STATE $\eta,\eta_s \leftarrow \eta_{init}$
+		\ELSE
+		\STATE $\eta_s \leftarrow f_2\dfrac{2(1-\lambda)}{L_{max}}$
+		\IF{$op==4m-1$}
+		\STATE $\eta \leftarrow \frac{2\newG{(1-\lambda)}}{op \times L}$
+		\ELSE
+		\STATE $\eta \leftarrow \frac{2\newG{(1-\lambda)}}{h \times op \times L}$
+		\ENDIF
+		\ENDIF
+		
+                \STATE \newG{$\theta \leftarrow \theta -\eta g$}
+		%\IF{$\|g\|>\epsilon$ and $\eta_1>\epsilon_m$}
+                \IF{$\|g\|>\epsilon$ and $\newG{\eta}>\epsilon_m$}
+		\STATE $d \leftarrow d+\frac{2(1-\lambda)}{\eta_1}\eta \|g\|$
+		\ENDIF
+		
+		\STATE Comparison($i$, $\theta$, $\theta_2$, $\tilde{L}_{max}$, $LTab$) (update of $\theta_2$)
+		
+		\ENDFOR
+		\STATE $\theta_1 \leftarrow \theta_2$
+		\STATE Heuristic ($d$, $g$, $h$, $h_{max}$, $R$, $R_0$, $op$, $4m-1$)
+		\ENDWHILE
+		\RETURN $\theta$
+	\end{algorithmic}
+\end{algorithm}
+

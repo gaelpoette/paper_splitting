@@ -196,6 +196,62 @@ def u0(x,typeCI="uniform"):
         mu=0; sigma=1
         return 1/(sigma*np.sqrt(2*np.pi))*np.exp(-0.5*((x[0]-mu)/sigma)**2)
     
+##Dans nos examples, P=m
+#def speth_red_mem(x0,m,lr_init,eps,maxEpoch,typeR):
+#    epoch=0
+#    P=m
+#    x    = x0
+#    eta  = 0.
+#    g    = 0. 
+#    grad = 0.
+#    grad_tab =0.
+#    gNorm = 1000
+#    R = 0.
+#    gsum = 0.
+#    g = 0.
+#    x_inter = x
+#    L = np.zeros(m)
+#    imax = 0
+#
+#    while epoch < maxEpoch and gNorm/P > eps:
+#      
+#      if epoch > 0:
+#        eta=lr_init; 
+#      #print(epoch)
+#      
+#
+#      for i in range(m):
+#        x_prec = x
+#        if i < m-1:
+#            gs = gradR(x_inter,i,typeR)
+#        gi = gradR(x,i,typeR) 
+#        if   L[i] > abs(gi):
+#            L[i] = abs(gi)
+#            imax = i
+#        if i == 0:
+#            gsum = gi
+#        else: 
+#            gsum = gsum + gi
+#        if i < m-1:
+#            g = g -gs
+#            g = g +gi
+#        else:
+#            g = gsum
+#        #print(g, gsum, gi, -gradR(x0,0,typeR)-gradR(x,1,typeR), eta, x, x0)
+#
+#        if imax == i:
+#          x_inter = x_prec
+#        x=x_prec-eta*g
+#
+#      #if epoch == 2:
+#      #    abort
+#      x0 = x
+#      epoch+=1
+#      gNorm=np.linalg.norm(g)
+#    if epoch == maxEpoch:
+#        print("max epoch reached")
+#    return x, epoch
+
 
 #Dans nos examples, P=m
 def speth_red_mem(x0,m,lr_init,eps,maxEpoch,typeR):
@@ -220,7 +276,7 @@ def speth_red_mem(x0,m,lr_init,eps,maxEpoch,typeR):
         eta=lr_init; 
       #print(epoch)
       
-
+      gsum = 0
       for i in range(m):
         x_prec = x
         if i < m-1:
@@ -229,10 +285,7 @@ def speth_red_mem(x0,m,lr_init,eps,maxEpoch,typeR):
         if   L[i] > abs(gi):
             L[i] = abs(gi)
             imax = i
-        if i == 0:
-            gsum = gi
-        else: 
-            gsum = gsum + gi
+        gsum = gsum + gi
         if i < m-1:
             g = g -gs
             g = g +gi

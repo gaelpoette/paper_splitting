@@ -1611,10 +1611,11 @@ Compute $\text{acc}_{\text{test}}$\;
 %$\theta \gets$ \{Flatten$(28\times28)$, Dense$(128,\text{ReLU})$, Dense$(10,\text{softmax})$\}\;
 
 \BlankLine
-\tcc{Initialise loss, network, aggregator, grad. table, pivot }
+\tcc{Initialise loss, network, aggregator, grad., pivot }
 $\mathcal{L}\leftarrow$ Loss \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
 $Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
+SumAgg \gets 0 \;
 %$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 $L[\;]\gets 0$ (stiffness evaluation, one entry per batch)\;
 $\theta_{\text{pivot}} = \theta$ \;
@@ -1624,7 +1625,6 @@ $\theta_{\text{pivot}} = \theta$ \;
     \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
     $\,\text{loss}_{epochs}\gets 0 \;$\;
    
-    SumAgg \gets 0
  
     \ForEach{batch index $b$}{
         Extract mini‑batch $(x_b,y_b)$\;

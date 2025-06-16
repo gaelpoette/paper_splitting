@@ -23,12 +23,14 @@
 \usepackage{tikz,xcolor}
 %\usepackage{hyperref}
 %\usepackage{booktabs}
-%\usepackage{algorithm}
+\usepackage{algorithm2e}
 %
 \usepackage{tabularx}
 \usepackage{diagbox}
 \usepackage{pgfplots}
-\pgfplotsset{compat=1.18} % or any recent version like 1.17, 1.16
+\pgfplotsset{compat=1.16} % or any recent version like 1.17, 1.16
+%\pgfplotsset{compat=1.18} % or any recent version like 1.17, 1.16
+
 
 
 \usepackage{amsmath,amssymb,amsfonts}%
@@ -57,6 +59,9 @@
 \renewcommand{\dmyy}{??}
 \renewcommand{\myyear}{????}
 \renewcommand{\today}{}
+
+%\newcommand{\newG}[1]{\textcolor{blue}{#1}}
+
 \begin{document}
 
 \volume{Volume x, Issue x, \myyear\today}
@@ -206,7 +211,7 @@ where every $\tilde{m}$ iterations, the estimation $g_n$ is the full batch gradi
     constant learning rate, central in the present paper, has, to our knowledge, never been studied. 
 \end{itemize}
 
-\subsection{Objectives}
+\subsection{Objectives \newG{and contributions}}
 ~~\\
 This recap of the mini-batch literature encourages us to require the six following properties in the conception of a mini-batch optimizer, suitable for any network (even for under-parametrized model/network):
 \begin{enumerate}
@@ -233,7 +238,16 @@ Most of the optimizers satisfy only one or two of the aforementioned aspects. IA
 second, it is proved in the strongly convex case and it will be clear in the general case thanks to the splitting operators point of view presented here). 
 Therefore the goal of this paper %and its following second part 
 is to build a deterministic or stochastic (never mind) mini-batch optimizer that \textbf{satisfies the five first
-criteria}. \textcolor{blue}{In this paper, we focus on these five first points and only consider constant learning rates}. The last point will be tackled in further publications, based on the work described in this paper. We think these are crucial steps in order to develop smaller machine learning models. 
+criteria}. \textcolor{blue}{In this paper, we focus on these five first points and only consider constant learning rates}. The last point will be tackled in further publications, based on the work described in this paper. We think these are crucial steps in order to develop smaller machine learning models.\\ 
+
+\newG{
+The main contributions of this work are as follows:
+\begin{itemize}
+    \item  We introduce a new operator-splitting perspective that helps explain several optimization pathologies.
+    \item   We develop a balanced update rule that aligns the fixed points of each sub-flow, eliminating the mismatch observed with standard methods. This framework provides, by construction, guarantees on the critical points obtained in a mini-batch setting and also enables the design of new full-batch optimizers.
+    \item   Carefully chosen one-dimensional toy problems show that the proposed method avoids spurious stationary distributions and converges to the true minima even in non-interpolatory, imbalanced scenarios.
+\end{itemize}
+}
 
 \subsection{Organization of the paper}
 ~~\\
@@ -246,6 +260,7 @@ To reach such a construction, the paper is organized as follows:
         \item An interpretation of RRGD as a specific splitting of operators is suggested in section \ref{section_splitting_schemes}. This enables to relate some "strange"
           stationary distributions (and critical points) to an imbalance of the splitting. 
 	\item The construction of a balanced splitting gives birth to a new family of optimizer in section \ref{new_splitting}. This family extends the method developed by Speth \cite{rebalanced_splitting} for balancing convection-diffusion. It is shown to overcome the aforementioned issue and satisfies the first five criteria.
+\newG{This new family ensures, by construction, with minimal assumptions on the full batch optimizer it is based on, the convergence toward a critical point of the full batch, without resorting to the interpolation condition. }
 	\item In section \ref{num_res}, the newly developed methods are tested on analytical benchmarks. 
 \end{itemize}
 The balanced strategy developed here serves as an excellent starting point for the adaptive extension (sixth criterion) which will be discussed in further publications. 
@@ -319,27 +334,6 @@ The figures
 	\label{sgd_ex1}
 \end{figure}
 
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/RRGD_ex1.pgf}}
-	\caption{Stationary distributions of RRGD for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
-	\label{RRGD_ex1}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/sgd_ex2.pgf}}
-	\caption{Stationary distributions of SGD for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
-	\label{sgd_ex2}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/RRGD_ex2.pgf}}
-	\caption{Stationary distributions of RRGD for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
-	\label{RRGD_ex2}
-\end{figure}
-
 \subsection{Comments}
 ~~\\
 On the graphs a) and c) of figure \ref{sgd_ex1} a Dirac comb appears with a lot of stationary states spaced between the minimum $\theta=0$ of $\R_1$ and $\theta=0.5$ of $\R_2$. In
@@ -349,7 +343,6 @@ Concerning \exTwo (figure \ref{sgd_ex2}), for any learning rate, the interpolati
 Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the gaussian-like distribution is not well-centered (\exOne) or interpolating
 local minimum are largely favored.
 
-\subsection{}
 In this section, we built new benchmarks to analyse the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble
 catching non-interpolating critical points. Even worse, SGD creates artificial stationary states in the sense that they are not critical points of the individual functions $\R_i$
 or of the sum function $\R$. Decreasing the learning rate appears to have little to no effect on the previous observations: this point will be confirmed in the next section. 
@@ -359,8 +352,10 @@ or of the sum function $\R$. Decreasing the learning rate appears to have little
 
 The goal of this section is to explain the previous behaviors of SGD and RRGD and to suggest numerical schemes which correct their flaws. 
 
-Usually, in the literature, the behaviors of SGD are explained by seeing SGD as a discretization of a brownian differential equation \cite{SDE_comparison,SDE_modified,SDE_edp,malladi_adam,hu2018diffusion,flat_minima_exponential,yang2020fast,sgd_implicit_regularisation,sgd_implicit_regularisation2}. 
-Here, we turn this point of view around by interpreting RRGD (rather its deterministic version) as a particular discretization, {\em via} operator splitting, of the classical gradient flow $\theta'(t)=-\nR(\theta(t))$. Let us remember the principle on the following Cauchy problem:
+\newG{In the literature, the behavior of SGD is typically analyzed by interpreting it as a discretization of a stochastic differential equation driven by Brownian motion}
+ \cite{SDE_comparison,SDE_modified,SDE_edp,malladi_adam,hu2018diffusion,flat_minima_exponential,yang2020fast,sgd_implicit_regularisation,sgd_implicit_regularisation2}. 
+\newG{In contrast, we adopt a different perspective: we interpret RRGD—specifically, its deterministic variant—as a particular discretization of the classical gradient flow}
+$\theta'(t)=-\nR(\theta(t))$, using an operator splitting approach. Let us remember the principle on the following Cauchy problem:
 \begin{equation}
 	\left\{
 	\begin{array}{ll}
@@ -403,20 +398,6 @@ In the same way as for SGD and RRGD, we plot the stationary distributions of IG 
 \end{equation*}
 On figure \ref{IG_ex1}, if the learning rate is not small enough (graphs a) and b)), a Delta Dirac function centered at the minimum of $\R_1$ is obtained. On the graph d), $\eta$ is reduced enough for the Dirac to be centered close to the minimum of $\R$. On figure \ref{IG_ex2}, the proportion of global minimum prevails over the local one even with an intermediary learning rate (graph a)), which is not the case for RRGD where a reduction of $\eta$ was required. Globally, the asymptotic behavior (when $\eta \to 0$) of IG is the same as RRGD in the long run. As a result, the pre-eminence of RRGD over SGD is not related to a different random sampling but to the splitting.
 
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/IG_ex1.pgf}}
-	\caption{Stationary distributions of IG for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
-	\label{IG_ex1}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/IG_ex2.pgf}}
-	\caption{Stationary distributions of IG for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
-	\label{IG_ex2}
-\end{figure}
-
 The most natural idea to improve IG is then to apply a Strang splitting: in fact, this splitting generates an order two scheme while only having a slight overcost for two operators
 (each individual scheme is of order one). This one is commonly written for $m=2$:
 \begin{equation*}
@@ -426,20 +407,6 @@ where each $\phi_{\eta}^i$ is an explicit Euler scheme with step $\eta$ applied 
 Figures \ref{Strang_ex1} and \ref{Strang_ex2} respectively represent the stationary distributions of this Strang splitting scheme for \exOne and \exTwo. From the results of figure
 \ref{Strang_ex2}, we can see that increasing the accuracy of the scheme does not change much, at least for the values of $\eta$ used on \exTwo. On figure \ref{Strang_ex1}, we get closer to the steady state faster when $\eta \to 0$ on
 \exOne. However, there still exists undesirable steady states in the sense that they do not correspond to a minimization of $\R$. 
-
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/Strang_ex1.pgf}}
-	\caption{Stationary distributions of the Strang splitting for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical straight line represents the position of the global minimum of $\R$.}
-	\label{Strang_ex1}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/Strang_ex2.pgf}}
-	\caption{Stationary distributions of the Strang splitting for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
-	\label{Strang_ex2}
-\end{figure} 
 
 \subsection{Unbalanced schemes}
 ~~\\
@@ -555,20 +522,6 @@ This scheme is well-balanced since if $(y_n)_{n\in \mathbb{N}}$ converges then:
 which gives $F(y_{\infty})=0$. The strength of a balanced scheme is the following: either it does not admit a stationary distribution, or it converges to the steady states of $F$.\\
 Figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distributions for the scheme \eqref{splitting_speth} on \exOne and \exTwo. First on \exOne, we perfectly retrieve the minimum for the four choices of learning rates contrary to SGD and to unbalanced splittings (RRGD, IG, Strang). On \exTwo, the non-interpolating global minimum is favored for the four learning rates. These first examples show the interest and the efficiency of balanced splittings. 
 
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/Speth_ex1.pgf}}
-	\caption{Stationary distributions of the Speth splitting for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum of $\R$.}
-	\label{speth_ex1}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/Speth_ex2.pgf}}
-	\caption{Stationary distributions of the Speth splitting for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
-	\label{speth_ex2}
-\end{figure}
-
 \begin{remark}
 	To finish this section, let us cite some connected works:
 	\begin{itemize}
@@ -588,6 +541,7 @@ Despite its benefits, the Speth splitting suffers from drawbacks in our context:
 For these main reasons, in the following paragraph, we introduce an adjustment of Speth's splitting, convenient in our ML context. 
 
 \subsection{Adjustment of the Speth splitting}
+\label{extendedSpeth}
 ~~\\
 We therefore suggest the following scheme where the "balance" vector is slightly modified from one step to another:
 \begin{equation}
@@ -616,20 +570,6 @@ Up to a factor $\frac{1}{2}$ on the learning rate,
 \end{equation*}
 Both on \exOne and \exTwo, the stationary distributions of \eqref{RAG_2batch} are exactly the same as the ones for the Speth splitting, see figures \ref{IAG_ex1} and \ref{IAG_ex2}. This fact empirically confirms the balanced property of this scheme.
 
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/IAG_ex1.pgf}}
-	\caption{Stationary distributions of \eqref{RAG_2batch} for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum of $\R$.}
-	\label{IAG_ex1}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/IAG_ex2.pgf}}
-	\caption{Stationary distributions of \eqref{RAG_2batch} for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
-	\label{IAG_ex2}
-\end{figure}
-
 For $m$ operators, \eqref{RAG_2batch} can naturally be extended to the form:
 \begin{equation}
 	y_{n+i/m} = y_{n+(i-1)/m}+\eta^i g_n^i,
@@ -640,7 +580,74 @@ where:
 	g_n^i = \sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right),
 	\label{gni}
 \end{equation}
-for all $i \in \{1,\dots,m\}$ and $n\geq 1$. \\
+for all $i \in \{1,\dots,m\}$ and $n\geq 1$. 
+\newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_speth}.}
+
+\subsection{Reduction of the memory cost}
+\label{red_mem}
+~~\\
+Now, the issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Therefore, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
+%The previous algorithm has been described as if all the batches were in memory. 
+The main ingredient of the previous algorithm consists in using an aggregator which is consistent with the full batch gradient.
+The memory cost question hence resumes to being able to build a lighter but still consistent aggregator.
+It seems natural that the main source of inaccuracy of the aggregator comes from the stiffest batch. 
+With this in mind, we suggest the following modification of \eqref{RAG_scheme}, for $n\geq 1$:
+\begin{multline}
+	y_{n+i/m} = y_{n+(i-1)/m} \\
+	+\eta^i
+	\left\{
+	\begin{array}{ll}
+		%g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
+          g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{{n-1+(i_{\max}-1})/m}\right)\right] \text{ if } 1\leq i<m,\\
+		g_{n+1} \text{ if } i=m,
+	\end{array}
+	\right.
+	\label{RAGL_splitting}
+\end{multline}
+where:
+\begin{equation*}
+	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right).
+\end{equation*}
+The scheme is initialized at $n=0$ with:
+\begin{equation*}
+	y_{n+i/m} = y_0 + \eta^i \mathds{1}_{i=m} g_0 \text{ with } g_0 = F(y_0),
+\end{equation*}
+for all $i \in \{1,\dots,m\}$. 
+%The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
+The scheme \eqref{RAGL_splitting} is well-balanced since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
+%The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. 
+{The substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{\max}-1)/m}\right)$ enables to suppress exactly the
+part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations. It now only remains to choose a criterion in order to define the
+stiffest batch. We suggest: $i_{\max}$ as
+$$i_{\max} = \argmax_{j\in\{1,...,m\}} \|F_j(y_{n-1+(j-1)/m})\|.$$}
+This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
+\newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_red_mem}.}
+
+\subsection{\newG{Theoretical property}}
+\label{th_prop}
+
+The previous construction allows stating
+\begin{theorem}
+\label{th}
+Consider the flow of a given optimizer
+$
+\dot{y}(t) = F(y(t)).
+$
+Assume 
+\begin{enumerate}
+\item the flow is such that 
+$
+F(y)=0 \Longrightarrow \nR(y)=0,
+$
+\item we identified $m$ operators $(F_i)_{i\in\{1,..,m\}}$
+such that $F=\sum_{i=1}^m F_i$. 
+\item If $(y_n)_{n\in\mathbb{N}}$ following the updates described in sections \ref{extendedSpeth}--\ref{red_mem} with operators $(F_i)_{i\in\{1,..,m\}}$ converges toward $y_\infty$, then $y_\infty$ is a critical points of $F$ (the full batch). 
+\end{enumerate}
+\end{theorem}
+The proofs can be found in \ref{proof}.\\
+
+Several comments can be made on the above theorem. First, we never rely on the interpolation condition. 
+Optimizer is crucial, see condition $1$. Non unicity of the sum decomposition: some may be more or less usable in practice, see sections \ref{mom} and \ref{adam}.   
 
 \subsection{Stopping criterion}
 ~~\\
@@ -744,45 +751,8 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
         Note finally that additionnally to being independent of the choice of $F$, our methodology allows any choice of summable decomposition $F=\sum_{i=1}^m F_i$ for the
         splitting. 
 
-\subsection{Reduction of the memory cost}
-~~\\
-Now, the issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Therefore, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
-%The previous algorithm has been described as if all the batches were in memory. 
-The main ingredient of the previous algorithm consists in using an aggregator which is consistent with the full batch gradient.
-The memory cost question hence resumes to being able to build a lighter but still consistent aggregator.
-It seems natural that the main source of inaccuracy of the aggregator comes from the stiffest batch. 
-With this in mind, we suggest the following modification of \eqref{RAG_scheme}, for $n\geq 1$:
-\begin{multline}
-	y_{n+i/m} = y_{n+(i-1)/m} \\
-	+\eta^i
-	\left\{
-	\begin{array}{ll}
-		%g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
-          g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{{n-1+(i_{\max}-1})/m}\right)\right] \text{ if } 1\leq i<m,\\
-		g_{n+1} \text{ if } i=m,
-	\end{array}
-	\right.
-	\label{RAGL_splitting}
-\end{multline}
-where:
-\begin{equation*}
-	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right).
-\end{equation*}
-The scheme is initialized at $n=0$ with:
-\begin{equation*}
-	y_{n+i/m} = y_0 + \eta^i \mathds{1}_{i=m} g_0 \text{ with } g_0 = F(y_0),
-\end{equation*}
-for all $i \in \{1,\dots,m\}$. 
-%The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
-The scheme \eqref{RAGL_splitting} is well-balanced since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
-%The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. 
-{The substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{\max}-1)/m}\right)$ enables to suppress exactly the
-part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations. It now only remains to choose a criterion in order to define the
-stiffest batch. We suggest: $i_{\max}$ as
-$$i_{\max} = \argmax_{j\in\{1,...,m\}} \|F_j(y_{n-1+(j-1)/m})\|.$$}
-This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
-
-
+\subsection{\newG{Example: application to Adam}}
+balbla
 \ \\
 
 In this section, we have highlighted the necessity of having resort to a balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
@@ -1458,6 +1428,139 @@ and
 	\end{tabular}
 	\label{ex8_example}
 \end{table}
+
+
+\section{Figures relative to the studies of section \ref{section_splitting_schemes}}
+%In this section, we gather the figures relative to the studies of section \ref{section_splitting_schemes} as we think it eases the readability of the paper. 
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/RRGD_ex1.pgf}}
+	\caption{Stationary distributions of RRGD for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
+	\label{RRGD_ex1}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/sgd_ex2.pgf}}
+	\caption{Stationary distributions of SGD for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
+	\label{sgd_ex2}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/RRGD_ex2.pgf}}
+	\caption{Stationary distributions of RRGD for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
+	\label{RRGD_ex2}
+\end{figure}
+
+
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/IG_ex1.pgf}}
+	\caption{Stationary distributions of IG for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$.}
+	\label{IG_ex1}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/IG_ex2.pgf}}
+	\caption{Stationary distributions of IG for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green straight line represents the position of the global minimum of $\R$ and the blue one the position of the local minimum.}
+	\label{IG_ex2}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/Strang_ex1.pgf}}
+	\caption{Stationary distributions of the Strang splitting for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical straight line represents the position of the global minimum of $\R$.}
+	\label{Strang_ex1}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/Strang_ex2.pgf}}
+	\caption{Stationary distributions of the Strang splitting for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
+	\label{Strang_ex2}
+\end{figure} 
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/Speth_ex1.pgf}}
+	\caption{Stationary distributions of the Speth splitting for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum of $\R$.}
+	\label{speth_ex1}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/Speth_ex2.pgf}}
+	\caption{Stationary distributions of the Speth splitting for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
+	\label{speth_ex2}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/IAG_ex1.pgf}}
+	\caption{Stationary distributions of \eqref{RAG_2batch} for different learning rates on \exOne: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum of $\R$.}
+	\label{IAG_ex1}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/IAG_ex2.pgf}}
+	\caption{Stationary distributions of \eqref{RAG_2batch} for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
+	\label{IAG_ex2}
+\end{figure}
+
+\section{\newG{Pseudo-code of the algorithms of sections \ref{extendedSpeth} and \ref{red_mem}}}
+\label{pseudo_code}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwIn{gPC coefficients \texttt{coeffs}, multi-indices \texttt{indices}}
+\KwOut{First-order and total Sobol indices: \texttt{S\_i}, \texttt{S\_Ti}}
+
+Compute total variance: 
+\[
+\texttt{total\_var} = \sum_{\boldsymbol{\alpha} \neq \mathbf{0}} c_{\boldsymbol{\alpha}}^2
+\]
+
+\ForEach{input variable $i$}{
+    $A_i \gets$ indices where $\alpha_i \neq 0$ and all other $\alpha_j = 0$\;
+    $T_i \gets$ indices where $\alpha_i \neq 0$\;
+
+    $S_i[i] \gets \frac{1}{\texttt{total\_var}} \sum_{\boldsymbol{\alpha} \in A_i} c_{\boldsymbol{\alpha}}^2$\;
+    $S_{T_i}[i] \gets \frac{1}{\texttt{total\_var}} \sum_{\boldsymbol{\alpha} \in T_i} c_{\boldsymbol{\alpha}}^2$\;
+}
+\Return{$S_i$, $S_{T_i}$}\;
+\caption{Sobol Indices from gPC Coefficients}
+\label{algo_speth}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwIn{gPC coefficients \texttt{coeffs}, multi-indices \texttt{indices}}
+\KwOut{First-order and total Sobol indices: \texttt{S\_i}, \texttt{S\_Ti}}
+
+Compute total variance: 
+\[
+\texttt{total\_var} = \sum_{\boldsymbol{\alpha} \neq \mathbf{0}} c_{\boldsymbol{\alpha}}^2
+\]
+
+\ForEach{input variable $i$}{
+    $A_i \gets$ indices where $\alpha_i \neq 0$ and all other $\alpha_j = 0$\;
+    $T_i \gets$ indices where $\alpha_i \neq 0$\;
+
+    $S_i[i] \gets \frac{1}{\texttt{total\_var}} \sum_{\boldsymbol{\alpha} \in A_i} c_{\boldsymbol{\alpha}}^2$\;
+    $S_{T_i}[i] \gets \frac{1}{\texttt{total\_var}} \sum_{\boldsymbol{\alpha} \in T_i} c_{\boldsymbol{\alpha}}^2$\;
+}
+\Return{$S_i$, $S_{T_i}$}\;
+\caption{Sobol Indices from gPC Coefficients}
+\label{algo_red_mem}
+\end{algorithm}
+
+\section{\newG{Proof of theorem \ref{th}}}
+\label{proof}
 
 %\section{Classical algorithms}
 %\label{annexe_adam}

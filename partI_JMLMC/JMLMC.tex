@@ -588,7 +588,7 @@ for all $i \in \{1,\dots,m\}$ and $n\geq 1$.
 ~~\\
 Now, the issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Therefore, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
 %The previous algorithm has been described as if all the batches were in memory. 
-The main ingredient of the previous algorithm consists in using an aggregator which is consistent with the full batch gradient.
+The main ingredient of the previous algorithm consists in using an aggregator which \newG{is {\em consistent if not equal} with the full batch gradient}.
 The memory cost question hence resumes to being able to build a lighter but still consistent aggregator.
 It seems natural that the main source of inaccuracy of the aggregator comes from the stiffest batch. 
 With this in mind, we suggest the following modification of \eqref{RAG_scheme}, for $n\geq 1$:
@@ -619,9 +619,14 @@ The scheme \eqref{RAGL_splitting} is well-balanced since $g_n$ asymptotically ap
 {The substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{\text{pivot}}-1)/m}\right)$ enables to suppress exactly the
 part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations. It now only remains to choose a criterion in order to define the
 stiffest batch. We suggest: $i_{\text{pivot}}$ as
-$$i_{\text{pivot}} = \argmax_{j\in\{1,...,m\}} \|F_j(y_{n-1+(j-1)/m})\|.$$}
+$$i_{\text{pivot}} = \argmax_{j\in\{1,...,m\}} \|\nR_j(y_{n-1+(j-1)/m})\|.$$}
 This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
 \newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_red_mem}.}
+
+\begin{remark}
+  \newG{  Note that if discussions about memory consumption are relevant, the cost per batch, the additional operations needed to apply updates \eqref{RAG_scheme} and
+  \eqref{RAGL_splitting} are not costly. This will be verified later on in the numerical section \ref{num_res}.} 
+\end{remark}
 
 \subsection{\newG{Theoretical property}}
 \label{th_prop}
@@ -629,29 +634,29 @@ This formula can be implemented with a reasonable memory cost of $3N$ instead of
 The previous construction allows stating the following theorem.
 \begin{theorem}
 \label{th}
-Consider the flow of a given optimizer
+  Consider the flow of a given (full batch) optimizer
 $
 \dot{y}(t) = F(y(t)).
 $
-Assume 
+Assume
 \begin{enumerate}
-\item the flow is such that 
+\item  that the flow is such that 
 $
 F(y)=0 \Longrightarrow \nR(y)=0,
 $
-\item we identified $m$ operators $(F_i)_{i\in\{1,..,m\}}$
-such that $F=\sum_{i=1}^m F_i \newG{+\mathcal{O}(\eta)}$. 
-\item If $(y_n)_{n\in\mathbb{N}}$ following the updates described in sections \ref{extendedSpeth}--\ref{red_mem} with operators $(F_i)_{i\in\{1,..,m\}}$ converges toward $y_\infty$, then $y_\infty$ is a critical points of $F$ (the full batch). 
+\item that $m$ operators $(F_i)_{i\in\{1,..,m\}}$
+such that $F=\sum_{i=1}^m F_i \newG{+\mathcal{O}(\eta)}$ have been chosen, 
+\item that the updates $(y_n)_{n\in\mathbb{N}}$ obtained {\em via} expressions \eqref{RAG_scheme} or \eqref{RAGL_splitting}  converges toward $y_\infty$,
 \end{enumerate}
+ then $y_\infty$ is a critical points of $F$. 
 \end{theorem}
 The proofs can be found in \ref{proof}.\\
 
 Several remarks can be made regarding the theorem above:
-
-First, if convergence occurs in the mini-batch setting, it is toward a critical point of the full-batch objective $F$, and this is achieved {\em without relying on the interpolation condition}.
-
-Second, the choice of the underlying optimizer used in the splitting is crucial. If {\em Condition 1} is not satisfied (i.e., the full-batch optimizer does not lead to a critical point of $\R$), then its mini-batch variant cannot be expected to do so either.
-
+first, if convergence occurs in the mini-batch setting, it is toward a critical point of the full-batch objective $F$, and this is achieved {\em without relying on the
+interpolation condition}.\\
+Second, the choice of the underlying optimizer used in the splitting is crucial. If {\em Condition 1} is not satisfied (i.e., the full-batch optimizer does not lead to a critical
+point of $\R$), then its mini-batch variant cannot be expected to do so either.\\
 Finally, {\em Condition 2}, which concerns the sub-operators in the splitting, is not particularly restrictive. Given a full-batch optimizer, multiple splitting schemes can be devised due to the non-uniqueness of the sum decomposition. Some of these schemes may be more practical or effective than others - see Section~\ref{adam} for an illustrative example.
 
 \subsection{Stopping criterion}
@@ -759,7 +764,15 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
 
 \subsection{\newG{Example: application to Adam}}
 \label{adam}
-balbla
+The flow for Adam is given by 
+\begin{eqnarray}
+  \label{Flow_adam}
+  \dot{y} = F(y) \Longleftrightarrow  \left\{\begin{array}{l}
+    \dot{\theta}= \\
+    \dot{v}= \\
+    \dot{s}= \\
+  \end{array}\right.
+\end{eqnarray}
 \ \\
 
 In this section, we have highlighted the necessity of having resort to a balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
@@ -1617,14 +1630,16 @@ $\mathcal{L}\leftarrow$ Loss \;
 $Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
 SumAgg \gets 0 \;
 %$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
-$L[\;]\gets 0$ (stiffness evaluation, one entry per batch)\;
+$L\gets 0$ (stiffness evaluation, one entry per batch)\;
 $\theta_{\text{pivot}} = \theta$ \;
 
 \BlankLine
-\For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
+\For{$\texttt{epochs}\gets 0$ \KwTo \texttt{max\_epochs}}{
     \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
     $\,\text{loss}_{epochs}\gets 0 \;$\;
-   
+    \If{\texttt{epochs}==0}{
+      \eta = 0\;
+    }
  
     \ForEach{batch index $b$}{
         Extract mini‑batch $(x_b,y_b)$\;
@@ -1632,19 +1647,14 @@ $\theta_{\text{pivot}} = \theta$ \;
         $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
         Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$\;
         Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
-        \tcc{remove previous contribution for this batch}
-        $Agg \leftarrow Agg - F_b(y,g_\text{pivot})$\;  
-        \tcc{Update the gradient table}
-        $Grad\_tab[b]\leftarrow g_b$\;
-        \tcc{Update the sum over the batches}
-        SumAgg \gets SumAgg + Grad\_tab[g]
-        \tcc{Update aggregator}
-        $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$\;
-        \tcc{Update the pivot weights} 
-        \If{$L[b] < \|g_b\|$}{
-           $\theta_\text{pivot} = \theta$
+        $Agg \leftarrow Agg - F_b(y,g_\text{pivot})$ \tcc*{remove prev. contrib. }
+        $Grad\_tab[b]\leftarrow g_b$ \tcc*{Update the gradient table}
+        SumAgg \gets SumAgg + Grad\_tab[g]  \tcc*{Update $g_n$}
+        $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$ \tcc*{Update aggregator}
+        \If{$L < \|g_b\|$}{ 
+           $\theta_\text{pivot} = \theta$\tcc*{Update the pivot weights}
 
-           $L[b] =  \|g_b\|$
+           $L =  \|g_b\|$
         }
         \If{b==number\_of\_batch}{
            Agg = SumAgg
@@ -1671,6 +1681,30 @@ Compute $\text{acc}_{\text{test}}$\;
 
 \section{\newG{Proof of theorem \ref{th}}}
 \label{proof}
+
+Assume $(F_i)_{i\in\{1,...,m\}}$ as in theorem \ref{th} and consider first update \eqref{RAG_scheme} recalled here: 
+\begin{equation}
+  y_{n+i/m} = y_{n+(i-1)/m}+\eta \left(\sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right)\right).
+\end{equation}
+Assume furthermore that $(y_n)_{n\in\mathbb{N}}$ converges toward $y_\infty$. 
+Then we have 
+\begin{equation}
+  0= \eta \left(\sum_{j=1}^i F_j\left(y_{\infty}\right)+\sum_{j=i+1}^m F_j\left(y_{\infty}\right)\right) = \eta \sum_{j=1}^m F_j(y_\infty) = \eta F(y_\infty),
+\end{equation}
+leading to $F(y_\infty) = 0$ as soon as $\eta\neq 0$. 
+The property of the full batch optimizer (condition 1 of theorem \ref{th}) allows to conclude. \\ \ \\
+
+Assume once again that $(F_i)_{i\in\{1,...,m\}}$ are as in theorem \ref{th} and consider update \eqref{RAGL_splitting} recalled here: 
+\begin{equation}
+  y_{n+i/m} = y_{n+(i-1)/m}+\eta \left(g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{{n-1+(i_{\text{pivot}}-1})/m}\right)\right]\right).
+\end{equation}
+Assume furthermore that $(y_n)_{n\in\mathbb{N}}$ converges toward $y_\infty$. 
+Then we have 
+\begin{equation}
+  0= \eta \left(g_\infty+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{\infty}\right)-F_j\left(y_{\infty}\right)\right] \right) = \eta \left(\sum_{j=1}^m F_j(y_\infty) +0\right)= \eta F(y_\infty),
+\end{equation}
+which ends the proof. 
+
 
 %\section{Classical algorithms}
 %\label{annexe_adam}

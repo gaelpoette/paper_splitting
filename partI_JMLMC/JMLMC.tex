@@ -626,7 +626,7 @@ This formula can be implemented with a reasonable memory cost of $3N$ instead of
 \subsection{\newG{Theoretical property}}
 \label{th_prop}
 
-The previous construction allows stating
+The previous construction allows stating the following theorem.
 \begin{theorem}
 \label{th}
 Consider the flow of a given optimizer
@@ -640,14 +640,19 @@ $
 F(y)=0 \Longrightarrow \nR(y)=0,
 $
 \item we identified $m$ operators $(F_i)_{i\in\{1,..,m\}}$
-such that $F=\sum_{i=1}^m F_i$. 
+such that $F=\sum_{i=1}^m F_i \newG{+\mathcal{O}(\eta)}$. 
 \item If $(y_n)_{n\in\mathbb{N}}$ following the updates described in sections \ref{extendedSpeth}--\ref{red_mem} with operators $(F_i)_{i\in\{1,..,m\}}$ converges toward $y_\infty$, then $y_\infty$ is a critical points of $F$ (the full batch). 
 \end{enumerate}
 \end{theorem}
 The proofs can be found in \ref{proof}.\\
 
-Several comments can be made on the above theorem. First, we never rely on the interpolation condition. 
-Optimizer is crucial, see condition $1$. Non unicity of the sum decomposition: some may be more or less usable in practice, see sections \ref{mom} and \ref{adam}.   
+Several remarks can be made regarding the theorem above:
+
+First, if convergence occurs in the mini-batch setting, it is toward a critical point of the full-batch objective $F$, and this is achieved {\em without relying on the interpolation condition}.
+
+Second, the choice of the underlying optimizer used in the splitting is crucial. If {\em Condition 1} is not satisfied (i.e., the full-batch optimizer does not lead to a critical point of $\R$), then its mini-batch variant cannot be expected to do so either.
+
+Finally, {\em Condition 2}, which concerns the sub-operators in the splitting, is not particularly restrictive. Given a full-batch optimizer, multiple splitting schemes can be devised due to the non-uniqueness of the sum decomposition. Some of these schemes may be more practical or effective than others - see Section~\ref{adam} for an illustrative example.
 
 \subsection{Stopping criterion}
 ~~\\
@@ -685,6 +690,7 @@ The initialization of the scheme ($n=0$) can be done in two ways:
 
 
 \subsection{Example: application to Momentum}
+\label{mom}
 ~~\\
 The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG without random permutation) if memory reduction is not taken into account. % and RR-SARAH (without random permutation) otherwise. 
 	The splitting scheme we suggest in this paper can be applied to any differential equation $y'(t)=F(y(t))$. For example in the case of the Momentum/Heavy-Ball equation \cite{momentum_sutskever_RNN,Polyak,polyak_momentum_stability,continuous_general} a natural decomposition of the vector field is given by:
@@ -752,6 +758,7 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
         splitting. 
 
 \subsection{\newG{Example: application to Adam}}
+\label{adam}
 balbla
 \ \\
 
@@ -1512,52 +1519,149 @@ and
 	\label{IAG_ex2}
 \end{figure}
 
+\clearpage
+
 \section{\newG{Pseudo-code of the algorithms of sections \ref{extendedSpeth} and \ref{red_mem}}}
 \label{pseudo_code}
 
+
 \begin{algorithm}[H]
+\DontPrintSemicolon
 \SetAlgoLined
-\KwIn{gPC coefficients \texttt{coeffs}, multi-indices \texttt{indices}}
-\KwOut{First-order and total Sobol indices: \texttt{S\_i}, \texttt{S\_Ti}}
+\SetKwInput{KwInput}{Input}
+\SetKwInput{KwOutput}{Output}
+\KwInput{Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+         model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
+\KwOutput{Trained network parameters $\theta$, test accuracy}
 
-Compute total variance: 
-\[
-\texttt{total\_var} = \sum_{\boldsymbol{\alpha} \neq \mathbf{0}} c_{\boldsymbol{\alpha}}^2
-\]
+%\BlankLine
+%\tcc{Model definition}
+%$\theta \gets$ \{Flatten$(28\times28)$, Dense$(128,\text{ReLU})$, Dense$(10,\text{softmax})$\}\;
 
-\ForEach{input variable $i$}{
-    $A_i \gets$ indices where $\alpha_i \neq 0$ and all other $\alpha_j = 0$\;
-    $T_i \gets$ indices where $\alpha_i \neq 0$\;
+\BlankLine
+\tcc{Initialise loss, network, aggregator, gradient table}
+$\mathcal{L}\leftarrow$ Loss \;
+$f(\theta, \cdot)$ \;
+%$\text{opt}\leftarrow$ SGD$(\eta)$\;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v,...)^t$ depending on the used optimiser)\;
+$Grad\_tab[\;]\gets 0$ (gradient table, one entryusedr per batch)\;
 
-    $S_i[i] \gets \frac{1}{\texttt{total\_var}} \sum_{\boldsymbol{\alpha} \in A_i} c_{\boldsymbol{\alpha}}^2$\;
-    $S_{T_i}[i] \gets \frac{1}{\texttt{total\_var}} \sum_{\boldsymbol{\alpha} \in T_i} c_{\boldsymbol{\alpha}}^2$\;
+\BlankLine
+\For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
+    \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
+    $\,\text{loss}_{epochs}\gets 0 \;$\;
+    
+    \ForEach{batch index $b$}{
+        Extract mini‑batch $(x_b,y_b)$\;
+        Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
+        $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
+        Back‑propagate gradients: $g_b\leftarrow\nabla_\theta \ell_b$\;
+        \tcc{remove previous contribution for this batch}
+        $Agg \leftarrow Agg - F_b(y,Grad\_tab[b])$\;  
+        \tcc{Update the gradient table}
+        $Grad\_tab[b]\leftarrow g_b$\;
+        \tcc{Update aggregator}
+        $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$\;
+        
+        \tcc{Optimiser step with aggregated gradient}
+        $y \leftarrow y - \eta F_b(y,\,Agg)$\;
+    }
+    
+    Compute aggregator norm $\,\|Grad\_tab\|$\;
+    \If{$\|Grad\_tab\| < \varepsilon$}{
+        \textbf{break}\;  \tcc{converged}
+    }
 }
-\Return{$S_i$, $S_{T_i}$}\;
-\caption{Sobol Indices from gPC Coefficients}
+
+\BlankLine
+\tcc{Evaluation}
+Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
+Compute $\text{acc}_{\text{test}}$\;
+
+\Return{$\theta,\,\text{acc}_{\text{test}}$}
+\caption{Pseudo-code for the extended-Speth splitting procedure (see section \ref{extendedSpeth}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)$.}
 \label{algo_speth}
 \end{algorithm}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \begin{algorithm}[H]
+\DontPrintSemicolon
 \SetAlgoLined
-\KwIn{gPC coefficients \texttt{coeffs}, multi-indices \texttt{indices}}
-\KwOut{First-order and total Sobol indices: \texttt{S\_i}, \texttt{S\_Ti}}
+\SetKwInput{KwInput}{Input}
+\SetKwInput{KwOutput}{Output}
+\KwInput{Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+         model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
+\KwOutput{Trained network parameters $\theta$, test accuracy}
 
-Compute total variance: 
-\[
-\texttt{total\_var} = \sum_{\boldsymbol{\alpha} \neq \mathbf{0}} c_{\boldsymbol{\alpha}}^2
-\]
+%\BlankLine
+%\tcc{Model definition}
+%$\theta \gets$ \{Flatten$(28\times28)$, Dense$(128,\text{ReLU})$, Dense$(10,\text{softmax})$\}\;
 
-\ForEach{input variable $i$}{
-    $A_i \gets$ indices where $\alpha_i \neq 0$ and all other $\alpha_j = 0$\;
-    $T_i \gets$ indices where $\alpha_i \neq 0$\;
+\BlankLine
+\tcc{Initialise loss, network, aggregator, grad. table, pivot }
+$\mathcal{L}\leftarrow$ Loss \;
+$f(\theta, \cdot)$ \;
+%$\text{opt}\leftarrow$ SGD$(\eta)$\;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
+%$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
+$L[\;]\gets 0$ (stiffness evaluation, one entry per batch)\;
+$\theta_{\max} = \theta$ \;
 
-    $S_i[i] \gets \frac{1}{\texttt{total\_var}} \sum_{\boldsymbol{\alpha} \in A_i} c_{\boldsymbol{\alpha}}^2$\;
-    $S_{T_i}[i] \gets \frac{1}{\texttt{total\_var}} \sum_{\boldsymbol{\alpha} \in T_i} c_{\boldsymbol{\alpha}}^2$\;
+\BlankLine
+\For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
+    \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
+    $\,\text{loss}_{epochs}\gets 0 \;$\;
+   
+    SumAgg \gets 0
+ 
+    \ForEach{batch index $b$}{
+        Extract mini‑batch $(x_b,y_b)$\;
+        Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
+        $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
+        Back‑propagate gradients at pivot   location: $g_\max\leftarrow\nabla_{\theta} \ell_b(\theta_\max)$\;
+        Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
+        \tcc{remove previous contribution for this batch}
+        $Agg \leftarrow Agg - F_b(y,g\_\max)$\;  
+        \tcc{Update the gradient table}
+        $Grad\_tab[b]\leftarrow g_b$\;
+        \tcc{Update aggregator}
+        $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$\;
+        \tcc{Update the pivot weights} 
+        \If{$L[b] < \|g_b|$}{
+           $\theta_\max = \theta$
+        }
+        \tcc{Optimiser step with aggregated gradient}
+        $y=(\theta,v) \leftarrow y(\theta,v) - \eta F_b(y,\,Agg)$\;
+    }
+    
+    Compute aggregator norm $\,\|Grad\_tab\|$\;
+    \If{$\|Grad\_tab\| < \varepsilon$}{
+        \textbf{break}\;  \tcc{converged}
+    }
 }
-\Return{$S_i$, $S_{T_i}$}\;
-\caption{Sobol Indices from gPC Coefficients}
+\BlankLine
+\tcc{Evaluation}
+Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
+Compute $\text{acc}_{\text{test}}$\;
+
+\Return{$\theta,\,\text{acc}_{\text{test}}$}
+\caption{Pseudo-code for the extended-Speth splitting procedure {\em with memory reduction} (see section \ref{red_mem}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)$.}
 \label{algo_red_mem}
 \end{algorithm}
+
 
 \section{\newG{Proof of theorem \ref{th}}}
 \label{proof}

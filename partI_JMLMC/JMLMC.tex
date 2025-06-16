@@ -598,7 +598,7 @@ With this in mind, we suggest the following modification of \eqref{RAG_scheme}, 
 	\left\{
 	\begin{array}{ll}
 		%g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
-          g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{{n-1+(i_{\max}-1})/m}\right)\right] \text{ if } 1\leq i<m,\\
+          g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{{n-1+(i_{\text{pivot}}-1})/m}\right)\right] \text{ if } 1\leq i<m,\\
 		g_{n+1} \text{ if } i=m,
 	\end{array}
 	\right.
@@ -616,10 +616,10 @@ for all $i \in \{1,\dots,m\}$.
 %The full-batch gradient is \textbf{only computed at the first epoch} sequentially (sum). 
 The scheme \eqref{RAGL_splitting} is well-balanced since $g_n$ asymptotically approximates $F$ while the perturbation (the sum until $i$) tends to 0 in the long run. \\
 %The formula \eqref{RAGL_splitting} with $F_i=-\nR_i$ corresponds to the RR-SARAH \cite{RR_SARAH} update for $i\leq m-1$. 
-{The substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{\max}-1)/m}\right)$ enables to suppress exactly the
+{The substraction of $F_j$ evaluated at the point of epoch $n$, corresponding to the stiffest batch $F_j\left(y_{n-1+(i_{\text{pivot}}-1)/m}\right)$ enables to suppress exactly the
 part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations. It now only remains to choose a criterion in order to define the
-stiffest batch. We suggest: $i_{\max}$ as
-$$i_{\max} = \argmax_{j\in\{1,...,m\}} \|F_j(y_{n-1+(j-1)/m})\|.$$}
+stiffest batch. We suggest: $i_{\text{pivot}}$ as
+$$i_{\text{pivot}} = \argmax_{j\in\{1,...,m\}} \|F_j(y_{n-1+(j-1)/m})\|.$$}
 This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
 \newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_red_mem}.}
 
@@ -1613,12 +1613,11 @@ Compute $\text{acc}_{\text{test}}$\;
 \BlankLine
 \tcc{Initialise loss, network, aggregator, grad. table, pivot }
 $\mathcal{L}\leftarrow$ Loss \;
-$f(\theta, \cdot)$ \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
 $Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
 %$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 $L[\;]\gets 0$ (stiffness evaluation, one entry per batch)\;
-$\theta_{\max} = \theta$ \;
+$\theta_{\text{pivot}} = \theta$ \;
 
 \BlankLine
 \For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
@@ -1631,17 +1630,24 @@ $\theta_{\max} = \theta$ \;
         Extract mini‑batch $(x_b,y_b)$\;
         Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
         $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
-        Back‑propagate gradients at pivot   location: $g_\max\leftarrow\nabla_{\theta} \ell_b(\theta_\max)$\;
+        Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$\;
         Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
         \tcc{remove previous contribution for this batch}
-        $Agg \leftarrow Agg - F_b(y,g\_\max)$\;  
+        $Agg \leftarrow Agg - F_b(y,g_\text{pivot})$\;  
         \tcc{Update the gradient table}
         $Grad\_tab[b]\leftarrow g_b$\;
+        \tcc{Update the sum over the batches}
+        SumAgg \gets SumAgg + Grad\_tab[g]
         \tcc{Update aggregator}
         $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$\;
         \tcc{Update the pivot weights} 
-        \If{$L[b] < \|g_b|$}{
-           $\theta_\max = \theta$
+        \If{$L[b] < \|g_b\|$}{
+           $\theta_\text{pivot} = \theta$
+
+           $L[b] =  \|g_b\|$
+        }
+        \If{b==number\_of\_batch}{
+           Agg = SumAgg
         }
         \tcc{Optimiser step with aggregated gradient}
         $y=(\theta,v) \leftarrow y(\theta,v) - \eta F_b(y,\,Agg)$\;

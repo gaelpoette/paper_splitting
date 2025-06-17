@@ -103,7 +103,7 @@
         optimizers. 
         %Moreover, we exploit the notion of balanced splitting to explain such behavior.
         These behaviors are explained thanks to the interpretation of mini-batch optimizers as unbalanced operator splittings.
-        From this observation, a simple modification which balances them is proposed which leads to the construction of a new family of mini-batch optimizers based on classical ones.
+        \newG{Building on this observation, we propose a simple modification that balances the sub-flows. We show that the resulting mini-batch optimizers, if they converge, do so toward critical points of the full-batch cost function-without relying on the interpolation condition. The proposed balanced splitting not only enables the construction of a new family of mini-batch optimizers derived from classical ones, but also paves the way for designing novel full-batch optimizers.}
 }
 
 \keywords{Non-convex optimization, Mini-batch algorithms, Splitting schemes}
@@ -163,7 +163,10 @@ Hence, one of the main concern of this work will be to overcome the interpolatio
 
 \subsection{Random reshuffle gradient descent (RRGD)}
 ~~\\
-In practice, the reshuffled versions are prefered to classical ones \cite{RR_use1,RR_use2,RG_mean}. For example, the version of SGD with random reshuffling is called Random Reshuffle GD (RRGD) or SGD without replacement. It consists, at the beginning of every epoch, in sampling a random permutation and then to apply the $m$ updates \eqref{SGD} in the order given by the permutation. Empirically, it seems that RRGD converges faster than SGD and gives better performances \cite{RR_use1,RR_use_superior}. Many works \cite{RR_outperforms_quadratics,RR_use3,RR_outperforms_convex,RR_small_epochs} try to explain this superiority theoretically, especially for well-conditionned convex functions.
+In practice, the reshuffled versions are prefered to classical ones \cite{RR_use1,RR_use2,RG_mean}. For example, the version of SGD with random reshuffling is called Random
+Reshuffle GD (RRGD) or SGD without replacement. It consists, at the beginning of every epoch, in sampling a random permutation and then to apply the $m$ updates \eqref{SGD} in the
+order given by the permutation. Empirically, it seems that RRGD converges faster than SGD and gives better performances \cite{RR_use1,RR_use_superior}. Many works
+\cite{RR_outperforms_quadratics,RR_use3,RR_outperforms_convex,RR_small_epochs} try to \newG{theoretically explain this superiority}, especially for well-conditionned convex functions.
 
 \subsection{Variance reduction}  
 ~~\\
@@ -245,10 +248,13 @@ criteria}. \textcolor{blue}{In this paper, we focus on these five first points a
 The main contributions of this work are as follows:
 \begin{itemize}
     \item  We introduce a new operator-splitting perspective that helps explain several optimization pathologies.
-    \item   We develop a balanced update rule that aligns the fixed points of each sub-flow, eliminating the mismatch observed with standard methods. This framework provides, by
-      construction, guarantees on the critical points obtained in a mini-batch setting. Some existing mini-batch optimizers (IAG, ???) can be considered particular cases of our
+    \item  We develop a balanced update rule that aligns the fixed points of each sub-flow, eliminating the mismatch observed with standard methods. This framework provides, by
+      construction, guarantees on the critical points obtained in a mini-batch setting. Some existing mini-batch optimizers can be considered particular cases of our
       framework. It also enables the design of new full-batch optimizers.
-    \item   Carefully chosen one-dimensional toy problems show that the proposed method avoids spurious stationary distributions and converges to the true minima even in non-interpolatory, imbalanced scenarios.
+    \item 
+We prove that, without relying on the interpolation condition, the mini-batch optimizers we construct - if they do converge - converge to a critical point of the full-batch loss function.
+    \item   Carefully chosen one-dimensional toy problems show that the proposed method avoids spurious stationary distributions and converges to the true minima even in
+      non-interpolatory, imbalanced scenarios, constant learning rates context.
 \end{itemize}
 }
 
@@ -264,7 +270,7 @@ To reach such a construction, the paper is organized as follows:
           stationary distributions (and critical points) to an imbalance of the splitting. 
 	\item The construction of a balanced splitting gives birth to a new family of optimizer in section \ref{new_splitting}. This family extends the method developed by Speth \cite{rebalanced_splitting} for balancing convection-diffusion. It is shown to overcome the aforementioned issue and satisfies the first five criteria.
 \newG{This new family ensures, by construction, with minimal assumptions on the full batch optimizer it is based on, the convergence toward a critical point of the full batch, without resorting to the interpolation condition. }
-	\item In section \ref{num_res}, the newly developed methods are tested on analytical benchmarks. 
+	\item In section \ref{num_res}, the newly developed methods are tested on several benchmarks. 
 \end{itemize}
 The balanced strategy developed here serves as an excellent starting point for the adaptive extension (sixth criterion) which will be discussed in further publications. 
 %Let us emphasize the fact that only the final (adaptive) algorithms are tested on classical ML tasks in part II. In this part, numerical experiments are mainly meant to explain the behavior of the methods described therein.
@@ -273,7 +279,8 @@ The balanced strategy developed here serves as an excellent starting point for t
 \label{section_stationary}
 
 The aim of this section is to empirically investigate the stationary distributions of the neural network weights obtained with SGD and RRGD with constant learning rate. 
-We expect their supports to be "centered" around the minimums of $\R$. We will see that it is far from always being the case in the non-interpolating case. 
+We expect their supports to be "centered" around the minimums of $\R$. 
+\newG{As we will demonstrate, this property frequently fails to hold in non-interpolating regimes.}
 
 \subsection{Beyond the interpolation condition}
 \label{subsection_beyond_interpolation}
@@ -340,9 +347,13 @@ The figures
 \subsection{Comments}
 ~~\\
 On the graphs a) and c) of figure \ref{sgd_ex1} a Dirac comb appears with a lot of stationary states spaced between the minimum $\theta=0$ of $\R_1$ and $\theta=0.5$ of $\R_2$. In
-other words, several stationary states have nothing to do with the minimums of the $\R_i$ or $\R$. By decreasing the learning rate (graphs b) and d)), we get closer to a gaussian
-distribution but it is not really centered on the global minimum. For RRGD, the behavior is completely different, see figure \ref{RRGD_ex1}. When the learning rate decreases, the distribution gets closer to a Dirac centered at the global minimum but for intermediary learning rates (graphs a) and b)) the second Dirac is located at the minimum of $\R_2$, that is to say $\theta=0.5$. It is true that the behavior of RRGD is less troubling than the one of SGD but it is still problematic because the convergence (existence of a stationary distribution) does not imply to find a minimum of $\R$. \\
-Concerning \exTwo (figure \ref{sgd_ex2}), for any learning rate, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. Unfortunately, it seems that SGD favors interpolating minimums without taking into account their quality even for learning rates sufficiently small. Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not neglected even for an intermediary value of the learning rate (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
+other words, several stationary states have nothing to do with the minimums of the $\R_i$ or $\R$. 
+\newG{By reducing the learning rate (see graphs b) and d)), the distribution becomes more Gaussian-like, but it remains noticeably off-centered from the global minimum.}
+ For RRGD, the behavior is completely different, see figure \ref{RRGD_ex1}. When the learning rate decreases, the distribution gets closer to a Dirac centered at the global
+ minimum. But for intermediary learning rates (graphs a) and b)) the second Dirac is located at the minimum of $\R_2$, that is to say $\theta=0.5$. It is true that the behavior of RRGD is less troubling than the one of SGD but it is still problematic because the convergence (existence of a stationary distribution) does not imply to find a minimum of $\R$. \\
+Concerning \exTwo (figure \ref{sgd_ex2}), for any learning rate, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. 
+\newG{Unfortunately, SGD appears to favor interpolating minima regardless of their quality, even when the learning rate is sufficiently small.}
+Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not \newG{overlooked} even for an intermediary value of the learning rate (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
 Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the gaussian-like distribution is not well-centered (\exOne) or interpolating
 local minimum are largely favored.
 
@@ -357,7 +368,7 @@ The goal of this section is to explain the previous behaviors of SGD and RRGD an
 
 \newG{In the literature, the behavior of SGD is typically analyzed by interpreting it as a discretization of a stochastic differential equation driven by Brownian motion}
  \cite{SDE_comparison,SDE_modified,SDE_edp,malladi_adam,hu2018diffusion,flat_minima_exponential,yang2020fast,sgd_implicit_regularisation,sgd_implicit_regularisation2}. 
-\newG{In contrast, we adopt a different perspective: we interpret RRGD—specifically, its deterministic variant—as a particular discretization of the classical gradient flow}
+\newG{In contrast, we adopt a different perspective: we interpret RRGD - specifically, its deterministic variant - as a particular discretization of the classical gradient flow}
 $\theta'(t)=-\nR(\theta(t))$, using an operator splitting approach. Let us remember the principle on the following Cauchy problem:
 \begin{equation}
 	\left\{
@@ -382,7 +393,8 @@ can be solved exactly (to make it simpler)  with solution $\phi_{\eta}^i(y_0)$ a
 	\chi_{\eta} = \phi_{\eta}^m \circ \dots \phi_{\eta}^2 \circ \phi_{\eta}^1.
 	\label{splitting_lie_trotter}
 \end{equation} 
-Then the integrator $\chi$ satisfies $\chi_{\eta}(y_0) = \phi_{\eta}(y_0) + \mathcal{O}(\eta^2)$. In other words, $\chi_{\eta}$ is an order one approximation of $\phi_{\eta}$, the solution of \eqref{Cauchy_problem}. A splitting method is then made up of:
+Then the integrator $\chi$ satisfies $\chi_{\eta}(y_0) = \phi_{\eta}(y_0) + \mathcal{O}(\eta^2)$. In other words, $\chi_{\eta}$ is an order one approximation of $\phi_{\eta}$, the
+solution of \eqref{Cauchy_problem}. A splitting method then \newG{consists of}:
 \begin{itemize}
 	\item the choice of operators $F_i$: in the resolution of an ODE or a PDE, they often represent the different scales or stiffnesses of a physical phenomenon (for example convection-diffusion). In our case, this choice is imposed by the decomposition of the dataset into $m$ batches. 
           These batches may be strongly unbalanced. We do not make any assumptions on how well balanced or not they might be.
@@ -791,7 +803,7 @@ F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
   \end{array}\right).
 \end{eqnarray}
 As such $\sum_{b=1}^m F_b=F$. But in the last line, the full batch gradient is necessary, due to operator $\otimes 2$. 
-In a sense, this splitting, fulfilling the conditions of theorem \ref{th}, is not usable in practice (see the 6 points in section \ref{obj}) as it will need a full-batch gradient evaluation. 
+In a sense, this splitting, fulfilling the conditions of theorem \ref{th}, is not usable in practice (see point 3 in section \ref{obj}) as it will need a full-batch gradient evaluation. 
 
 Another possibility would be, here with $m=2$ batches because it is enough for the sake of understanding, to choose: 
 \begin{eqnarray}
@@ -1652,7 +1664,7 @@ Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
 Compute $\text{acc}_{\text{test}}$\;
 
 \Return{$\theta,\,\text{acc}_{\text{test}}$}
-\caption{Pseudo-code for the extended-Speth splitting procedure (see section \ref{extendedSpeth}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)$.}
+  \caption{Pseudo-code for the extended-Speth splitting procedure (see section \ref{extendedSpeth}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)=\sum_{i=1}^m F_i(y)$.}
 \label{algo_speth}
 \end{algorithm}
 
@@ -1734,7 +1746,7 @@ Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
 Compute $\text{acc}_{\text{test}}$\;
 
 \Return{$\theta,\,\text{acc}_{\text{test}}$}
-\caption{Pseudo-code for the extended-Speth splitting procedure {\em with memory reduction} (see section \ref{red_mem}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)$.}
+\caption{Pseudo-code for the extended-Speth splitting procedure {\em with memory reduction} (see section \ref{red_mem}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)=\sum_{i=1}^m F_i(y)$.}
 \label{algo_red_mem}
 \end{algorithm}
 

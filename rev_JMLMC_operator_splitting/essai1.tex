@@ -127,8 +127,7 @@
 \bigskip
 
 We would like to thank the referees for taking the time to carefully read the article. 
-We are happy that they found the results of the paper to be "promising", "insightful", "that it offers fresh perspectives explaining the origin of optimization pathologies" and that they can "generate interest in both the ML optimization and numerical analysis
-communities".  
+We are happy that they found the results of the paper to be promising and insightful and for their general interest.  
 We also thank the editor for giving us a second chance. 
 The document has been edited under consideration of the remarks made in all
 the reviews. The attached documents contain a version of the paper where all changes are highlighted
@@ -139,13 +138,16 @@ In the following paragraphs, we first group together the reviewers' common reque
 \ \\
 In the following paragraphs are our answers to the reviewers' questions and comments. The reviewers' comments are recalled in \textit{italic} while our answers follow. \\ \ \\ 
 
+\textcolor{blue}{Vérifier que toutes les figures et les tables soient bien citées, vérifier s'il reste des ? dans le papier et des TODO dans ce doc}\\
+
+
 \underline{Common points for all the reviewers} \\
 
 \begin{itemize}
   \item 
     We apologize for the numbering issue (e.g., 1.0.0.1), which resulted from an incompatibility between one of the LaTeX macros we used and the JMLMC template. This has now been corrected.
 
-  \item We also thoroughly reviewed the English (including issues such as "literature" and "split") and identified additional errors. We sincerely apologize for this - thank you for your patience (and please excuse our French).
+  \item We also thoroughly reviewed the English (including issues such as "literature", "split" and "frequence") and identified additional errors. We sincerely apologize for this - thank you for your patience.
   \item Two reviewers considered the paper somewhat long. Reviewer \#2 suggested moving certain redundant but necessary figures to the appendix, which we have done. However, the reviewers also requested additional empirical investigations. As a result, while we have reorganized some content, the overall length of the paper has not decreased. We hope this is acceptable.
 \end{itemize}
 \underline{Reviewer \#1}\\
@@ -157,29 +159,32 @@ is analyzed across various benchmarks to explain its behavior.}
 following reasons. First, the impact on the scientific community is unclear. The manuscript does not clearly state the scientific contribution of the proposed method. In the
 current form of presentation, the proposed modification appears to be a minor incremental improvement of the original work of Speth et al. [80]. }\\
 
-[TODO] 
-We regret that the reviewer found the scientific contribution of the manuscript unclear. In the revised version, we have made a stronger effort to highlight and clarify it (see revisions marked in blue).
+We regret that the reviewer found the scientific contribution of the manuscript unclear. In the revised version, we have made a stronger effort to highlight and clarify it (see
+revisions marked in blue). We now have a new paragraph, just after the objectives, which lists our contributions. 
 
-We respectfully disagree with the assessment that the paper offers only an incremental improvement over Speth {\it et al}'s work.
+Besides, we respectfully disagree with the assessment that the paper offers only an incremental improvement over Speth {\it et al}'s work.
 For instance, the aggregator $c_{n+1}$ (see (10)) is never explicitly computed in our algorithm.
+In our view, Speth's contribution remains under-recognized, not only by the machine learning optimization community but even within the numerical analysis community to
+which it was originally addressed: reviewer \#2 even finishes its report explaining that the "paper could generate interest in both the ML
+optimization and numerical analysis communities". We also think that the {\em extended} Speth splitting we suggest could be of value for more classical numerical analysis
+problems.\\  
 
-Furthermore, in our view, Speth's contribution remains under-recognized, not only by the machine learning optimization community but even within the numerical analysis community to which it was originally addressed.
-
-$+$ papier que Bilel nous a envoyé? Pour montrer notre bonne foi "RANDOMISED SPLITTING METHODS AND STOCHASTIC GRADIENT DESCENT"\\
 
 {\it Additionally, the validation study is limited to relatively simple benchmark problems, and a larger scale validation on real-world data and algorithms is missing, despite that the authors mention deep learning and the relevant practical concerns as the motivation for this work.}\\
 
 Our primary goal with this paper was to provide a pedagogical and convincing case for the need for balanced strategies. We believe this can only be achieved through a carefully
 constructed progression of simple yet meaningful test cases - an approach that naturally requires both time and space. We acknowledge that the paper is lengthy, a concern also
-raised by Reviewers \#2 and \#3, and we apologize if our intention was not sufficiently clear in the initial submission. We hope the revised version makes this clearer.\\ 
+raised by Reviewers \#2 and \#3, and we apologize if our intention was not sufficiently clear in the initial submission. We hope the revised version makes this clearer. \\ 
+
+
 
 {\it Second, the experiments presented in the paper do not appear to have a strong connection to real-world practice in modern data science and machine learning. Stochastic
 gradient descent in its basic form is rarely the choice for the training of real-world algorithms today. Many of the assumptions and the design of experiments appear to be too
 simplistic and idealized. Such disconnection may be due to the weak literature review of the relevant literature in the deep learning community.}\\
 
-[TODO] 
 We are somewhat puzzled by the comment regarding weak literature coverage. Once the importance of balancedness was identified, we intentionally explored works well beyond the core
 machine learning optimization literature (Speth {\it et al}'s paper is a good example). In fact, Reviewer \#2 noted that the literature review might even be too exhaustive for the scope of the paper.
+\textcolor{blue}{[TODO]} In the revised version, we added another recent paper entitled "Randomised splitting methods and stochastic gradient descent" to complete the bibliography. 
 
 On another hand, it is true that the original submission lacked multi-dimensional benchmarks. However, we stand by the use of one-dimensional examples, which - as acknowledged by Reviewers \#2 and
 \#3 - offer strong pedagogical value and allow for clear visual demonstrations of the importance of balancedness.
@@ -190,6 +195,8 @@ Gains are also obtained.
 Finally, we would like to reiterate that the one-dimensional setting revealed an undesirable behavior. While it is indeed challenging to prove whether this issue extends to higher
 dimensions, it is equally difficult to prove that it does not. We believe that documenting this behavior in 1D is a valuable contribution, as it raises an important concern for the
 machine learning optimization community and may inspire further investigation.\\
+
+
 
 {\it This reviewer also believes that the manuscript can benefit from thorough proofreading and English editing. Additionally, many of the discussions are presented in the form of
 bullet lists that lack a coherent flow of logic, making it harder to comprehend the message that the authors try to convey.} \\
@@ -218,14 +225,13 @@ A theoretical analysis-or at least empirical investigation-of this point would
 strengthen the paper and clarify the robustness of the method under realistic
     training conditions.} \\
 
-    [TODO]    
 Thank you for pointing out the possibility of formally characterizing the convergence properties of our approach. We're not sure why this was omitted from the initial version of the paper, but we have now added an explicit statement of the property, along with relevant commentary.
 This property do not need the interpolation condition, which, given our results, is certainly too restrictive. 
-In particular, we emphasize that this property naturally leads to the design of new (full-batch) optimization algorithms.
+    In particular, we emphasize that this property both naturally leads to new mini-batch optimizers and the design of new full-batch ones (see the section about Adam).
 
-    In the new version, we tested the extended Speth strategy with random reshuffle. 
-    We did not put the results in the first version of the paper because, as you will see in the revised version, they are redundant (for this reason, they are put in the
-    appendices) and we thought the use of deterministic mini-batch could ease the reproducibility of the results. But yes, as you will see, the correction term behaves quite well
+    In the new version, we test the extended Speth strategy with random reshuffle. 
+    The truth is, we did so before the submission but we did not put the results in the first version of the paper because, as you will see in the revised version, they are redundant (for this reason, they are put in the
+    appendices). Besides, we thought the use of deterministic mini-batch could ease the reproducibility of the results. But yes, as you will see, the correction term behaves quite well
     with the stochastic noise.  
     The question is now, at least, empirically investigated in the revised version. 
 
@@ -244,7 +250,9 @@ issues, or future plans to test on real-world tasks would help clarify the pract
     applicability of the approach.} \\
 
 
-    [TODO] Some benchmarks have been added, performance tests too. We hope they reach the reviewer's expectations.
+    [TODO] It is true the previous version of the paper focused on 1D problem and the reviewer definitely understood our illustrative intentions with them. 
+    In the revised version, we show that the method we suggest remains effective in high dimension. As suggested by reviewer \#3, comparisons are made on the MNIST benchmark. Note
+    that we added performance tests too (on all the previous benchmarks). 
 
   \item {\bf Minor Comments}
 
@@ -256,13 +264,16 @@ optimizers across multiple similar benchmark types. While they are useful
 for exhaustiveness, some of them might be moved to an appendix or
         summarized more concisely in the main text.} \\
 
-        [TODO] We moved the figures to the appendices while the comments on these figures remain in the corpse of the manuscript. We hope this is ok.\\
+        We moved the figures to the appendices while the comments on these figures remain in the corpse of the manuscript. 
+        For readability, we also increased the font sizes and the axis. We hope this is ok.\\
 
       \item [b.] {\it  For example, Figures 1-4 and 13-17 contain overlapping insights that could
 be summarized in fewer plots with aggregate comparisons or referenced
         from supplementary material.} \\
 
-        The new version should be close enough to what the reviewer suggests. 
+        The new version should be close enough to what the reviewer suggests. We insist we tried putting several results on the same plot but we think it does not help (on the
+        contrary) the readability. 
+
     \end{itemize}
   \item {\bf Potential to Improve Summary and Discussion:}
     \begin{itemize}
@@ -271,6 +282,9 @@ sections-particularly those reviewing existing optimizers and background-
 could improve readability. Streamlining parts of Sections 1.0.0.3 and 1.0.0.4,
 for instance, would help sharpen the focus on the core contributions and
         make the paper more accessible to the reader. }
+
+        While Reviewer \#2 suggested shortening the bibliography, Reviewer \#1 did not raise this concern, on the contrary. As a consequence, we regret that we were unable to
+        follow Reviewer \#2's previous recommendation; in fact, we have added a few additional references to strengthen the context of our contributions.
     \end{itemize}
 
   \item {\bf Other Comments}:
@@ -283,7 +297,8 @@ Typos have been corrected. \\
 without requiring full gradient evaluations, as this is particularly relevant for the
       machine learning community.} \\
 
-      [TODO] This is now done, in blue, in the revised version. \\
+  We made some changes in the presentation of the contributions of the paper (as also demanded by reviewer \#1), we hope the new presentation also corresponds to reviewer \#2's
+  remarks.\\
 
     \item {\it Please ensure the caption text in all figures is clear and that axis labels and legends
       are readable, particularly in the 1D plots.}\\
@@ -293,10 +308,7 @@ without requiring full gradient evaluations, as this is particularly relevant fo
     \item {\it The github link attached to the paper appears to be not available. Please fix this.}\\
 
       [TODO] {Sorry about that, it is a mistake. We changed the link. }\\
-  \end{itemize} \ \\
-
-  We made some changes in the presentation of the contributions of the paper (as also demanded by reviewer \#1), we hope the new presentation also corresponds to reviewer \#2's
-  remarks. 
+  \end{itemize} 
 
 \item {\bf Final thoughts:}:
   {\it The clarity of the operator splitting interpretation and the construction of the benchmarks
@@ -330,7 +342,7 @@ We thank the reviewer for identifying the strengths of the paper.\\
     It is true the first version of the paper lacked some theoretical properties. A property has been added in the revised version. 
     It is not exactly a convergence theorem but it does not need the interpolation condition, which given the numerical results, is certainly too restrictive. 
 
-    Note that some of our benchmarks already were We are already nonlinear, even non-convex.  But it is true they were 1D. 
+    Note that some of our benchmarks already were nonlinear, even non-convex.  But it is true they were 1D. 
     We did as reviewer \#3 suggested and added results on the MNIST benchmark. 
 
   \item {\it Experimental validation is limited entirely to simple 1D benchmarks; no results are shown for neural networks or practical datasets.}
@@ -341,22 +353,23 @@ if only for display reasons. But results on MNIST benchmark have been added, as 
 
   \item {\it Extension to adaptive optimizers like Adam is only briefly discussed and not analyzed in depth.}
 
-    [TODO] We added some detailed discussion on this point is the revised version. 
+    We added a full subsection about Adam together with some detailed discussion.  
 \end{itemize}
 
 {\bf Empirical Limitations}
 \begin{itemize}
   \item {\it Results do not include runtime, memory usage, or accuracy comparisons on realistic tasks (e.g., MNIST, CIFAR).}
 
-    Some new benchmarks have been added, we hope the reviewer consider them realistic tasks. Note that the first version of the paper already discussed complexity, which is closely related to memory usage. 
+    Some new benchmarks have been added, we hope the reviewer consider them realistic tasks. Note that the first version of the paper already discussed complexity, which is closely
+    related to memory usage. We also added the runtimes for all the considered benchmarks.  
 
   \item {\it No benchmarking against variance reduction methods that also operate outside the interpolation regime, such as STORM or RR-SARAH.}
 
-    \textcolor{blue}{Franchement je vois pas trop l'intérêt: ici, j'ai envie de faire jouer le fait que le papier est long, qu'on a déjà mis plein de trucs en plus}
+    \textcolor{blue}{[TODO] We regret that we did not have sufficient time to implement the STORM or RR-SARAH variance reduction methods. We hope this is acceptable, as we have made considerable efforts to address the reviewers¿ other suggestions and improve the manuscript.}
 
   \item {\it It is unclear how robust the learning rate and stopping criteria are across diverse problem settings.}
 
-    We hope this is now clearer with the freshly added more realistic benchmarks. 
+    [TODO]  We hope this is now clearer with the runtimes discussion and the freshly added more realistic benchmarks. 
 
 \end{itemize}
 
@@ -371,10 +384,10 @@ if only for display reasons. But results on MNIST benchmark have been added, as 
     sometimes hard. 
   \item {\it Many figures are hard to read due to missing or tiny axis labels and legends.}
 
-    [TODO] We changed the figures. 
+    We changed the figures. 
   \item {\it Equations occasionally omit definitions or proper notation.}
 
-    [TODO] 
+    
     We carefully reviewed the paper multiple times and, to the best of our knowledge, did not find any missing definitions or inconsistencies in the notation. We apologize if anything was unclear.
 
 Of course, we would be happy to clarify any definitions or notations if the reviewer can indicate the specific points of concern.
@@ -393,12 +406,13 @@ Of course, we would be happy to clarify any definitions or notations if the revi
 
   \item {\it Provide a formal (even local) convergence result for the balanced splitting scheme under reasonable assumptions.}
 
-    We added an important property in the revised version, which does not rely on the interpolation condition. It concerns the convergence toward critical points. 
+    We added an important property in the revised version, which does not rely on the interpolation condition. It concerns the convergence toward critical points of the newly built mini-batch
+    algorithms. 
 
   \item {\it Include clear pseudocode and computational cost analysis (both memory and FLOPs) for the proposed algorithm and its variants.}
 
-    [TODO] We added some pseudo codes and insist more on the memory implications of the complexity we already study on the first version. We also provided runtimes for comparisons
-    but these runtimes are often not very relevant as it is really hard comparing the imbalanced and balanced strategies with {\em equivalent} accuracies. 
+    We have added pseudo-code and expanded our discussion of the memory implications associated with the complexity already analyzed in the first version. These additions have been
+    placed in the appendices to address Reviewer \#2's concerns regarding the overall length of the paper.
 
   \item {\it Substantially revise the manuscript to correct grammar, improve figure quality, and ensure references are complete and properly formatted.}
 

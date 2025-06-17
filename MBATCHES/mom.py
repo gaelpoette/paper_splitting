@@ -267,10 +267,9 @@ def mom(x0,m,lr_init,eps,maxEpoch,typeR, num):
       x0 = x
       v0 = v
       epoch+=1
-    if epoch == maxEpoch:
-        print(str(num)+" max epoch reached")
+    #if epoch == maxEpoch:
+    #    print(str(num)+" max epoch reached")
     #print(num, x, epoch) 
-    print(num, x)
     return x, epoch
 
 #Dans nos examples, P=m
@@ -354,7 +353,7 @@ def speth_mom(x0,m,lr_init,eps,maxEpoch,typeR, num):
       gNorm=np.linalg.norm(g)
     if epoch == maxEpoch:
         print(str(num)+" max epoch reached")
-    print(num, x, epoch) 
+    #print(num, x, epoch) 
     return x, epoch
 
 
@@ -448,6 +447,9 @@ N=1
 nbPoints=1000
 nbParticules=10000
 lr_init=0.125
-eps=10**(-4); maxEpoch=20
+eps=10**(-4); 
+maxEpoch=2000
+#maxEpoch=20
+
 
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

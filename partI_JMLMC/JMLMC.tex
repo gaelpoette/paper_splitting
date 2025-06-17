@@ -639,8 +639,7 @@ This formula can be implemented with a reasonable memory cost of $3N$ instead of
 \newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_red_mem}.}
 
 \begin{remark}
-  \newG{  Note that if discussions about memory consumption are relevant, the cost per batch, the additional operations needed to apply updates \eqref{RAG_scheme} and
-  \eqref{RAGL_splitting} are not costly. This will be verified later on in the numerical section \ref{num_res}.} 
+  \newG{ While memory consumption is a relevant point of discussion, the per-batch computational cost of applying updates (11) and (13) remains low. This will be confirmed in the numerical experiments presented in Section \ref{num_res}.} 
 \end{remark}
 
 \subsection{\newG{Theoretical property}}
@@ -667,12 +666,12 @@ such that $F=\sum_{i=1}^m F_i \newG{+\mathcal{O}(\eta)}$ have been chosen,
 \end{theorem}
 The proofs can be found in \ref{proof}.\\
 
-Several remarks can be made regarding the theorem above:
+Several remarks can be made regarding theorem \ref{th}:
 first, if convergence occurs in the mini-batch setting, it is toward a critical point of the full-batch objective $F$, and this is achieved {\em without relying on the
 interpolation condition}.\\
-Second, the choice of the underlying optimizer used in the splitting is crucial. If {\em Condition 1} is not satisfied (i.e., the full-batch optimizer does not lead to a critical
+Second, the choice of the underlying optimizer used in the splitting is crucial. If {\em condition 1} is not satisfied (i.e., the full-batch optimizer does not lead to a critical
 point of $\R$), then its mini-batch variant cannot be expected to do so either.\\
-Finally, {\em Condition 2}, which concerns the sub-operators in the splitting, is not particularly restrictive. Given a full-batch optimizer, multiple splitting schemes can be devised due to the non-uniqueness of the sum decomposition. Some of these schemes may be more practical or effective than others - see Section~\ref{adam} for an illustrative example.
+Finally, {\em condition 2}, which concerns the sub-operators in the splitting, is not particularly restrictive. Given a full-batch optimizer, multiple splitting schemes can be devised due to the non-uniqueness of the sum decomposition. Some of these schemes may be more practical or effective than others - see Section~\ref{adam} for an illustrative example.
 
 \subsection{Stopping criterion}
 ~~\\
@@ -756,27 +755,32 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
   At epoch $n=2000$, for which stationarity is reached (in fact, the aformentionned stopping criterion \eqref{stopping_criterion} involving $g_n^i$ is activated at $n\approx 40 - 60 \ll 2000$ depending on the
   initialization), the eS-Momentum algorithm recovers the 
   position of the global and local minimums with a perfect accuracy, with a constant learning rate. 
-
 \begin{table}[h!]
 	\caption{Runtimes on the different examples for Momentum and eS-Momentum}
-        \begin{tabular}{lll}
+        \begin{tabular}{ccccc}
 %         Runtimes (s.)  & \exOne                &  \exTwo               & \exThree              & \exFour               & \exFive               & \exSix                & \exFive                  & \exSix\\ 
-          Runtimes (s.) for & (a)                &  (b)              \\ 
-          S-Momentum        & $7.48 \times 10^{-1}$ & $9.02\times 10^{-1}$  \\ 
-         eS-Momentum        & $9.76 \times 10^{-1}$ & $1.21\times 10^{-0}$\\ 
+          Runtimes (s.) for & \begin{tabular}{c}\exOne \\ $n=20$\end{tabular}              &  \begin{tabular}{c}\exTwo \\ $n=20$\end{tabular}                  & \begin{tabular}{c}
+            \exOne \\  $n=2000$ \end{tabular}           &  \begin{tabular}{c}\exTwo \\   $n=2000$ \end{tabular}              \\ 
+          S-Momentum        & $7.48 \times 10^{-1}$ & $9.02\times 10^{-1}$             & $4.16 \times 10^{+1}$      & $5.69\times 10^{+1}$ \\ 
+         eS-Momentum        & $9.76 \times 10^{-1}$ & $1.21\times 10^{-0}$             & $7.21 \times 10^{-1}$      & $1.51\times 10^{-0}$\\ 
 	\end{tabular}
-	\label{ex1_example}
+	\label{ex1_example_mom}
 \end{table}
+\newG{
+Table \ref{ex1_example_mom}  presents the runtimes observed in the previous numerical experiments. For both test cases with $n=20$, the two mini-batch strategies yield comparable runtimes. Although their accuracies differ significantly (as shown in the top rows of Figures  \ref{mom_ex1_ex2} and \ref{speth_mom_ex1_ex2}), the runtimes confirm that both implementations perform a similar number of operations.
+The bottom rows of the same figure offer a fairer comparison: although the stationary distribution of S-Momentum still captures artificial minima, the overall performance is not
+catastrophic. The corresponding runtimes are shown in the last two columns of Table \ref{ex1_example_mom}, where the eS-Momentum algorithm proves to be significantly faster -
+$\times 57$
+faster than S-Momentum on benchmark \exOne, and $\times 37$ faster on benchmark \exTwo.}
+%The bottom lines of the same figure are more comparable in the sense that even if the stationary distribution of S-Momentum captures artificial minima, the results are not that
+%terrible: the computational times are displayed in the two last columns of table \ref{ex1_example_mom}. The eS-Momentum algorithm is $\times 57$ faster than S-Momentum on benchmark
+%\exOne and $\times 37$ on benchmark \exTwo. }
 
         Note that the application of our extension of Speth's splitting gives an update that is fundamentally different than STORM (variance reduction on Momentum). 
         %The balanced splitting point of view leads to some optimizers looking like SAG or RR-SARAH when combined to GD but builds 
         %very different mini-batch optimisers from the ones obtained by applying a variance reduction technique. 
         We insist on the fact that any $F$ can be chosen: a whole new family of mini-batch algorithms can be constructed based on \eqref{RAG_scheme} using the
         equation relative to RMSProp, Adam etc.
-        Once again, the variance reduction versions related to Adam, see Adam$^+$ \cite{adam_variance1}, are fundamentally different from this approach.
-        Note finally that additionnally to being independent of the choice of $F$, our methodology allows any choice of summable decomposition $F=\sum_{i=1}^m F_i$ for the
-        splitting. 
-
 \subsection{\newG{Example: application to Adam}}
 \label{adam}
 The flow for Adam is given by \cite{bianchi,Bilel,Bilel_thesis}
@@ -845,6 +849,9 @@ F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
 \end{eqnarray}
 which is {\bf not} the classical Adam update rule. Note that, still, it satisfies
 {\em condition 1} of theorem \ref{th}. But strictly speaking, in our splitting point of view, the mini-batch update \ref{F_j_adam_3} is not the split version of Adam. It is the split version of the full batch optimizer of flow \eqref{F_adam_mod}, which, in a sense, is a new full batch optimizer.  
+        Once again, the variance reduction versions related to Adam, see Adam$^+$ \cite{adam_variance1}, are fundamentally different from this approach.
+        Note finally that additionnally to being independent of the choice of $F$, our methodology allows any choice of summable decomposition $F=\sum_{i=1}^m F_i$ for the
+        splitting. 
 \ \\
 
 In this section, we have highlighted the necessity of having resort to a balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
@@ -1628,8 +1635,8 @@ and
 $\mathcal{L}\leftarrow$ Loss \;
 $f(\theta, \cdot)$ \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
-$Agg \gets 0$ (aggregator list matching $y=(\theta,v,...)^t$ depending on the used optimiser)\;
-$Grad\_tab[\;]\gets 0$ (gradient table, one entryusedr per batch)\;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
+$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 
 \BlankLine
 \For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
@@ -1697,13 +1704,12 @@ Compute $\text{acc}_{\text{test}}$\;
 
 \BlankLine
 \tcc{Initialise loss, network, aggregator, grad., pivot }
-$\mathcal{L}\leftarrow$ Loss \;
+$\mathcal{L}\leftarrow$ Loss,  $\theta_{\text{pivot}} = \theta$ \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
 $Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
-SumAgg \gets 0 \;
+SumAgg \gets 0, AggGrad \gets 0 \;
 %$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 $L\gets 0$ (stiffness evaluation, one entry per batch)\;
-$\theta_{\text{pivot}} = \theta$ \;
 
 \BlankLine
 \For{$\texttt{epochs}\gets 0$ \KwTo \texttt{max\_epochs}}{
@@ -1719,9 +1725,10 @@ $\theta_{\text{pivot}} = \theta$ \;
         $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
         Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$\;
         Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
-        $Agg \leftarrow Agg - F_b(y,g_\text{pivot})$ \tcc*{remove prev. contrib. }
-        $Grad\_tab[b]\leftarrow g_b$ \tcc*{Update the gradient table}
-        SumAgg \gets SumAgg + Grad\_tab[g]  \tcc*{Update $g_n$}
+        $Agg \leftarrow Agg - F_b(y,g_\text{pivot})$ \tcc*{rm prev. contrib. for $F_b$}
+        $AggGrad \leftarrow AggGrad - g_\text{pivot}$ \tcc*{rm prev. contrib. for $\nabla R_b$}
+        SumAgg \gets SumAgg + $g_b$  \tcc*{Update $g_n$}
+        AggGrad \gets AggGrad + $g_b$  \tcc*{Update $g_n$}
         $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$ \tcc*{Update aggregator}
         \If{$L < \|g_b\|$}{ 
            $\theta_\text{pivot} = \theta$\tcc*{Update the pivot weights}

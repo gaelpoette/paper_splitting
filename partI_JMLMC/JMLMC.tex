@@ -212,6 +212,7 @@ where every $\tilde{m}$ iterations, the estimation $g_n$ is the full batch gradi
 \end{itemize}
 
 \subsection{Objectives \newG{and contributions}}
+\label{obj}
 ~~\\
 This recap of the mini-batch literature encourages us to require the six following properties in the conception of a mini-batch optimizer, suitable for any network (even for under-parametrized model/network):
 \begin{enumerate}
@@ -764,15 +765,72 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
 
 \subsection{\newG{Example: application to Adam}}
 \label{adam}
-The flow for Adam is given by 
+The flow for Adam is given by \cite{bianchi,Bilel,Bilel_thesis}
 \begin{eqnarray}
   \label{Flow_adam}
-  \dot{y} = F(y) \Longleftrightarrow  \left\{\begin{array}{l}
-    \dot{\theta}= \\
-    \dot{v}= \\
-    \dot{s}= \\
+  \dot{y}(t) = F(y(t),t) \Longleftrightarrow  \left\{\begin{array}{l}
+    \dot{\theta}(t)= f(t) \frac{v(t)}{\epsilon_a+s(t)},\\
+    \dot{v}(t)= -\bar{\beta}_1 v(t)+\bar{\beta}_1\nR(\theta(t)),\\
+    \dot{s}(t)= -\bar{\beta}_2 s(t)+\bar{\beta}_2\nR^{\otimes 2}(\theta(t)),\\
   \end{array}\right.
 \end{eqnarray}
+with $f(t)= \frac{\sqrt{1-e^{-\bar{\beta}_2 t}}}{1-e^{-\bar{\beta}_1 t}}$
+    where $a^{\otimes 2}$  denotes the element-wise squaring operator on a vector $a$ and $\bar{\beta}_\alpha = \frac{\beta_\alpha}{\eta}$, see \cite{Bilel}.
+
+First, Adam's flow verifies {\em condition 1} of theorem \ref{th} \cite{bianchi,Bilel}.
+Let us build operators $(F_i)_{i\in\{1,..,m\}}$ fulfilling {\em condition 2}.
+One possibility is to choose for batch $b\in\{1,..,m\}$:
+\begin{eqnarray}
+\label{F_j_adam_1}
+F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
+    \frac{1}{m}f(t) \frac{v(t)}{\epsilon_a+s(t)}\\
+     -\bar{\beta}_1 \frac{v(t)}{m}+\bar{\beta}_1\nR_b(\theta(t))\\
+     -\bar{\beta}_2 \frac{s(t)}{m}+\frac{1}{m}\bar{\beta}_2\nR^{\otimes 2}(\theta(t))\\
+  \end{array}\right).
+\end{eqnarray}
+As such $\sum_{b=1}^m F_b=F$. But in the last line, the full batch gradient is necessary, due to operator $\otimes 2$. 
+In a sense, this splitting, fulfilling the conditions of theorem \ref{th}, is not usable in practice (see the 6 points in section \ref{obj}) as it will need a full-batch gradient evaluation. 
+
+Another possibility would be, here with $m=2$ batches because it is enough for the sake of understanding, to choose: 
+\begin{eqnarray}
+\label{F_j_adam_2}
+F_1(\theta(t),v(t),s(t))=\left(\begin{array}{l}
+    \frac{1}{2}f(t) \frac{v(t)}{\epsilon_a+s(t)}\\
+     -\bar{\beta}_1 \frac{v(t)}{2}+\bar{\beta}_1\nR_1(\theta(t))\\
+     -\bar{\beta}_2 \frac{s(t)}{2}+\bar{\beta}_2\nR_1^{\otimes 2}(\theta(t))+\bar{\beta}_2\nR_1(\theta(t))\otimes\nR_2(\theta(t)) \\
+  \end{array}\right).
+\end{eqnarray}
+The above splitting fulfills the conditions of theorem \ref{th}, i.e. $F=F_1+F_2$. But it needs the evaluation of the gradient on the $2$ batches. Thanks to the consistency need only, operator 
+$
+\nR_1(\theta(t))\otimes\nR_2(\theta(t))
+$
+can be consistently approximated by  
+$
+\nR_1(\theta(t_n))\otimes\nR_2(\theta(t_n)) = \nR_1(\theta^n)\otimes\nR_2(\theta^{n-\frac12}) + \mathcal{O}(\eta)
+$
+making it usable in a mini-batch context, at the cost of memory consumption. 
+
+Note finally that choosing $F_b$ as
+\begin{eqnarray}
+\label{F_j_adam_3}
+F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
+    \frac{1}{m}f(t) \frac{v(t)}{\epsilon_a+s(t)}\\
+     -\bar{\beta}_1 \frac{v(t)}{m}+\bar{\beta}_1\nR_b(\theta(t))\\
+     -\bar{\beta}_2 \frac{s(t)}{m}+\bar{\beta}_2\nR_b^{\otimes 2}(\theta(t))\\
+  \end{array}\right)
+\end{eqnarray}
+which is commonly done in RR-Adam for example, {\em via} our splitting perspective, 
+leads to an $F$ given by 
+\begin{eqnarray}
+\label{F_adam_mod}
+F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
+    f(t) \frac{v(t)}{\epsilon_a+s(t)}\\
+     -\bar{\beta}_1 {v(t)}+\bar{\beta}_1\nR(\theta(t))\\
+     -\bar{\beta}_2 {s(t)}+\bar{\beta}_2\sum_{b=1}^m \nR_b^{\otimes 2}(\theta(t))\\
+  \end{array}\right),
+\end{eqnarray}
+which is {\bf not} the classical Adam update rule. Note that, still, it satisfies
+{\em condition 1} of theorem \ref{th}. But strictly speaking, in our splitting point of view, the mini-batch update \ref{F_j_adam_3} is not the split version of Adam. It is the split version of the full batch optimizer of flow \eqref{F_adam_mod}, which, in a sense, is a new full batch optimizer.  
 \ \\
 
 In this section, we have highlighted the necessity of having resort to a balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical

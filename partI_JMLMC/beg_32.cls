@@ -81,7 +81,7 @@
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 \DeclareMathOperator*{\argmax}{\arg\!\max}
 
-\newcommand{\newG}{\textcolor{magenta}}
+\newcommand{\newG}{\textcolor{blue}}
 \renewcommand{\epsilon}{\varepsilon}
 \newcommand{\R}{\mathcal{R}}
 \newcommand{\tR}{\tilde{\mathcal{R}}}

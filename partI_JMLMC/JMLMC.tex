@@ -248,11 +248,11 @@ criteria}. \textcolor{blue}{In this paper, we focus on these five first points a
 The main contributions of this work are as follows:
 \begin{itemize}
     \item  We introduce a new operator-splitting perspective that helps explain several optimization pathologies.
+    \item 
+We prove that, without relying on the interpolation condition, the mini-batch optimizers we construct - if they do converge - converge to a critical point of the full-batch loss function.
     \item  We develop a balanced update rule that aligns the fixed points of each sub-flow, eliminating the mismatch observed with standard methods. This framework provides, by
       construction, guarantees on the critical points obtained in a mini-batch setting. Some existing mini-batch optimizers can be considered particular cases of our
       framework. It also enables the design of new full-batch optimizers.
-    \item 
-We prove that, without relying on the interpolation condition, the mini-batch optimizers we construct - if they do converge - converge to a critical point of the full-batch loss function.
     \item   Carefully chosen one-dimensional toy problems show that the proposed method avoids spurious stationary distributions and converges to the true minima even in
       non-interpolatory, imbalanced scenarios, constant learning rates context.
 \end{itemize}
@@ -644,6 +644,7 @@ This formula can be implemented with a reasonable memory cost of $3N$ instead of
 
 \subsection{\newG{Theoretical property}}
 \label{th_prop}
+\textcolor{red}{VERIFIER QUE PAS AUSSI VRAI AVEC LE SPLITTING CLASSIQUE...}
 
 The previous construction allows stating the following theorem.
 \begin{theorem}
@@ -781,6 +782,7 @@ faster than S-Momentum on benchmark \exOne, and $\times 37$ faster on benchmark 
         %very different mini-batch optimisers from the ones obtained by applying a variance reduction technique. 
         We insist on the fact that any $F$ can be chosen: a whole new family of mini-batch algorithms can be constructed based on \eqref{RAG_scheme} using the
         equation relative to RMSProp, Adam etc.
+
 \subsection{\newG{Example: application to Adam}}
 \label{adam}
 The flow for Adam is given by \cite{bianchi,Bilel,Bilel_thesis}
@@ -828,6 +830,53 @@ $
 \nR_1(\theta(t_n))\otimes\nR_2(\theta(t_n)) = \nR_1(\theta^n)\otimes\nR_2(\theta^{n-\frac12}) + \mathcal{O}(\eta)
 $
 making it usable in a mini-batch context, at the cost of memory consumption. 
+\begin{figure}[!h]
+	\centering
+	\rotatebox{90}{\quad \quad Adam}\scalebox{0.60}{\input{chapitre5_img/adam_exs.pgf}}
+	\rotatebox{90}{\quad \quad eS-Adam}\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs.pgf}}
+        \caption{Stationary distributions of eS-Adam for learning rate $\eta=10^{-3}$ on \exOne: a) and \exTwo: b), for $n_{max}=5000$. The green straight line represents the position of the global minimum of $\R$.}
+	\label{speth_adam_ex1_ex2}
+\end{figure}
+
+\textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., and grad**2 can be negative, Adam cv toward 0.40065455, and -0.7149311 for b) and 0.71428* for
+eS-Adam}
+
+\begin{figure}[h!]
+	\centering
+	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/adam_exs_5000.pgf}}
+        \caption{
+          Application of low memory Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=5000$ and
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+}
+	\label{adam_exs}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	%\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_1000.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_5000.pgf}}
+        \caption{
+          Application of low memory eS-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=5000$ and
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+}
+	\label{speth_adam_exs}
+\end{figure}
+
 
 Note finally that choosing $F_b$ as
 \begin{eqnarray}

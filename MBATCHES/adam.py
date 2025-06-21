@@ -197,7 +197,7 @@ def u0(x,typeCI="uniform"):
         return 1/(sigma*np.sqrt(2*np.pi))*np.exp(-0.5*((x[0]-mu)/sigma)**2)
     
 #Dans nos examples, P=m
-def awb_fb(x0,m,lr_init,eps,maxEpoch,typeR, num):
+def adam_fb(x0,m,lr_init,eps,maxEpoch,typeR, num):
     epoch=0
     P=m
     v0 = 0
@@ -224,7 +224,7 @@ def awb_fb(x0,m,lr_init,eps,maxEpoch,typeR, num):
       grad=gradR(x,0,typeR) +gradR(x,1,typeR)  
       m = (1-b1) * m + b1 * grad
       v = (1-b2) * v + b2 * (grad** 2)
-      f = 1. #np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
+      f = np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
       x -= eta * f * m / (np.sqrt(v) + epsilon)
       x_prec = x
       v_prec = v
@@ -256,9 +256,9 @@ def F(m, v, f, eta, grad, b1, b2, epsilon):
    return F
 
 def Fi(s, v, f, eta, grad, grad2, b1, b2, epsilon, m):
-   s_n = (1-b1) * s /m + b1 * grad
-   v_n = (1-b2) * v /m + b2 * (grad2) / m
-   x_n = -f * s_n / m  / (np.sqrt(v_n) + epsilon)
+   s_n = (1-b1) * s / m + b1 * grad    / m
+   v_n = (1-b2) * v / m + b2 * (grad2) / m
+   x_n = -f * s_n   / m  / (np.sqrt(v_n) + epsilon)
    s_n -=s
    v_n -=v
    s_n /=  eta
@@ -267,7 +267,7 @@ def Fi(s, v, f, eta, grad, grad2, b1, b2, epsilon, m):
    return F
 
 
-def awb_fb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
+def adam_fb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
     epoch=0
     P=m
     v0 = 0
@@ -293,7 +293,7 @@ def awb_fb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
       v_prec=v0
       m_prec=m0
       grad=gradR(x,0,typeR) +gradR(x,1,typeR)  
-      f = 1. #np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
+      f = np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
       Fl = F(m_prec, v_prec, f, eta, grad, b1, b2, epsilon)
       m += eta * Fl[0]
       v += eta * Fl[1]
@@ -316,7 +316,7 @@ def awb_fb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
     print(num, x)
     return x, epoch
 
-def awb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
+def adam_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
     epoch=0
     P=m
     v0 = 0
@@ -342,7 +342,7 @@ def awb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
       s_prec=s0
       for i in range(m):
         grad=gradR(x,i,typeR)  
-        f = 1. #np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
+        f = np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
         Fl = F(s_prec, v_prec, f, eta, grad, b1, b2, epsilon)
         s += eta * Fl[0]
         v += eta * Fl[1]
@@ -362,12 +362,11 @@ def awb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
 
     if epoch == maxEpoch:
         print(str(num)+" max epoch reached")
-    #print(num, x, epoch) 
-    print(num, x)
+    print(num, x, epoch) 
     return x, epoch
 
 
-def speth_awb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
+def speth_adam_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
     epoch=0
     P=m
     v0 = 0
@@ -381,11 +380,11 @@ def speth_awb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
     bb   = 1.0
     eta  = 1.e-15
     grad = 0.
-    grad_tab=np.array([0.,0.])
-    grad_tab[0] = gradR(x,0,typeR)
-    grad_tab[1] = gradR(x,1,typeR)
-    g  = grad_tab[0]    + grad_tab[1]
-    g2 = (grad_tab[0] + grad_tab[1])**2
+    grad_tab=np.zeros(m)
+    for i in range(m):
+       grad_tab[i] = gradR(x,i,typeR)
+    g  =  np.sum(grad_tab)
+    g2 = g**2
 
     F_tab =np.array([[0.,0.,0.],[0.,0.,0.]])
     gNorm = 1000
@@ -403,15 +402,12 @@ def speth_awb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
         g2 -= grad_tab[i]**2
         g += grad
         g2+= grad**2
-        f = 1. #np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
-        F_cur = np.array(Fi(s_prec, v_prec, f, eta, g, g2, b1, b2, epsilon, m))
-        #print(f"from speth {eta * Fl}")
-        Fl = F_cur  # SANS 
-        #print(f"from class {eta * Fl}")
+        g2 = max(g2,0) # sans ça, g2 peut passer négatif
+        f = np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
+        Fl = np.array(Fi(s_prec, v_prec, f, eta, g, g2, b1, b2, epsilon, m))
         s += eta * Fl[0]
         v += eta * Fl[1]
         x += eta * Fl[2]
-        F_tab[i]    = F_cur
         grad_tab[i] = grad
         x_prec = x
         v_prec = v
@@ -428,10 +424,8 @@ def speth_awb_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
       #print(epoch, gNorm) 
     if epoch == maxEpoch:
         print(str(num)+" max epoch reached "+str(g)+"")
-    #print(num, x, epoch) 
-    print(num, x)
+    print(num, x, epoch) 
     return x, epoch
-
 
 
 
@@ -440,17 +434,17 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
     x_maille=np.linspace(a,b,num=nbPoints)
     u=np.zeros((nbPoints,1))
 
-    fig = plt.figure(figsize=(10,2.5))
+    fig = plt.figure(figsize=(10,10))
     plt.gcf().subplots_adjust(wspace=0.2,hspace=0.57)
-    axes = fig.subplots(nrows=1,ncols=2)
+    axes = fig.subplots(nrows=4,ncols=2)
 
     lr_init0 = lr_init
 
     #for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2)]:
     #for (typeR,m) in [("ex1",2), ("ex2",2), ("ex3",2), ("ex4",2), ("ex5",3), ("ex6",3), ("ex7",3), ("ex8",4)]:
     #for (typeR,m,L1,L2) in [("ex1",2, 2, 8), ("ex2",2, 22, 150), ("ex3",2, 100, 100), ("ex4",2, 20, 20), ]:
-    #for (typeR,m,L1,L2) in [("ex1",2, 2, 8), ("ex2",2, 22, 150), ("ex3",2, 1000, 0), ("ex4",2, 30, 0), ("ex5",3, 20, 0), ("ex6",3, 100, 0), ("ex7",3, 100, 0), ("ex8",4, 20, 20 )]:
-    for (typeR,m,L1,L2) in [("ex1",2, 2, 8), ("ex2",2, 22, 150)]:
+    for (typeR,m,L1,L2) in [("ex1",2, 2, 8), ("ex2",2, 22, 150), ("ex3",2, 1000, 0), ("ex4",2, 30, 0), ("ex5",3, 20, 0), ("ex6",3, 100, 0), ("ex7",3, 100, 0), ("ex8",4, 20, 20 )]:
+    #for (typeR,m,L1,L2) in [("ex1",2, 2, 8), ("ex2",2, 22, 150)]:
 
 
         lr_init = lr_init0 #1./ (L1+L2) * lr_init0
@@ -460,10 +454,10 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         for p in range(nbParticules):
             x_unif=np.random.uniform(a,b); x0=x_unif*np.ones(N)
             
-            #x,epoch = awb_fb(x0,m,lr_init,eps,maxEpoch,typeR, p)
-            #x,epoch = awb_fb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
-            x,epoch = awb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
-            #x,epoch = speth_awb_F(x0,m,lr_init,eps,maxEpoch,typeR, p)
+            #x,epoch = adam_fb(x0,m,lr_init,eps,maxEpoch,typeR, p)
+            #x,epoch = adam_fb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
+            x,epoch = adam_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
+            #x,epoch = speth_adam_F(x0,m,lr_init,eps,maxEpoch,typeR, p)
 
             if(x>a and x<b):
                 #print(x) 
@@ -472,34 +466,34 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         u/=nbParticules
 
         if(typeR=="ex1"):
-            ax=axes[0]; titre="a)"
+            ax=axes[0,0]; titre="a)"
             ax.axvline(x=0.4,ymin=0,ymax=1.1,color='green')
         elif(typeR=="ex2"):
-            ax=axes[1]; titre="b)"
+            ax=axes[0,1]; titre="b)"
             ax.axvline(x=0.5,ymin=0,ymax=1.1, color='blue')
             ax.axvline(x=-0.714285714,ymin=0,ymax=1.1, color="green")
-        #elif(typeR=="ex3"):
-        #    ax=axes[1,0]; titre="c)"
-        #    ax.axvline(x=0,ymin=0,ymax=1.1, color='blue')
-        #    ax.axvline(x=0.7210246,ymin=0,ymax=1.1, color="green")
-        #elif(typeR=="ex4"):
-        #    ax=axes[1,1]; titre="d)"
-        #    ax.axvline(x=0.6771,ymin=0,ymax=1.1, color='blue')
-        #    ax.axvline(x=-0.812540,ymin=0,ymax=1.1, color="green")
-        #elif(typeR=="ex5"):
-        #    ax=axes[2,0]; titre="e)"
-        #    ax.axvline(x=-0.444,ymin=0,ymax=1.1,color='green')
-        #elif(typeR=="ex6"):
-        #    ax=axes[2,1]; titre="f)"
-        #    ax.axvline(x=0.5,ymin=0,ymax=1.1, color='blue')
-        #    ax.axvline(x=-0.71806,ymin=0,ymax=1.1, color="green")
-        #elif(typeR=="ex7"):
-        #    ax=axes[3,0]; titre="g)"
-        #    ax.axvline(x=-0.91228,ymin=0,ymax=1.1, color="green")
-        #elif(typeR=="ex8"):
-        #    ax=axes[3,1]; titre="h)"
-        #    ax.axvline(x=0.413212,ymin=0,ymax=1.1, color='blue')
-        #    ax.axvline(x=-0.870466,ymin=0,ymax=1.1, color="green")
+        elif(typeR=="ex3"):
+            ax=axes[1,0]; titre="c)"
+            ax.axvline(x=0,ymin=0,ymax=1.1, color='blue')
+            ax.axvline(x=0.7210246,ymin=0,ymax=1.1, color="green")
+        elif(typeR=="ex4"):
+            ax=axes[1,1]; titre="d)"
+            ax.axvline(x=0.6771,ymin=0,ymax=1.1, color='blue')
+            ax.axvline(x=-0.812540,ymin=0,ymax=1.1, color="green")
+        elif(typeR=="ex5"):
+            ax=axes[2,0]; titre="e)"
+            ax.axvline(x=-0.444,ymin=0,ymax=1.1,color='green')
+        elif(typeR=="ex6"):
+            ax=axes[2,1]; titre="f)"
+            ax.axvline(x=0.5,ymin=0,ymax=1.1, color='blue')
+            ax.axvline(x=-0.71806,ymin=0,ymax=1.1, color="green")
+        elif(typeR=="ex7"):
+            ax=axes[3,0]; titre="g)"
+            ax.axvline(x=-0.91228,ymin=0,ymax=1.1, color="green")
+        elif(typeR=="ex8"):
+            ax=axes[3,1]; titre="h)"
+            ax.axvline(x=0.413212,ymin=0,ymax=1.1, color='blue')
+            ax.axvline(x=-0.870466,ymin=0,ymax=1.1, color="green")
 
         ax.set_title(titre)
         ax.set_xlabel(r"$\theta$")
@@ -510,16 +504,20 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         t1 = time.time()
         print(f"time = {t1-t0:e}")
  
-    plt.show()
+    #plt.savefig('speth_adam_exs.pgf')
     plt.savefig('adam_exs.pgf')
+    plt.show()
 
 
 
 typeCI="uniform"
 N=1
 nbPoints=1000
-nbParticules=10000
-lr_init=0.0125
-eps=10**(-4); maxEpoch=5000
+nbParticules= 10000
+lr_init=0.001 #25
+eps=10**(-4); 
+maxEpoch=5000
+#maxEpoch=10
+
 
 exs(nbPoints,nbParticules,lr_init,eps,maxEpoch,typeCI)

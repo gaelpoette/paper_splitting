@@ -516,7 +516,7 @@ nbPoints=1000
 nbParticules= 10000
 lr_init=0.001 #25
 eps=10**(-4); 
-maxEpoch=5000
+maxEpoch=10000
 #maxEpoch=10
 
 

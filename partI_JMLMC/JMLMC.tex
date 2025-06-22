@@ -709,203 +709,6 @@ The initialization of the scheme ($n=0$) can be done in two ways:
 \end{itemize}
 
 
-\subsection{Example: application to Momentum}
-\label{mom}
-~~\\
-The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG without random permutation) if memory reduction is not taken into account. % and RR-SARAH (without random permutation) otherwise. 
-	The splitting scheme we suggest in this paper can be applied to any differential equation $y'(t)=F(y(t))$. For example in the case of the Momentum/Heavy-Ball equation \cite{momentum_sutskever_RNN,Polyak,polyak_momentum_stability,continuous_general} a natural decomposition of the vector field is given by:
-	\begin{equation*}
-		F_i(\theta,v) = 
-		\begin{pmatrix}
-                  -\frac{v}{m} \\
-                        -{\bbetone}\frac{v}{m}+\nR_i(\theta)
-		\end{pmatrix},
-	\end{equation*}
-        where $m$ is the number of batches.\\ 
-        We suggest testing the mini-batch optimizer obtained above with this choice. Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with S-Momentum (stochastic Momentum) with $\beta_1=0.9$. 
-        The learning rate is chosen as $\eta=0.125$, which is larger than the most restrictive stability condition dictated by the Lipschitz constants for GD for these benchmarks:
-        Momentum is indeed more stable than GD for example, at least on these benchmarks. 
-        The distributions are displayed at two epochs: for epoch $n=20$, stationarity is not yet reached with S-Momentum whereas for epoch $n=2000$, it is.  
-        %In such conditions, the distributions obtained with Momentum have not yet reached stationarity as testifies figure \ref{mom_ex1_ex2}.
-        At epoch $n=20$, the (local and global) mimima seem to be within the supports of the distributions, for both benchmarks. This 
-        is qualitatively better than the results obtained with SGD, see figure \ref{sgd_ex1}. 
-        But at epoch $n=20$, the results are not yet converged.  
-\begin{figure}[!h]
-	\centering
-        \rotatebox{90}{\quad \quad epoch=20}\scalebox{0.60}{\input{chapitre5_img/mom_exs.pgf}}
-	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.60}{\input{chapitre5_img/mom_long_exs.pgf}}
-        \caption{Stationary distributions of S-Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for epoch number $20$ (stationarity is not reached) and epoch number $2000$ (stationarity is reached). The green straight line represents the position of the global minimum of $\R$.}
-	\label{mom_ex1_ex2}
-\end{figure}
-  The last line of figure \ref{mom_ex1_ex2} displays the results at epoch $n=2000$, for which we verified that stationarity is reached:  S-Momentum captures respectively
-  $x=0.40533333$ instead of the unique global minimum $0.4$ of \exOne, 
-  and $x=-0.72457792$ instead of $0.71$, the global minimum of \exTwo. 
-  In other words, the appearance of artificial minimums strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimisers
-  (other $F$) and is not only restricted to SGD or RRGD. 
-
-  On the other hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with eS-Momentum, for {\em extended Speth Momentum} {(without memory reduction)}, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
-\begin{figure}[!h]
-	\centering
-	\rotatebox{90}{\quad \quad epoch=20}\scalebox{0.60}{\input{chapitre5_img/speth_mom_exs.pgf}}
-	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.60}{\input{chapitre5_img/speth_mom_long_exs.pgf}}
-        \caption{Stationary distributions of eS-Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
-	\label{speth_mom_ex1_ex2}
-\end{figure}
-For the eS-Momentum optimizer, stationarity is very close to being reached with only $20$ epochs: the supports of the obtained distributions are way tighter around the local and
-global minimums of $\R$. A faster convergence rate is consequently numerically observed.  
-  At epoch $n=2000$, for which stationarity is reached (in fact, the aformentionned stopping criterion \eqref{stopping_criterion} involving $g_n^i$ is activated at $n\approx 40 - 60 \ll 2000$ depending on the
-  initialization), the eS-Momentum algorithm recovers the 
-  position of the global and local minimums with a perfect accuracy, with a constant learning rate. 
-\begin{table}[h!]
-	\caption{Runtimes on the different examples for Momentum and eS-Momentum}
-        \begin{tabular}{ccccc}
-%         Runtimes (s.)  & \exOne                &  \exTwo               & \exThree              & \exFour               & \exFive               & \exSix                & \exFive                  & \exSix\\ 
-          Runtimes (s.) for & \begin{tabular}{c}\exOne \\ $n=20$\end{tabular}              &  \begin{tabular}{c}\exTwo \\ $n=20$\end{tabular}                  & \begin{tabular}{c}
-            \exOne \\  $n=2000$ \end{tabular}           &  \begin{tabular}{c}\exTwo \\   $n=2000$ \end{tabular}              \\ 
-          S-Momentum        & $7.48 \times 10^{-1}$ & $9.02\times 10^{-1}$             & $4.16 \times 10^{+1}$      & $5.69\times 10^{+1}$ \\ 
-         eS-Momentum        & $9.76 \times 10^{-1}$ & $1.21\times 10^{-0}$             & $7.21 \times 10^{-1}$      & $1.51\times 10^{-0}$\\ 
-	\end{tabular}
-	\label{ex1_example_mom}
-\end{table}
-\newG{
-Table \ref{ex1_example_mom}  presents the runtimes observed in the previous numerical experiments. For both test cases with $n=20$, the two mini-batch strategies yield comparable runtimes. Although their accuracies differ significantly (as shown in the top rows of Figures  \ref{mom_ex1_ex2} and \ref{speth_mom_ex1_ex2}), the runtimes confirm that both implementations perform a similar number of operations.
-The bottom rows of the same figure offer a fairer comparison: although the stationary distribution of S-Momentum still captures artificial minima, the overall performance is not
-catastrophic. The corresponding runtimes are shown in the last two columns of Table \ref{ex1_example_mom}, where the eS-Momentum algorithm proves to be significantly faster -
-$\times 57$
-faster than S-Momentum on benchmark \exOne, and $\times 37$ faster on benchmark \exTwo.}
-%The bottom lines of the same figure are more comparable in the sense that even if the stationary distribution of S-Momentum captures artificial minima, the results are not that
-%terrible: the computational times are displayed in the two last columns of table \ref{ex1_example_mom}. The eS-Momentum algorithm is $\times 57$ faster than S-Momentum on benchmark
-%\exOne and $\times 37$ on benchmark \exTwo. }
-
-        Note that the application of our extension of Speth's splitting gives an update that is fundamentally different than STORM (variance reduction on Momentum). 
-        %The balanced splitting point of view leads to some optimizers looking like SAG or RR-SARAH when combined to GD but builds 
-        %very different mini-batch optimisers from the ones obtained by applying a variance reduction technique. 
-        We insist on the fact that any $F$ can be chosen: a whole new family of mini-batch algorithms can be constructed based on \eqref{RAG_scheme} using the
-        equation relative to RMSProp, Adam etc.
-
-\subsection{\newG{Example: application to Adam}}
-\label{adam}
-The flow for Adam is given by \cite{bianchi,Bilel,Bilel_thesis}
-\begin{eqnarray}
-  \label{Flow_adam}
-  \dot{y}(t) = F(y(t),t) \Longleftrightarrow  \left\{\begin{array}{l}
-    \dot{\theta}(t)= f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}},\\
-    \dot{v}(t)= -\bar{\beta}_1 v(t)+\bar{\beta}_1\nR(\theta(t)),\\
-    \dot{s}(t)= -\bar{\beta}_2 s(t)+\bar{\beta}_2\nR^{\otimes 2}(\theta(t)),\\
-  \end{array}\right.
-\end{eqnarray}
-with $f(t)= \frac{\sqrt{1-e^{-\bar{\beta}_2 t}}}{1-e^{-\bar{\beta}_1 t}}$
-    where $a^{\otimes 2}$  denotes the element-wise squaring operator on a vector $a$ and $\bar{\beta}_\alpha = \frac{\beta_\alpha}{\eta}$, $\alpha\in\{1,2\}$, see \cite{Bilel}.
-
-First, Adam's flow verifies {\em condition 1} of theorem \ref{th} \cite{Bilel}.
-Let us build operators $(F_i)_{i\in\{1,..,m\}}$ fulfilling {\em condition 2}.
-One possibility is to choose for batch $b\in\{1,..,m\}$:
-\begin{eqnarray}
-\label{F_j_adam_1}
-F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
-  \frac{1}{m}f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}}\\
-     -\bar{\beta}_1 \frac{v(t)}{m}+\bar{\beta}_1\nR_b(\theta(t))\\
-     -\bar{\beta}_2 \frac{s(t)}{m}+\frac{1}{m}\bar{\beta}_2\nR^{\otimes 2}(\theta(t))\\
-  \end{array}\right).
-\end{eqnarray}
-As above, we have $\sum_{b=1}^m F_b=F$. But in the last line, the full batch gradient (or a consistent estimator of it) is necessary for this choice of sub-operators $(F_i)_{i\in\{1,..,m\}}$. 
-%In a sense, this splitting, fulfilling the conditions of theorem \ref{th}, is not satisfactory in practice (see point 3 in section \ref{obj}) as it will need a full-batch gradient evaluation. 
-
-Another option, illustrated here with $m=2$ batches for clarity, would be to choose:
-\begin{eqnarray}
-\label{F_j_adam_2}
-F_1(\theta(t),v(t),s(t))=\left(\begin{array}{l}
-  \frac{1}{2}f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}}\\
-     -\bar{\beta}_1 \frac{v(t)}{2}+\bar{\beta}_1\nR_1(\theta(t))\\
-     -\bar{\beta}_2 \frac{s(t)}{2}+\bar{\beta}_2\nR_1^{\otimes 2}(\theta(t))+\bar{\beta}_2\nR_1(\theta(t))\otimes\nR_2(\theta(t)) \\
-  \end{array}\right),
-\end{eqnarray}
-from which the expression of $F_2$ can easily be deduced in order to fulfill condition 2 of of theorem \ref{th}, i.e. $F=F_1+F_2$. 
-As only consistency is needed in practice, operator 
-$
-\nR_1(\theta(t))\otimes\nR_2(\theta(t))
-$
-can be approximated by  
-$
-\nR_1(\theta(t_n))\otimes\nR_2(\theta(t_n)) = \nR_1(\theta^n)\otimes\nR_2(\theta^{n-\frac12}) + \mathcal{O}(\eta)
-$
-making it usable in a mini-batch context, at the cost of memory consumption. 
-\begin{figure}[!h]
-	\centering
-	\rotatebox{90}{\quad \quad Adam}\scalebox{0.60}{\input{chapitre5_img/adam_exs.pgf}}
-	\rotatebox{90}{\quad \quad eS-Adam}\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs.pgf}}
-        \caption{Stationary distributions of eS-Adam for learning rate $\eta=10^{-3}$ on \exOne: a) and \exTwo: b), for $n_{max}=5000$. The green straight line represents the position of the global minimum of $\R$.}
-	\label{speth_adam_ex1_ex2}
-\end{figure}
-
-\textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., and grad**2 can be negative, Adam cv toward 0.40065455, and -0.7149311 for b) and 0.71428* for
-eS-Adam}
-
-\begin{figure}[h!]
-	\centering
-	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
-	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_5000.pgf}}
-	\scalebox{0.60}{\input{chapitre5_img/adam_exs_10000.pgf}}
-        \caption{
-          Application of low memory Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
- $\eta = 1   \times 10^{-1}$  for \exOne    (a),
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
- $\eta = 1   \times 10^{-3}$  for \exThree  (c),
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
- $\eta = 5   \times 10^{-2}$  for \exFive   (e),
- $\eta = 1   \times 10^{-2}$  for \exSix    (f).
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
-}
-	\label{adam_exs}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	%\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_1000.pgf}}
-	%\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_5000.pgf}}
-	\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_10000.pgf}}
-        \caption{
-          Application of low memory eS-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
- $\eta = 1   \times 10^{-1}$  for \exOne    (a),
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
- $\eta = 1   \times 10^{-3}$  for \exThree  (c),
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
- $\eta = 5   \times 10^{-2}$  for \exFive   (e),
- $\eta = 1   \times 10^{-2}$  for \exSix    (f).
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
-}
-	\label{speth_adam_exs}
-\end{figure}
-
-
-Note finally that choosing $F_b$ as
-\begin{eqnarray}
-\label{F_j_adam_3}
-F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
-  \frac{1}{m}f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}}\\
-     -\bar{\beta}_1 \frac{v(t)}{m}+\bar{\beta}_1\nR_b(\theta(t))\\
-     -\bar{\beta}_2 \frac{s(t)}{m}+\bar{\beta}_2\nR_b^{\otimes 2}(\theta(t))\\
-  \end{array}\right)
-\end{eqnarray}
-which is the mini-batch update applied in RR-Adam for example, {\em via} our splitting perspective, 
-leads to an $F$ given by 
-\begin{eqnarray}
-\label{F_adam_mod}
-  F(\theta(t),v(t),s(t))=\sum_{b=1}^m F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
-  f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}}\\
-     -\bar{\beta}_1 {v(t)}+\bar{\beta}_1\nR(\theta(t))\\
-     -\bar{\beta}_2 {s(t)}+\bar{\beta}_2\sum_{b=1}^m \nR_b^{\otimes 2}(\theta(t))\\
-  \end{array}\right),
-\end{eqnarray}
-which is {\em not the classical Adam update rule}. Still, this new full batch update rule satisfies
-{\em condition 1} of theorem \ref{th}. But strictly speaking, in our splitting point of view, the mini-batch update \eqref{F_j_adam_3} is not the split version of Adam. 
-It is the split version of the full batch optimizer of flow \eqref{F_adam_mod}, which, in a sense, is a new full batch optimizer.  
-
-        Once again, the variance reduction versions related to Adam, see Adam$^+$ \cite{adam_variance1}, are fundamentally different from this approach.
-%        Note finally that additionnally to being independent of the choice of $F$, our methodology allows any choice of summable decomposition $F=\sum_{i=1}^m F_i$ for the       splitting. 
-\ \\
 
 In this section, we have highlighted the necessity of having resort to a balanced splitting in order to guarantee the restoration of a "correct" stationary distribution (a support related to critical
 points of $F$) with constant learning rates. Finally, we have suggested a balanced splitting formula which differs from the classical ones (and encompass some classical ones) %by their memory complexity and 
@@ -925,6 +728,7 @@ not resorting to the interpolating hypothesis (depicted in section \ref{intro}).
 The section also emphasizes the fact that the next step for further improvements may be closely related to adaptiveness. 
 %Part II of this paper will be dedicated to condition 6, namely adaptativeness. \\ %It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 
+\subsection{The extended Speth splitting applied to GD}
 
 %\begin{figure}[h!]
 %	\centering
@@ -1188,13 +992,228 @@ It is the only hyperparameter to tune because we considered eS-GD here.
 But other variations such as eS-Momentum or eS-Adam for example would have needed to tune other hyperparameters (classically denoted by $\beta_1,\beta_2, \epsilon_a$ in the literature, see
 \cite{Bilel_thesis}). %Part II will be focused to overcoming this tedious tuning phase.  
 
+\subsection{The extended Speth splitting applied to Momentum}
+\label{mom}
+~~\\
+The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG without random permutation) if memory reduction is not taken into account. % and RR-SARAH (without random permutation) otherwise. 
+	The splitting scheme we suggest in this paper can be applied to any differential equation $y'(t)=F(y(t))$. For example in the case of the Momentum/Heavy-Ball equation \cite{momentum_sutskever_RNN,Polyak,polyak_momentum_stability,continuous_general} a natural decomposition of the vector field is given by:
+	\begin{equation*}
+		F_i(\theta,v) = 
+		\begin{pmatrix}
+                  -\frac{v}{m} \\
+                        -{\bbetone}\frac{v}{m}+\nR_i(\theta)
+		\end{pmatrix},
+	\end{equation*}
+        where $m$ is the number of batches.\\ 
+        We suggest testing the mini-batch optimizer obtained above with this choice. Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with S-Momentum (stochastic Momentum) with $\beta_1=0.9$. 
+        The learning rate is chosen as $\eta=0.125$, which is larger than the most restrictive stability condition dictated by the Lipschitz constants for GD for these benchmarks:
+        Momentum is indeed more stable than GD for example, at least on these benchmarks. 
+        The distributions are displayed at two epochs: for epoch $n=20$, stationarity is not yet reached with S-Momentum whereas for epoch $n=2000$, it is.  
+        %In such conditions, the distributions obtained with Momentum have not yet reached stationarity as testifies figure \ref{mom_ex1_ex2}.
+        At epoch $n=20$, the (local and global) mimima seem to be within the supports of the distributions, for both benchmarks. This 
+        is qualitatively better than the results obtained with SGD, see figure \ref{sgd_ex1}. 
+        But at epoch $n=20$, the results are not yet converged.  
+\begin{figure}[!h]
+	\centering
+        \rotatebox{90}{\quad \quad epoch=20}\scalebox{0.60}{\input{chapitre5_img/mom_exs.pgf}}
+	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.60}{\input{chapitre5_img/mom_long_exs.pgf}}
+        \caption{Stationary distributions of S-Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for epoch number $20$ (stationarity is not reached) and epoch number $2000$ (stationarity is reached). The green straight line represents the position of the global minimum of $\R$.}
+	\label{mom_ex1_ex2}
+\end{figure}
+  The last line of figure \ref{mom_ex1_ex2} displays the results at epoch $n=2000$, for which we verified that stationarity is reached:  S-Momentum captures respectively
+  $x=0.40533333$ instead of the unique global minimum $0.4$ of \exOne, 
+  and $x=-0.72457792$ instead of $0.71$, the global minimum of \exTwo. 
+  In other words, the appearance of artificial minimums strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimisers
+  (other $F$) and is not only restricted to SGD or RRGD. 
+
+  On the other hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with eS-Momentum, for {\em extended Speth Momentum} {(without memory reduction)}, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
+\begin{figure}[!h]
+	\centering
+	\rotatebox{90}{\quad \quad epoch=20}\scalebox{0.60}{\input{chapitre5_img/speth_mom_exs.pgf}}
+	\rotatebox{90}{\quad \quad epoch=2000}\scalebox{0.60}{\input{chapitre5_img/speth_mom_long_exs.pgf}}
+        \caption{Stationary distributions of eS-Momentum for learning rate $\eta=0.125$ on \exOne: a) and \exTwo: b), for $n_{max}=20$. The green straight line represents the position of the global minimum of $\R$.}
+	\label{speth_mom_ex1_ex2}
+\end{figure}
+For the eS-Momentum optimizer, stationarity is very close to being reached with only $20$ epochs: the supports of the obtained distributions are way tighter around the local and
+global minimums of $\R$. A faster convergence rate is consequently numerically observed.  
+  At epoch $n=2000$, for which stationarity is reached (in fact, the aformentionned stopping criterion \eqref{stopping_criterion} involving $g_n^i$ is activated at $n\approx 40 - 60 \ll 2000$ depending on the
+  initialization), the eS-Momentum algorithm recovers the 
+  position of the global and local minimums with a perfect accuracy, with a constant learning rate. 
+\begin{table}[h!]
+	\caption{Runtimes on the different examples for Momentum and eS-Momentum}
+        \begin{tabular}{ccccc}
+%         Runtimes (s.)  & \exOne                &  \exTwo               & \exThree              & \exFour               & \exFive               & \exSix                & \exFive                  & \exSix\\ 
+          Runtimes (s.) for & \begin{tabular}{c}\exOne \\ $n=20$\end{tabular}              &  \begin{tabular}{c}\exTwo \\ $n=20$\end{tabular}                  & \begin{tabular}{c}
+            \exOne \\  $n=2000$ \end{tabular}           &  \begin{tabular}{c}\exTwo \\   $n=2000$ \end{tabular}              \\ 
+          S-Momentum        & $7.48 \times 10^{-1}$ & $9.02\times 10^{-1}$             & $4.16 \times 10^{+1}$      & $5.69\times 10^{+1}$ \\ 
+         eS-Momentum        & $9.76 \times 10^{-1}$ & $1.21\times 10^{-0}$             & $7.21 \times 10^{-1}$      & $1.51\times 10^{-0}$\\ 
+	\end{tabular}
+	\label{ex1_example_mom}
+\end{table}
+\newG{
+Table \ref{ex1_example_mom}  presents the runtimes observed in the previous numerical experiments. For both test cases with $n=20$, the two mini-batch strategies yield comparable runtimes. Although their accuracies differ significantly (as shown in the top rows of Figures  \ref{mom_ex1_ex2} and \ref{speth_mom_ex1_ex2}), the runtimes confirm that both implementations perform a similar number of operations.
+The bottom rows of the same figure offer a fairer comparison: although the stationary distribution of S-Momentum still captures artificial minima, the overall performance is not
+catastrophic. The corresponding runtimes are shown in the last two columns of Table \ref{ex1_example_mom}, where the eS-Momentum algorithm proves to be significantly faster -
+$\times 57$
+faster than S-Momentum on benchmark \exOne, and $\times 37$ faster on benchmark \exTwo.}
+%The bottom lines of the same figure are more comparable in the sense that even if the stationary distribution of S-Momentum captures artificial minima, the results are not that
+%terrible: the computational times are displayed in the two last columns of table \ref{ex1_example_mom}. The eS-Momentum algorithm is $\times 57$ faster than S-Momentum on benchmark
+%\exOne and $\times 37$ on benchmark \exTwo. }
+
+        Note that the application of our extension of Speth's splitting gives an update that is fundamentally different than STORM (variance reduction on Momentum). 
+        %The balanced splitting point of view leads to some optimizers looking like SAG or RR-SARAH when combined to GD but builds 
+        %very different mini-batch optimisers from the ones obtained by applying a variance reduction technique. 
+        We insist on the fact that any $F$ can be chosen: a whole new family of mini-batch algorithms can be constructed based on \eqref{RAG_scheme} using the
+        equation relative to RMSProp, Adam etc.
+
+\subsection{\newG{The extended Speth splitting applied to Adam}}
+\label{adam}
+The flow for Adam is given by \cite{bianchi,Bilel,Bilel_thesis}
+\begin{eqnarray}
+  \label{Flow_adam}
+  \dot{y}(t) = F(y(t),t) \Longleftrightarrow  \left\{\begin{array}{l}
+    \dot{\theta}(t)= f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}},\\
+    \dot{v}(t)= -\bar{\beta}_1 v(t)+\bar{\beta}_1\nR(\theta(t)),\\
+    \dot{s}(t)= -\bar{\beta}_2 s(t)+\bar{\beta}_2\nR^{\otimes 2}(\theta(t)),\\
+  \end{array}\right.
+\end{eqnarray}
+with $f(t)= \frac{\sqrt{1-e^{-\bar{\beta}_2 t}}}{1-e^{-\bar{\beta}_1 t}}$
+    where $a^{\otimes 2}$  denotes the element-wise squaring operator on a vector $a$ and $\bar{\beta}_\alpha = \frac{\beta_\alpha}{\eta}$, $\alpha\in\{1,2\}$, see \cite{Bilel}.
+
+First, Adam's flow verifies {\em condition 1} of theorem \ref{th} \cite{Bilel}.
+Let us build operators $(F_i)_{i\in\{1,..,m\}}$ fulfilling {\em condition 2}.
+One possibility is to choose for batch $b\in\{1,..,m\}$:
+\begin{eqnarray}
+\label{F_j_adam_1}
+F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
+  \frac{1}{m}f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}}\\
+     -\bar{\beta}_1 \frac{v(t)}{m}+\bar{\beta}_1\nR_b(\theta(t))\\
+     -\bar{\beta}_2 \frac{s(t)}{m}+\frac{1}{m}\bar{\beta}_2\nR^{\otimes 2}(\theta(t))\\
+  \end{array}\right).
+\end{eqnarray}
+As above, we have $\sum_{b=1}^m F_b=F$. But in the last line, the full batch gradient (or a consistent estimator of it) is necessary for this choice of sub-operators $(F_i)_{i\in\{1,..,m\}}$. 
+%In a sense, this splitting, fulfilling the conditions of theorem \ref{th}, is not satisfactory in practice (see point 3 in section \ref{obj}) as it will need a full-batch gradient evaluation. 
+
+Another option, illustrated here with $m=2$ batches for clarity, would be to choose:
+\begin{eqnarray}
+\label{F_j_adam_2}
+F_1(\theta(t),v(t),s(t))=\left(\begin{array}{l}
+  \frac{1}{2}f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}}\\
+     -\bar{\beta}_1 \frac{v(t)}{2}+\bar{\beta}_1\nR_1(\theta(t))\\
+     -\bar{\beta}_2 \frac{s(t)}{2}+\bar{\beta}_2\nR_1^{\otimes 2}(\theta(t))+\bar{\beta}_2\nR_1(\theta(t))\otimes\nR_2(\theta(t)) \\
+  \end{array}\right),
+\end{eqnarray}
+from which the expression of $F_2$ can easily be deduced in order to fulfill condition 2 of of theorem \ref{th}, i.e. $F=F_1+F_2$. 
+As only consistency is needed in practice, operator 
+$
+\nR_1(\theta(t))\otimes\nR_2(\theta(t))
+$
+can be approximated by  
+$
+\nR_1(\theta(t_n))\otimes\nR_2(\theta(t_n)) = \nR_1(\theta^n)\otimes\nR_2(\theta^{n-\frac12}) + \mathcal{O}(\eta)
+$
+making it usable in a mini-batch context, at the cost of memory consumption. 
+\begin{figure}[!h]
+	\centering
+	\rotatebox{90}{\quad \quad Adam}\scalebox{0.60}{\input{chapitre5_img/adam_exs.pgf}}
+	\rotatebox{90}{\quad \quad eS-Adam}\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs.pgf}}
+        \caption{Stationary distributions of eS-Adam for learning rate $\eta=10^{-3}$ on \exOne: a) and \exTwo: b), for $n_{max}=5000$. The green straight line represents the position of the global minimum of $\R$.}
+	\label{speth_adam_ex1_ex2}
+\end{figure}
+
+\textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., and grad**2 can be negative, Adam cv toward 0.40065455, and -0.7149311 for b) and 0.71428* for
+eS-Adam}
+
+\begin{figure}[h!]
+	\centering
+	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
+	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_5000.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/adam_exs_10000.pgf}}
+        \caption{
+          Application of low memory Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+}
+	\label{adam_exs}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	%\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_1000.pgf}}
+	%\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_5000.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_10000.pgf}}
+        \caption{
+          Application of low memory eS-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+}
+	\label{speth_adam_exs}
+\end{figure}
+
+
+Note finally that choosing $F_b$ as
+\begin{eqnarray}
+\label{F_j_adam_3}
+F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
+  \frac{1}{m}f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}}\\
+     -\bar{\beta}_1 \frac{v(t)}{m}+\bar{\beta}_1\nR_b(\theta(t))\\
+     -\bar{\beta}_2 \frac{s(t)}{m}+\bar{\beta}_2\nR_b^{\otimes 2}(\theta(t))\\
+  \end{array}\right)
+\end{eqnarray}
+which is the mini-batch update applied in RR-Adam for example, {\em via} our splitting perspective, 
+leads to an $F$ given by 
+\begin{eqnarray}
+\label{F_adam_mod}
+  F(\theta(t),v(t),s(t))=\sum_{b=1}^m F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
+  f(t) \frac{v(t)}{\sqrt{\epsilon_a+s(t)}}\\
+     -\bar{\beta}_1 {v(t)}+\bar{\beta}_1\nR(\theta(t))\\
+     -\bar{\beta}_2 {s(t)}+\bar{\beta}_2\sum_{b=1}^m \nR_b^{\otimes 2}(\theta(t))\\
+  \end{array}\right),
+\end{eqnarray}
+which is {\em not the classical Adam update rule}. Still, this new full batch update rule satisfies
+{\em condition 1} of theorem \ref{th}. But strictly speaking, in our splitting point of view, the mini-batch update \eqref{F_j_adam_3} is not the split version of Adam. 
+It is the split version of the full batch optimizer of flow \eqref{F_adam_mod}, which, in a sense, is a new full batch optimizer.  
+
+        Once again, the variance reduction versions related to Adam, see Adam$^+$ \cite{adam_variance1}, are fundamentally different from this approach.
+%        Note finally that additionnally to being independent of the choice of $F$, our methodology allows any choice of summable decomposition $F=\sum_{i=1}^m F_i$ for the       splitting. 
+\ \\
+
 \subsection{MNIST}
 
+Reproducible, same init for both
 \begin{figure}[!h]
   \includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot.png}
   \caption{MNIST}
   \label{mnist}
 \end{figure}
+
+
+\begin{figure}[!h]
+  \includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}
+  \caption{MNIST GD}
+  \label{mnist_gd}
+\end{figure}
+
+
+\begin{figure}[!h]
+  \includegraphics[width=0.8\linewidth]{chapitre5_img/Mom_comparison_plot.png}
+  \caption{MNIST Mom}
+  \label{mnist_mom}
+\end{figure}
+
+
 
 
 \section{Conclusion}

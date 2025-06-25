@@ -719,16 +719,21 @@ depending on the particular approximation of $F$.
 \label{num_res}
 
 
-In this section, we suggest applying the new previously described {low memory} splitting combined to GD to the 
+In this section, we suggest applying the new previously described splittings combined to \newG{GD, Momentum and Adam} to the 
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. 
-It is denoted as {eS-GD} for {\em extended Speth GD}.
-The study hence numerically emphasizes that this mini-batch optimiser also
-satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
+\newG{These are denoted as {eS-GD} for {\em extended Speth GD} (which is in fact equivalent to IAG, eS-Momentum, eS-Adam}.
+\newG{The mini-batch optimizer eS-GD is studied in section \ref{eSGD} tpgether with its {\em low memory} counterpart. The combination with random batching is also tested. 
+Algorithm eS-Momentum is studied in section \ref{mom} and eS-Adam in section \ref{adam}.}
+The studies will numerically emphasize that the balanced mini-batch optimisers also
+satisfy condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). 
-The section also emphasizes the fact that the next step for further improvements may be closely related to adaptiveness. 
+The sections also emphasize the fact that the next step for further improvements may be closely related to adaptiveness. 
+\newG{Finally, section \ref{mnist} focuses on a well-known high dimensional problem, the MNIST benchmark, in order to highlight the fact that the balanced splittings we suggest can
+be applied to real-world datasets.}
 %Part II of this paper will be dedicated to condition 6, namely adaptativeness. \\ %It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 
 \subsection{The extended Speth splitting applied to GD}
+\label{eSGD}
 
 %\begin{figure}[h!]
 %	\centering
@@ -764,55 +769,65 @@ The section also emphasizes the fact that the next step for further improvements
 	\label{SPETH_exs}
 \end{figure}
 
+%\begin{figure}[h!]
+%	\centering
+%	\scalebox{0.60}{\input{chapitre5_img/S-SPETH_exs.pgf}}
+%        \caption{
+%          Application of S-eS-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+% $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+% $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+% $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+% $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+% $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+% $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+% $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+% $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+%}
+%	\label{S_SPETH_exs}
+%\end{figure}
 \begin{figure}[h!]
 	\centering
-	\scalebox{0.60}{\input{chapitre5_img/RR-SPETH_exs.pgf}}
-        \caption{
-          Application of RR-eS-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
- $\eta = 1   \times 10^{-1}$  for \exOne    (a),
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
- $\eta = 1   \times 10^{-3}$  for \exThree  (c),
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
- $\eta = 5   \times 10^{-2}$  for \exFive   (e),
- $\eta = 1   \times 10^{-2}$  for \exSix    (f).
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
-}
-	\label{RR_SPETH_exs}
+	%\scalebox{0.60}{\input{chapitre5_img/DGD_exs_1.pgf}}
+        \scalebox{0.60}{\input{chapitre5_img/SGD_exs_1.pgf}}
+	\caption{
+          Application of RRGD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
+        }
+	\label{SGD_exs}
 \end{figure}
 
 
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/S-SPETH_exs.pgf}}
-        \caption{
-          Application of S-eS-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
- $\eta = 1   \times 10^{-1}$  for \exOne    (a),
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
- $\eta = 1   \times 10^{-3}$  for \exThree  (c),
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
- $\eta = 5   \times 10^{-2}$  for \exFive   (e),
- $\eta = 1   \times 10^{-2}$  for \exSix    (f).
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
-}
-	\label{S_SPETH_exs}
-\end{figure}
+Figure \ref{SPETH_exs} presents the results obtained with eS-GD on the eight examples described in section \ref{subsection_beyond_interpolation}. 
+The results are \newG{in the same format} as the one of all the previous figures (but only \exOne and \exTwo were tackled in the latter): the final distributions of the weights are
+displayed at a final $t_f$, for some constant learning rates $\eta$ (their values will be detailed and commented on later on).  
+In practice, the final time $t_f$ is not explicitly calculated as it is either obtained when the stopping criterion \eqref{stopping_criterion} is fulfilled or when the maximum number of iteration is reached
+$n_{max} = 10000$.  
+Note that for eS-GD, the final time always corresponds to the activation of the stopping criterion \eqref{stopping_criterion}, representative of the full gradient being smaller than $\epsilon =
+10^{-4}$ here. We remind the reader that stopping criterion \eqref{stopping_criterion} never needs the estimation on the full batch: it is estimated {\em on-the-fly} during the successive
+epochs/batches.  
+\ \\ \ \\
+For the eight next benchmarks, the first step was to tune of the (constant) learning rate $\eta$ and the total number of epochs $n_{max}$ for eS-GD (figure \ref{SPETH_exs}). 
 
 \begin{table}[h!]
 	\caption{Runtimes on the different examples}
-        \hspace{-3cm}\begin{tabular}{lllllllll}
+        \hspace{-1cm}\begin{tabular}{lllllllll}
 %         Runtimes (s.)  & \exOne                &  \exTwo               & \exThree              & \exFour               & \exFive               & \exSix                & \exFive                  & \exSix\\ 
           Runtimes (s.) for & (a)                &  (b)              & (c)              & (d)               & (e)               & (f)               & (g)                  & (h)\\ 
-          RRGD           & $2.46 \times 10^{-0}$ & $2.40\times 10^{+1}$  & $6.83 \times 10^{+1}$ & $3.21 \times 10^{+1}$ & $4.26 \times 10^{+1}$ & $2.81\times 10^{+1}$& $6.20 \times
-          10^{+1}$ & $5.14\times 10^{+1}$ \\ 
-          eS-GD         & $7.28 \times 10^{-1}$ & $9.49\times 10^{-1}$  & $7.23 \times 10^{+1}$ & $1.32 \times 10^{+0}$ & $1.32 \times 10^{+0}$ & $9.00\times 10^{-1}$& $2.14 \times  10^{+0}$ & $1.46\times 10^{-0}$ \\ 
-          low memory eS-GD   & $8.56 \times 10^{-1}$ & $9.76\times 10^{-1}$  & $1.12 \times 10^{+2}$ & $4.04 \times 10^{+0}$ & $1.68 \times 10^{+0}$ & $1.83\times 10^{+0}$& $3.70 \times 10^{+0}$ & $1.57\times 10^{+0}$\\ 
-      S-eS-GD         & $1.50 \times 10^{-0}$ & $2.00\times 10^{-0}$  & $1.12 \times 10^{+2}$ & $1.85 \times 10^{+0}$ & $1.30 \times 10^{+0}$ & $1.45\times 10^{-0}$& $3.61 \times  10^{+0}$ & $2.11\times 10^{-0}$ \\ 
-     RR-eS-GD         & $1.38 \times 10^{-0}$ & $1.81\times 10^{-0}$  & $1.27 \times 10^{+2}$ & $1.27 \times 10^{+0}$ & $6.71 \times 10^{-1}$ & $8.20\times 10^{-1}$& $2.54 \times 10^{+0}$ & $1.31\times 10^{-0}$ \\ 
+          RRGD           & $2.46 e{-0}$ & $2.40e{+1}$  & $6.83 e{+1}$ & $3.21 e{+1}$ & $4.26 e{+1}$ & $2.81e{+1}$& $6.20e{+1}$ & $5.14e{+1}$ \\ 
+          eS-GD         & $7.28 e{-1}$ & $9.49e{-1}$  & $7.23 e{+1}$ & $1.32 e{+0}$ & $1.32 e{+0}$ & $9.00e{-1}$& $2.14e{+0}$ & $1.46e{-0}$ \\ 
+          low memory eS-GD   & $8.56 e{-1}$ & $9.76e{-1}$  & $1.12 e{+2}$ & $4.04 e{+0}$ & $1.68 e{+0}$ & $1.83e{+0}$& $3.70 e{+0}$ & $1.57e{+0}$\\ 
+      %S-eS-GD         & $1.50 e{-0}$ & $2.00e{-0}$  & $1.12 e{+2}$ & $1.85 e{+0}$ & $1.30 e{+0}$ & $1.45e{-0}$& $3.61 \times  10^{+0}$ & $2.11e{-0}$ \\ 
+     RR-eS-GD         & $1.38 e{-0}$ & $1.81e{-0}$  & $1.27 e{+2}$ & $1.27 e{+0}$ & $6.71 e{-1}$ & $8.20e{-1}$& $2.54 e{+0}$ & $1.31e{-0}$ \\ 
 
 	\end{tabular}
-	\label{ex1_example}
+	\label{ex1_table}
 \end{table}
 %ex1 SPETH
 %time = 7.285564e-01
@@ -898,34 +913,7 @@ The section also emphasizes the fact that the next step for further improvements
 %ex8 RR-SPETH
 %time = 1.307210e+00
 
-\begin{figure}[h!]
-	\centering
-	%\scalebox{0.60}{\input{chapitre5_img/DGD_exs_1.pgf}}
-        \scalebox{0.60}{\input{chapitre5_img/SGD_exs_1.pgf}}
-	\caption{
-          Application of RRGD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
- $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
- $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
- $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
- $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
-        }
-	\label{SGD_exs}
-\end{figure}
 
-Figure \ref{SPETH_exs} presents the results obtained with eS-GD on the eight examples described in section \ref{subsection_beyond_interpolation}. 
-The results are of the same type as the one of all the previous figures (but only \exOne and \exTwo were tackled in the latter): the final distributions of the weights are
-displayed at a final $t_f$, for some constant learning rates $\eta$ (their values will be detailed and commented on later on).  
-In practice, the final time $t_f$ is not explicitly calculated as it is either obtained when the stopping criterion \eqref{stopping_criterion} is fulfilled or when the maximum number of iteration is reached
-$n_{max} = 10000$.  
-Note that for eS-GD, the final time always corresponds to the activation of the stopping criterion \eqref{stopping_criterion}, representative of the full gradient being smaller than $\epsilon =
-10^{-4}$ here. We remind the reader that stopping criterion \eqref{stopping_criterion} never needs the estimation on the full batch: it is estimated {\em on-the-fly} during the successive
-epochs/batches.  
-\ \\ \ \\
-For the eight next benchmarks, the first step was to tune of the (constant) learning rate $\eta$ and the total number of epochs $n_{max}$ for eS-GD (figure \ref{SPETH_exs}). 
 By tuning the learning rate for eS-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
 have stable resolutions. 
 By tuning $n_{max}$, we mean ensuring stationarity of the distributions for the algorithms which suffer from not having a stopping criterion.
@@ -971,6 +959,24 @@ our stopping criterion seems sufficient: when {\em a posteriori} computing the f
 	\label{SGD_exs_001}
 \end{figure}
 
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/RR-SPETH_exs.pgf}}
+        \caption{
+          Application of RR-eS-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+}
+	\label{RR_SPETH_exs}
+\end{figure}
+
+
 
 Figure \ref{SGD_exs} is obtained in the previous configurations of learning rates and maximum of epochs, the same as the ones of figure \ref{SPETH_exs} for eS-GD, but with RRGD. 
 On \exTwo, the results are satisfactory. But they are far from being acceptable for all the other benchmarks: for \exOne, \exThree, \exFour, \exFive, \exSeven and \exHeight,
@@ -985,6 +991,11 @@ converged: with a  learning rate $100$ times smaller, $100$ times more epochs ar
 On \exThree, the local and global minimums are now within the support of the distribution, but their probabilities of occurrence remain low.
 For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from being captured even if an improvement is noticeable. 
 Globally, without the balanced splitting we suggest in this paper, interpolatory minimums are favored, independently of their performances.  
+
+\newG{Figure \ref{RR_SPETH_exs} combines the extended Speth splitting with random batching (instead of deterministic incremental ones): the balancing, made by the
+aggregator on the gradient, ensures, even in this stochastic context, to capture minimums of the full batch loss function. }
+
+\newG{Finally, table \ref{ex1_table}... TODO}
 
 \ \\
 In this numerical study, the learning rate being constant, it had to be tuned to produce stable trajectories. 
@@ -1113,13 +1124,13 @@ $
 \nR_1(\theta(t_n))\otimes\nR_2(\theta(t_n)) = \nR_1(\theta^n)\otimes\nR_2(\theta^{n-\frac12}) + \mathcal{O}(\eta)
 $
 making it usable in a mini-batch context, at the cost of memory consumption. 
-\begin{figure}[!h]
-	\centering
-	\rotatebox{90}{\quad \quad Adam}\scalebox{0.60}{\input{chapitre5_img/adam_exs.pgf}}
-	\rotatebox{90}{\quad \quad eS-Adam}\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs.pgf}}
-        \caption{Stationary distributions of eS-Adam for learning rate $\eta=10^{-3}$ on \exOne: a) and \exTwo: b), for $n_{max}=5000$. The green straight line represents the position of the global minimum of $\R$.}
-	\label{speth_adam_ex1_ex2}
-\end{figure}
+%\begin{figure}[!h]
+%	\centering
+%	\rotatebox{90}{\quad \quad Adam}\scalebox{0.60}{\input{chapitre5_img/adam_exs.pgf}}
+%	\rotatebox{90}{\quad \quad eS-Adam}\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs.pgf}}
+%        \caption{Stationary distributions of eS-Adam for learning rate $\eta=10^{-3}$ on \exOne: a) and \exTwo: b), for $n_{max}=5000$. The green straight line represents the position of the global minimum of $\R$.}
+%	\label{speth_adam_ex1_ex2}
+%\end{figure}
 
 \textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., and grad**2 can be negative, Adam cv toward 0.40065455, and -0.7149311 for b) and 0.71428* for
 eS-Adam}
@@ -1191,13 +1202,14 @@ It is the split version of the full batch optimizer of flow \eqref{F_adam_mod}, 
 \ \\
 
 \subsection{MNIST}
+\label{mnist}
 
 Reproducible, same init for both
 \begin{figure}[!h]
   %\includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot.png}
   \includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot_log.png}
   \caption{MNIST}
-  \label{mnist}
+  \label{mnist_tout}
 \end{figure}
 
 
@@ -1697,7 +1709,7 @@ and
 \SetAlgoLined
 \SetKwInput{KwInput}{Input}
 \SetKwInput{KwOutput}{Output}
-\KwInput{Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+  \KwInput{\newG{CE QU'ON A ÉCRIT} Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
          model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
 \KwOutput{Trained network parameters $\theta$, test accuracy}
 
@@ -1750,6 +1762,64 @@ Compute $\text{acc}_{\text{test}}$\;
 \label{algo_speth}
 \end{algorithm}
 
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoLined
+\SetKwInput{KwInput}{Input}
+\SetKwInput{KwOutput}{Output}
+  \KwInput{\newG{CE QUE J'AI CODÉ} Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+         model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
+\KwOutput{Trained network parameters $\theta$, test accuracy}
+
+%\BlankLine
+%\tcc{Model definition}
+%$\theta \gets$ \{Flatten$(28\times28)$, Dense$(128,\text{ReLU})$, Dense$(10,\text{softmax})$\}\;
+
+\BlankLine
+\tcc{Initialise loss, network, aggregator, gradient table}
+$\mathcal{L}\leftarrow$ Loss \;
+$f(\theta, \cdot)$ \;
+%$\text{opt}\leftarrow$ SGD$(\eta)$\;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
+$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
+
+\BlankLine
+\For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
+    \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
+    $\,\text{loss}_{epochs}\gets 0 \;$\;
+    
+    \ForEach{batch index $b$}{
+        Extract mini‑batch $(x_b,y_b)$\;
+        Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
+        $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
+        Back‑propagate gradients: $g_b\leftarrow\nabla_\theta \ell_b$\;
+        \tcc{remove previous contribution for this batch}
+        $Agg \leftarrow Agg - Grad\_tab[b]$\;  
+        \tcc{Update the gradient table}
+        $Grad\_tab[b]\leftarrow g_b$\;
+        \tcc{Update aggregator}
+        $Agg \leftarrow Agg + Grad\_tab[b]$\;
+        
+        \tcc{Optimiser step with aggregated gradient}
+        $y \leftarrow y - \eta \frac{1}{m}F(y,\,Agg)$\;
+    }
+    
+    Compute aggregator norm $\,\|Grad\_tab\|$\;
+    \If{$\|Grad\_tab\| < \varepsilon$}{
+        \textbf{break}\;  \tcc{converged}
+    }
+}
+
+\BlankLine
+\tcc{Evaluation}
+Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
+Compute $\text{acc}_{\text{test}}$\;
+
+\Return{$\theta,\,\text{acc}_{\text{test}}$}
+  \caption{Pseudo-code for the extended-Speth splitting procedure (see section \ref{extendedSpeth}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)=\sum_{i=1}^m F_i(y)$.}
+\label{algo_speth}
+\end{algorithm}
 
 
 

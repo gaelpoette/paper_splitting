@@ -1903,6 +1903,73 @@ Compute $\text{acc}_{\text{test}}$\;
 \end{algorithm}
 
 
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoLined
+\SetKwInput{KwInput}{Input}
+\SetKwInput{KwOutput}{Output}
+  \KwInput{\newG{CE QUI EST CODÉ} Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+         model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
+\KwOutput{Trained network parameters $\theta$, test accuracy}
+
+%\BlankLine
+%\tcc{Model definition}
+%$\theta \gets$ \{Flatten$(28\times28)$, Dense$(128,\text{ReLU})$, Dense$(10,\text{softmax})$\}\;
+
+\BlankLine
+\tcc{Initialise loss, network, aggregator, grad., pivot }
+$\mathcal{L}\leftarrow$ Loss,  $\theta_{\text{pivot}} = \theta$ \;
+%$\text{opt}\leftarrow$ SGD$(\eta)$\;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
+$L\gets 0$ (stiffness evaluation, one entry per batch)\;
+
+\BlankLine
+\For{$\texttt{epochs}\gets 0$ \KwTo \texttt{max\_epochs}}{
+    \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
+    \,$\text{loss}_{epochs}$\gets 0 \;
+    \If{\texttt{epochs}==0}{
+      $\eta$ = 0\;
+    }
+    SumAgg \gets 0\; 
+    \ForEach{batch index $b$}{
+        Extract mini‑batch $(x_b,y_b)$\;
+        Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
+        $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
+        Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$\;
+        Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
+        Agg \gets Agg       - $g_{\text{pivot}}$ \tcc*{rm prev. contrib. for $F_b$}
+        SumAgg \gets SumAgg + $g_b$ \tcc*{Update $g_n$}
+        Agg \gets Agg       + $g_b$ \tcc*{Update aggregator}
+        \If{$L < \|g_b\|$}{ 
+           $\theta_\text{pivot} = \theta$\tcc*{Update the pivot weights}
+
+           $L =  \|g_b\|$
+        }
+        \If{b==number\_of\_batch}{
+           Agg = SumAgg
+        }
+        \tcc{Optimiser step with aggregated gradient}
+        $y\leftarrow y- \eta F(y,\,Agg)$\;
+    }
+    
+    Compute aggregator norm $\,\|Agg\|$\;
+    \If{$\|Agg\| < \varepsilon$}{
+        \textbf{break}\;  \tcc{converged}
+    }
+}
+\BlankLine
+\tcc{Evaluation}
+Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
+Compute $\text{acc}_{\text{test}}$\;
+
+\Return{$\theta,\,\text{acc}_{\text{test}}$}
+\caption{Pseudo-code for the extended-Speth splitting procedure {\em with memory reduction} (see section \ref{red_mem}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)=\sum_{i=1}^m F_i(y)$.}
+\label{algo_red_mem}
+\end{algorithm}
+
+
+
+
 \section{\newG{Proof of theorem \ref{th}}}
 \label{proof}
 

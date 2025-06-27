@@ -729,7 +729,7 @@ satisfy condition 5 relative to the existence of a stopping criterion \eqref{sto
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). 
 The sections also emphasize the fact that the next step for further improvements may be closely related to adaptiveness. 
 \newG{Finally, section \ref{mnist} focuses on a well-known high dimensional problem, the MNIST benchmark, in order to highlight the fact that the balanced splittings we suggest can
-be applied to real-world datasets.}
+be applied to real-world datasets. }
 %Part II of this paper will be dedicated to condition 6, namely adaptativeness. \\ %It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 
 \subsection{The extended Speth splitting applied to GD}
@@ -1204,7 +1204,12 @@ It is the split version of the full batch optimizer of flow \eqref{F_adam_mod}, 
 \subsection{MNIST}
 \label{mnist}
 
-Reproducible, same init for both
+In this section, we compare the previously described splitting strategies to their classical stochastic mini-batch counteparts on the MNIST benchmark. 
+The MNIST benchmark is a classic dataset and evaluation task used to test and compare machine learning models on handwritten digit classification. 
+It consists of $60000$ training and $10000$ test grayscale images of digits $(0-9)$, each sized $28\times 28$ pixels (i.e. it is a high dimensional benchmark). 
+It is a standard baseline for evaluating the effectiveness of new algorithms, especially in image classification and deep learning.
+
+Reproducible, same init for every computations, same architecture, same initial point, lr = , momentum = 0.9
 \begin{figure}[!h]
   %\includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot.png}
   \includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot_log.png}
@@ -1253,7 +1258,7 @@ machine-learning test than the full-batch counterpart. %This is the subject of p
 
 
 \section*{Data availibility and harware}
-The examples are implemented in Python and Tensorflow: the code is available at \textcolor{blue} {https://github.com/bbensaid30/TOptimizers.git}. 
+The examples are implemented in Python and Tensorflow: the code is available at \textcolor{blue} {https://github.com/?????????}. 
 
 \section*{Conflict of interest}
 The authors declare that they have no conflict of interest.
@@ -1931,6 +1936,7 @@ $L\gets 0$ (stiffness evaluation, one entry per batch)\;
       $\eta$ = 0\;
     }
     SumAgg \gets 0\; 
+    L \gets 0 \;
     \ForEach{batch index $b$}{
         Extract mini‑batch $(x_b,y_b)$\;
         Forward pass: $z_b\leftarrow f_\theta(x_b)$\;

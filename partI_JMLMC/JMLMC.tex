@@ -585,7 +585,7 @@ Up to a factor $\frac{1}{2}$ on the learning rate,
 \end{equation*}
 Both on \exOne and \exTwo, the stationary distributions of \eqref{RAG_2batch} are exactly the same as the ones for the Speth splitting, see figures \ref{IAG_ex1} and \ref{IAG_ex2}. This fact empirically confirms the balanced property of this scheme.
 
-For $m$ operators, \eqref{RAG_2batch} can naturally be extended to the form:
+For $m$ operators, \eqref{RAG_2batch} can naturally be extended to the most general form:
 \begin{equation}
 	y_{n+i/m} = y_{n+(i-1)/m}+\eta^i g_n^i,
 	\label{RAG_scheme}
@@ -644,7 +644,7 @@ This formula can be implemented with a reasonable memory cost of $3N$ instead of
 
 \subsection{\newG{Theoretical property}}
 \label{th_prop}
-\textcolor{red}{VERIFIER QUE PAS AUSSI VRAI AVEC LE SPLITTING CLASSIQUE...}
+%\textcolor{red}{VERIFIER QUE PAS AUSSI VRAI AVEC LE SPLITTING CLASSIQUE...}
 
 The previous construction allows stating the following theorem.
 \begin{theorem}
@@ -660,7 +660,8 @@ $
 F(y)=0 \Longrightarrow \nR(y)=0,
 $
 \item that $m$ operators $(F_i)_{i\in\{1,..,m\}}$
-such that $F=\sum_{i=1}^m F_i \newG{+\mathcal{O}(\eta)}$ have been chosen, 
+such that $F=\sum_{i=1}^m F_i$ %{+\mathcal{O}(\eta)}$ 
+    have been chosen, 
 \item that the updates $(y_n)_{n\in\mathbb{N}}$ obtained {\em via} expressions \eqref{RAG_scheme} or \eqref{RAGL_splitting}  converges toward $y_\infty$,
 \end{enumerate}
  then $y_\infty$ is a critical points of $F$. 
@@ -721,14 +722,16 @@ depending on the particular approximation of $F$.
 
 In this section, we suggest applying the new previously described splittings combined to \newG{GD, Momentum and Adam} to the 
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. 
-\newG{These are denoted as {eS-GD} for {\em extended Speth GD} (which is in fact equivalent to IAG, eS-Momentum, eS-Adam}.
-\newG{The mini-batch optimizer eS-GD is studied in section \ref{eSGD} tpgether with its {\em low memory} counterpart. The combination with random batching is also tested. 
-Algorithm eS-Momentum is studied in section \ref{mom} and eS-Adam in section \ref{adam}.}
+\newG{These are denoted as {eS-GD} for {\em extended Speth GD} (which is in fact equivalent to IAG), eS-Momentum, eS-Adam}.
+\newG{The mini-batch optimizer eS-GD is studied in section \ref{eSGD} together with its {\em low memory} counterpart. The combination with random batching is also tested. 
+Algorithm eS-Momentum is studied in section \ref{mom} and eS-Adam in section \ref{adam}. 
+The latter, due to the particular structure of the flow (operator $^{\otimes 2}$ see
+section \ref{adam}), intensively uses the consistency of the approximation combined with the splitting.}
 The studies will numerically emphasize that the balanced mini-batch optimisers also
 satisfy condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). 
 The sections also emphasize the fact that the next step for further improvements may be closely related to adaptiveness. 
-\newG{Finally, section \ref{mnist} focuses on a well-known high dimensional problem, the MNIST benchmark, in order to highlight the fact that the balanced splittings we suggest can
+\newG{Finally, section \ref{mnist} focuses on a well-known high dimensional problem, the MNIST benchmark, highlighting the fact that the balanced splittings we suggest can
 be applied to real-world datasets. }
 %Part II of this paper will be dedicated to condition 6, namely adaptativeness. \\ %It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 
@@ -815,6 +818,91 @@ epochs/batches.
 \ \\ \ \\
 For the eight next benchmarks, the first step was to tune of the (constant) learning rate $\eta$ and the total number of epochs $n_{max}$ for eS-GD (figure \ref{SPETH_exs}). 
 
+
+By tuning the learning rate for eS-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
+have stable resolutions. 
+By tuning $n_{max}$, we mean ensuring stationarity of the distributions for the algorithms which suffer from not having a stopping criterion.
+For all the benchmarks, $n_{max}=10000$ seems to be a qualitatively good choice. 
+For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $F_1,F_2$ are available: they correspond to 
+the largest estimation of the stability condition available. 
+For all the other benchmarks, the larger learning rates have been (coarsely) manually obtained. They are given by 
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
+As can be seen on figure \ref{SPETH_exs}, the distributions obtained with eS-GD are all peaked on the different local and global minimums, for the eight benchmarks, with
+constant learning
+rates which are tractable. 
+%Note that on example \exHeight, figure \ref{SPETH_exs} (f), the eS-GD optimiser does not find the global minimum and remains stuck on the local one: 
+Note that on these benchmarks, we noticed that decreasing the time step does help giving more weight to the global minimum. 
+It hints toward the fact that adaptivity may be necessary here in order to capture stiff global minima.  
+We will see in the descriptions of the behaviors of RRGD in the same conditions that the balanced splitting already provides significant benefits (with a way smaller cost
+than reducing and tuning the learning rate). \\ 
+Now, in the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
+soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. 
+The benchmarks also point out that
+our stopping criterion seems sufficient: when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
+\begin{figure}[h!]
+	\centering
+	%\scalebox{0.60}{\input{chapitre5_img/DGD_exs_001.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/SGD_exs_001.pgf}}
+	\caption{
+          Application of RRGD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
+}
+	\label{SGD_exs_001}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\scalebox{0.60}{\input{chapitre5_img/RR-SPETH_exs.pgf}}
+        \caption{
+          Application of RR-eS-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+}
+	\label{RR_SPETH_exs}
+\end{figure}
+
+
+
+Figure \ref{SGD_exs} is obtained in the previous configurations of learning rates and maximum of epochs, the same as the ones of figure \ref{SPETH_exs} for eS-GD, but with RRGD. 
+On \exTwo, the results are satisfactory. But they are far from being acceptable for all the other benchmarks: for \exOne, \exThree, \exFour, \exFive, \exSeven and \exHeight,
+artificial minimums are captured. These artificial minimums can be quite far from the true ones, see \exFour, \exSeven, \exHeight.    
+Very often, the distributions are not peaked in the vicinities of the minimums.
+On the last benchmark (figure \ref{SGD_exs} f)), neither the local nor the global minimums is captured. 
+The first hypothesis coming to mind to obtain better results would be to decrease the learning rate: figure \ref{SGD_exs_001} is obtained in exactly the same configurations but
+with learning rates $100$ times smaller than for figures \ref{SPETH_exs} and \ref{SGD_exs}. 
+For benchmarks \exOne and \exFour, it does mitigate the problem: the minimums of $\R$ are recovered with good probabilities. 
+However, for all the other benchmarks, this is far from being enough: on benchmark \exTwo, i.e. on figure \ref{SGD_exs_001} (b), the distribution is not anymore
+converged: with a  learning rate $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
+On \exThree, the local and global minimums are now within the support of the distribution, but their probabilities of occurrence remain low.
+For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from being captured even if an improvement is noticeable. 
+Globally, without the balanced splitting we suggest in this paper, interpolatory minimums are favored, independently of their performances.  
+
+\newG{Figure \ref{RR_SPETH_exs} combines the extended Speth splitting with random batching (instead of deterministic incremental ones). It is refered as RR-eS-GD because we simply
+used a random reshuffle at each beginning of epochs. The balancing, made by the
+aggregator on the gradient, ensures, even in this stochastic context, to capture minimums of the full batch loss function. On benchmark \exHeight, which is probably the stiffest
+with no interpolating minima, the global minimum is never
+recovered with random mini-batching, whereas its weight is around $40\%$ on figure \ref{SPETH_exs} with the deterministic one. }
+
 %\begin{table}[h!]
 %	\caption{Runtimes on the different examples}
 %        \hspace{-1cm}\begin{tabular}{lllllllll}
@@ -837,6 +925,19 @@ For the eight next benchmarks, the first step was to tune of the (constant) lear
 	\label{ex1_table}
 \end{figure}
 
+\newG{Finally, figure \ref{ex1_table} displays the runtimes (log scale) obtained in all the previous configurations, i.e. with RRGD, eS-GD, lm-eS-SG (low memory) and RR-eS-GD on all the
+benchmarks. RRGD is consistently slower across all test-cases:
+    in figures \ref{ex1_table} (c) and (g), it is an order of magnitude slower than the others.
+On another hand, eS-GD and RR-eS-GD are much faster:
+    their runtimes stay in the 1s. or sub-second range for most cases.
+    This is also due to the efficient and robust stopping criterion based on the consistent aggregator. 
+    RR-eS-GD shows both low and stable runtimes.
+Low-memory eS-GD is slightly slower than eS-GD. We insist it is based on a heuristic compatible with remaining consistent (see section \ref{red_mem}). As a consequence,  we cannot expect 
+this low memory optimiser to outperform eS-GD. But still, it is efficient in the sense that their performances are comparable (which is not the case for RRGD). 
+Please note that these runtimes do not correspond to equivalent accuracies, see figures \ref{SGD_exs}-\ref{SPETH_exs}-\ref{SGD_exs_001}-\ref{RR_SPETH_exs} for full comparison of performance.
+    In figure \ref{ex1_table} (c), it is notably slower:
+this benchmark is notable in that the global minimum of $\R_1$ lies near a poor local minimum of $\R$, which may help explain why balanced mini-batch optimizers struggle to escape it.
+}
 
 %ex1 SPETH
 %time = 7.285564e-01
@@ -922,89 +1023,6 @@ For the eight next benchmarks, the first step was to tune of the (constant) lear
 %ex8 RR-SPETH
 %time = 1.307210e+00
 
-
-By tuning the learning rate for eS-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
-have stable resolutions. 
-By tuning $n_{max}$, we mean ensuring stationarity of the distributions for the algorithms which suffer from not having a stopping criterion.
-For all the benchmarks, $n_{max}=10000$ seems to be a qualitatively good choice. 
-For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $F_1,F_2$ are available: they correspond to 
-the largest estimation of the stability condition available. 
-For all the other benchmarks, the larger learning rates have been (coarsely) manually obtained. They are given by 
- $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
- $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
- $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
- $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
-As can be seen on figure \ref{SPETH_exs}, the distributions obtained with eS-GD are all peaked on the different local and global minimums, for the eight benchmarks, with
-constant learning
-rates which are tractable. 
-%Note that on example \exHeight, figure \ref{SPETH_exs} (f), the eS-GD optimiser does not find the global minimum and remains stuck on the local one: 
-Note that on these benchmarks, we noticed that decreasing the time step does help giving more weight to the global minimum. 
-It hints toward the fact that adaptivity may be necessary here in order to capture stiff global minima.  
-We will see in the descriptions of the behaviors of RRGD in the same conditions that the balanced splitting already provides significant benefits (with a way smaller cost
-than reducing and tuning the learning rate). \\ 
-Now, in the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
-soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. 
-The benchmarks also point out that
-our stopping criterion seems sufficient: when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
-\begin{figure}[h!]
-	\centering
-	%\scalebox{0.60}{\input{chapitre5_img/DGD_exs_001.pgf}}
-	\scalebox{0.60}{\input{chapitre5_img/SGD_exs_001.pgf}}
-	\caption{
-          Application of RRGD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
- $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
- $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
- $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
- $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
-}
-	\label{SGD_exs_001}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\scalebox{0.60}{\input{chapitre5_img/RR-SPETH_exs.pgf}}
-        \caption{
-          Application of RR-eS-GD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
- $\eta = 1   \times 10^{-1}$  for \exOne    (a),
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
- $\eta = 1   \times 10^{-3}$  for \exThree  (c),
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
- $\eta = 5   \times 10^{-2}$  for \exFive   (e),
- $\eta = 1   \times 10^{-2}$  for \exSix    (f).
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
-}
-	\label{RR_SPETH_exs}
-\end{figure}
-
-
-
-Figure \ref{SGD_exs} is obtained in the previous configurations of learning rates and maximum of epochs, the same as the ones of figure \ref{SPETH_exs} for eS-GD, but with RRGD. 
-On \exTwo, the results are satisfactory. But they are far from being acceptable for all the other benchmarks: for \exOne, \exThree, \exFour, \exFive, \exSeven and \exHeight,
-artificial minimums are captured. These artificial minimums can be quite far from the true ones, see \exFour, \exSeven, \exHeight.    
-Very often, the distributions are not peaked in the vicinities of the minimums.
-On the last benchmark (figure \ref{SGD_exs} f)), neither the local nor the global minimums is captured. 
-The first hypothesis coming to mind to obtain better results would be to decrease the learning rate: figure \ref{SGD_exs_001} is obtained in exactly the same configurations but
-with learning rates $100$ times smaller than for figures \ref{SPETH_exs} and \ref{SGD_exs}. 
-For benchmarks \exOne and \exFour, it does mitigate the problem: the minimums of $\R$ are recovered with good probabilities. 
-However, for all the other benchmarks, this is far from being enough: on benchmark \exTwo, i.e. on figure \ref{SGD_exs_001} (b), the distribution is not anymore
-converged: with a  learning rate $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
-On \exThree, the local and global minimums are now within the support of the distribution, but their probabilities of occurrence remain low.
-For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from being captured even if an improvement is noticeable. 
-Globally, without the balanced splitting we suggest in this paper, interpolatory minimums are favored, independently of their performances.  
-
-\newG{Figure \ref{RR_SPETH_exs} combines the extended Speth splitting with random batching (instead of deterministic incremental ones): the balancing, made by the
-aggregator on the gradient, ensures, even in this stochastic context, to capture minimums of the full batch loss function. }
-
-\newG{Finally, table \ref{ex1_table}... TODO}
 
 \ \\
 In this numerical study, the learning rate being constant, it had to be tuned to produce stable trajectories. 
@@ -1144,13 +1162,14 @@ making it usable in a mini-batch context, at the cost of memory consumption.
 \textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., and grad**2 can be negative, Adam cv toward 0.40065455, and -0.7149311 for b) and 0.71428* for
 eS-Adam}
 
+
 \begin{figure}[h!]
 	\centering
 	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
 	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_5000.pgf}}
-	\scalebox{0.60}{\input{chapitre5_img/adam_exs_10000.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/adam_fb_exs.pgf}}
         \caption{
-          Application of low memory Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+          Application of RR-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
  $\eta = 1   \times 10^{-1}$  for \exOne    (a),
  $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
  $\eta = 1   \times 10^{-3}$  for \exThree  (c),
@@ -1161,6 +1180,24 @@ eS-Adam}
  $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
 }
 	\label{adam_exs}
+\end{figure}
+\begin{figure}[h!]
+	\centering
+	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
+	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_5000.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/adam_exs_10000.pgf}}
+        \caption{
+          Application of RR-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+}
+	\label{rr_adam_exs}
 \end{figure}
 
 \begin{figure}[h!]

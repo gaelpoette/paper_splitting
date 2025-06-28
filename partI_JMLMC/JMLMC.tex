@@ -401,7 +401,7 @@ solution of \eqref{Cauchy_problem}. A splitting method then \newG{consists of}:
 	\item Solve exactly or approximately the ODE $y'(t)=F_i(y(t))$.
 	\item Put the different solutions together in order to build a solution for \eqref{Cauchy_problem}. 
 \end{itemize}
-As a basis for splitting schemes, see \cite{splitting_ode_review,splitting_ode_review2}.
+As a basis for splitting schemes, see \cite{splitting_ode_review,splitting_ode_review2}, and \cite{DepresNN} for an introduction in a deep learning context.
 
 \subsection{RRGD as a splitting}
 ~~\\
@@ -727,7 +727,7 @@ analytical {\em non interpolating} benchmarks described in section \ref{subsecti
 Algorithm eS-Momentum is studied in section \ref{mom} and eS-Adam in section \ref{adam}. 
 The latter, due to the particular structure of the flow (operator $^{\otimes 2}$ see
 section \ref{adam}), intensively uses the consistency of the approximation combined with the splitting.}
-The studies will numerically emphasize that the balanced mini-batch optimisers also
+The studies will numerically emphasize that the balanced mini-batch optimizers also
 satisfy condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). 
 The sections also emphasize the fact that the next step for further improvements may be closely related to adaptiveness. 
@@ -837,7 +837,7 @@ For all the other benchmarks, the larger learning rates have been (coarsely) man
 As can be seen on figure \ref{SPETH_exs}, the distributions obtained with eS-GD are all peaked on the different local and global minimums, for the eight benchmarks, with
 constant learning
 rates which are tractable. 
-%Note that on example \exHeight, figure \ref{SPETH_exs} (f), the eS-GD optimiser does not find the global minimum and remains stuck on the local one: 
+%Note that on example \exHeight, figure \ref{SPETH_exs} (f), the eS-GD optimizer does not find the global minimum and remains stuck on the local one: 
 Note that on these benchmarks, we noticed that decreasing the time step does help giving more weight to the global minimum. 
 It hints toward the fact that adaptivity may be necessary here in order to capture stiff global minima.  
 We will see in the descriptions of the behaviors of RRGD in the same conditions that the balanced splitting already provides significant benefits (with a way smaller cost
@@ -933,7 +933,7 @@ On another hand, eS-GD and RR-eS-GD are much faster:
     This is also due to the efficient and robust stopping criterion based on the consistent aggregator. 
     RR-eS-GD shows both low and stable runtimes.
 Low-memory eS-GD is slightly slower than eS-GD. We insist it is based on a heuristic compatible with remaining consistent (see section \ref{red_mem}). As a consequence,  we cannot expect 
-this low memory optimiser to outperform eS-GD. But still, it is efficient in the sense that their performances are comparable (which is not the case for RRGD). 
+this low memory optimizer to outperform eS-GD. But still, it is efficient in the sense that their performances are comparable (which is not the case for RRGD). 
 Please note that these runtimes do not correspond to equivalent accuracies, see figures \ref{SPETH_exs}-\ref{SGD_exs}-\ref{SGD_exs_001}-\ref{RR_SPETH_exs} for full comparison of performance.
     In figure \ref{ex1_table} (c), it is notably slower:
 this benchmark is notable in that the global minimum of $\R_1$ lies near a poor local minimum of $\R$, which may help explain why balanced mini-batch optimizers struggle to escape it.
@@ -1061,7 +1061,7 @@ The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG w
   The last line of figure \ref{mom_ex1_ex2} displays the results at epoch $n=2000$, for which we verified that stationarity is reached:  S-Momentum captures respectively
   $x=0.40533333$ instead of the unique global minimum $0.4$ of \exOne, 
   and $x=-0.72457792$ instead of $0.71$, the global minimum of \exTwo. 
-  In other words, the appearance of artificial minimums strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimisers
+  In other words, the appearance of artificial minimums strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimizers
   (other $F$) and is not only restricted to SGD or RRGD. 
 
   On the other hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with eS-Momentum, for {\em extended Speth Momentum} {(without memory reduction)}, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
@@ -1109,13 +1109,13 @@ faster than S-Momentum on benchmark \exOne, and $\times 37$ faster on benchmark 
 
         Note that the application of our extension of Speth's splitting gives an update that is fundamentally different than STORM (variance reduction on Momentum). 
         %The balanced splitting point of view leads to some optimizers looking like SAG or RR-SARAH when combined to GD but builds 
-        %very different mini-batch optimisers from the ones obtained by applying a variance reduction technique. 
+        %very different mini-batch optimizers from the ones obtained by applying a variance reduction technique. 
         We insist on the fact that any $F$ can be chosen: a whole new family of mini-batch algorithms can be constructed based on \eqref{RAG_scheme} using the
         equation relative to RMSProp, Adam etc.
 
 \subsection{\newG{The extended Speth splitting applied to Adam}}
 \label{adam}
-The flow for Adam is given by \cite{bianchi,Bilel,Bilel_thesis}
+The flow for Adam is given by \cite{barakat,Bilel,Bilel_thesis}
 \begin{eqnarray}
   \label{Flow_adam}
   \dot{y}(t) = F(y(t),t) \Longleftrightarrow  \left\{\begin{array}{l}
@@ -1126,9 +1126,36 @@ The flow for Adam is given by \cite{bianchi,Bilel,Bilel_thesis}
 \end{eqnarray}
 with $f(t)= \frac{\sqrt{1-e^{-\bar{\beta}_2 t}}}{1-e^{-\bar{\beta}_1 t}}$
     where $a^{\otimes 2}$  denotes the element-wise squaring operator on a vector $a$ and $\bar{\beta}_\alpha = \frac{\beta_\alpha}{\eta}$, $\alpha\in\{1,2\}$, see \cite{Bilel}.
+Note that Adam's flow verifies {\em condition 1} of theorem \ref{th} \cite{Bilel}.
 
-First, Adam's flow verifies {\em condition 1} of theorem \ref{th} \cite{Bilel}.
-Let us build operators $(F_i)_{i\in\{1,..,m\}}$ fulfilling {\em condition 2}.
+Figure \ref{adam_fb_exs} displays the results on the 8 benchmarks of this section but with {\em full batch} Adam in exactly the same conditions as before.  
+It is noticeable that full batch Adam captures the critical points of $\R$, local or global ones depending on the initialization, without any particular problems.  
+On another hand, figure \ref{rr_adam_exs} displays the results with RR-Adam, i.e. with stochastic mini-batching. Similar comments as in section \ref{section_stationary} for
+SGD/RRGD can be made: RR-Adam satisfactorily captures interpolating critical points but fails to do so for non-interpolary ones. Artificial critical points, i.e. Dirac masses at
+locations which are more related to the chosen learning rate than the full batch loss $\R$, are recovered on at least $4$ of the benchmarks. The global minimumis totally ignored in
+benchmark \exSeven (figure \ref{rr_adam_exs} (g)). 
+\begin{figure}[h!]
+	\centering
+	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
+	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_5000.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/adam_exs_10000.pgf}}
+        \caption{
+          Application of RR-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+}
+	\label{rr_adam_exs}
+\end{figure}
+
+
+Now, let us build operators $(F_i)_{i\in\{1,..,m\}}$ fulfilling {\em condition 2} in order to design an eS-Adam mini-batch optimizer.
+As explained in section \ref{new_splitting}, the choice of the splitting is not unique. 
 One possibility is to choose for batch $b\in\{1,..,m\}$:
 \begin{eqnarray}
 \label{F_j_adam_1}
@@ -1160,54 +1187,7 @@ $
 \nR_1(\theta(t_n))\otimes\nR_2(\theta(t_n)) = \nR_1(\theta^n)\otimes\nR_2(\theta^{n-\frac12}) + \mathcal{O}(\eta)
 $
 making it usable in a mini-batch context, at the cost of memory consumption. 
-%\begin{figure}[!h]
-%	\centering
-%	\rotatebox{90}{\quad \quad Adam}\scalebox{0.60}{\input{chapitre5_img/adam_exs.pgf}}
-%	\rotatebox{90}{\quad \quad eS-Adam}\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs.pgf}}
-%        \caption{Stationary distributions of eS-Adam for learning rate $\eta=10^{-3}$ on \exOne: a) and \exTwo: b), for $n_{max}=5000$. The green straight line represents the position of the global minimum of $\R$.}
-%	\label{speth_adam_ex1_ex2}
-%\end{figure}
 
-\textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., and grad**2 can be negative, Adam cv toward 0.40065455, and -0.7149311 for b) and 0.71428* for
-eS-Adam}
-
-
-\begin{figure}[h!]
-	\centering
-	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
-	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_5000.pgf}}
-	\scalebox{0.60}{\input{chapitre5_img/adam_fb_exs.pgf}}
-        \caption{
-          Application of RR-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
- $\eta = 1   \times 10^{-1}$  for \exOne    (a),
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
- $\eta = 1   \times 10^{-3}$  for \exThree  (c),
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
- $\eta = 5   \times 10^{-2}$  for \exFive   (e),
- $\eta = 1   \times 10^{-2}$  for \exSix    (f).
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
-}
-	\label{adam_exs}
-\end{figure}
-\begin{figure}[h!]
-	\centering
-	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
-	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_5000.pgf}}
-	\scalebox{0.60}{\input{chapitre5_img/adam_exs_10000.pgf}}
-        \caption{
-          Application of RR-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
- $\eta = 1   \times 10^{-1}$  for \exOne    (a),
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
- $\eta = 1   \times 10^{-3}$  for \exThree  (c),
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
- $\eta = 5   \times 10^{-2}$  for \exFive   (e),
- $\eta = 1   \times 10^{-2}$  for \exSix    (f).
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
-}
-	\label{rr_adam_exs}
-\end{figure}
 
 \begin{figure}[h!]
 	\centering
@@ -1215,7 +1195,7 @@ eS-Adam}
 	%\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_5000.pgf}}
 	\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_10000.pgf}}
         \caption{
-          Application of low memory eS-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+          Application of eS-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
  $\eta = 1   \times 10^{-1}$  for \exOne    (a),
  $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
  $\eta = 1   \times 10^{-3}$  for \exThree  (c),
@@ -1252,9 +1232,27 @@ which is {\em not the classical Adam update rule}. Still, this new full batch up
 {\em condition 1} of theorem \ref{th}. But strictly speaking, in our splitting point of view, the mini-batch update \eqref{F_j_adam_3} is not the split version of Adam. 
 It is the split version of the full batch optimizer of flow \eqref{F_adam_mod}, which, in a sense, is a new full batch optimizer.  
 
+But there is an additional difficulty in build an eS-Adam mini-batch optimizer.  
+Let us choose this simple splitting
+$$
+F = \sum_{b=1}^m F_b = \sum_{b=1}^m \frac{1}{m}F,
+$$
+which reuses Adam's update rule. The idea here is simply to build a consistent aggregator for the gradient and combine it with $F_b=\frac{1}{m}F$. 
+The strategy is recalled in algorithm \ref{algo_speth_adam} (which can be applied to any optimizer, as will be verified in section \ref{mnist} with an application to Momentum).
+Note that {\em as such, if we run the code, many divergences occur}. 
+A closer look at some runs and initialisations lead to a loss of positivity of
+the aggregator on $\nR^{\otimes 2}$. 
+
+
+in order to show the flexibility of our approach, 
+
+\textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., and grad**2 can be negative}
+
+
+\ \\
+
         Once again, the variance reduction versions related to Adam, see Adam$^+$ \cite{adam_variance1}, are fundamentally different from this approach.
 %        Note finally that additionnally to being independent of the choice of $F$, our methodology allows any choice of summable decomposition $F=\sum_{i=1}^m F_i$ for the       splitting. 
-\ \\
 
 \subsection{MNIST}
 \label{mnist}
@@ -1265,28 +1263,46 @@ It consists of $60000$ training and $10000$ test grayscale images of digits $(0-
 It is a standard baseline for evaluating the effectiveness of new algorithms, especially in image classification and deep learning.
 
 Reproducible, same init for every computations, same architecture, same initial point, lr = , momentum = 0.9
+%\begin{figure}[!h]
+%  %\includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot.png}
+%  \includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot_log.png}
+%  \caption{MNIST}
+%  \label{mnist_tout}
+%\end{figure}
+
+
+%\begin{figure}[!h]
+% \includegraphics[width=0.5\linewidth]{chapitre5_img/GD_comparison_plot_log.png}
+% \includegraphics[width=0.5\linewidth]{chapitre5_img/Mom_comparison_plot_log.png}
+%  \caption{MNIST GD and MOM}
+%  \label{mnist}
+%\end{figure}
+
 \begin{figure}[!h]
-  %\includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot.png}
-  \includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot_log.png}
-  \caption{MNIST}
-  \label{mnist_tout}
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/GD_loss_log.png}
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/Momentum_loss_log.png}\\
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/GD_accuracy.png}
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/Momentum_accuracy.png}\\
+  \caption{MNIST GD and MOM}
+  \label{mnist}
 \end{figure}
 
 
-\begin{figure}[!h]
-  %\includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}
-  \includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot_log.png}
-  \caption{MNIST GD}
-  \label{mnist_gd}
-\end{figure}
 
-
-\begin{figure}[!h]
-  %\includegraphics[width=0.8\linewidth]{chapitre5_img/Mom_comparison_plot.png}
-  \includegraphics[width=0.8\linewidth]{chapitre5_img/Mom_comparison_plot_log.png}
-  \caption{MNIST Mom}
-  \label{mnist_mom}
-\end{figure}
+%\begin{figure}[!h]
+%  %\includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}
+%  \includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot_log.png}
+%  \caption{MNIST GD}
+%  \label{mnist_gd}
+%\end{figure}
+%
+%
+%\begin{figure}[!h]
+%  %\includegraphics[width=0.8\linewidth]{chapitre5_img/Mom_comparison_plot.png}
+%  \includegraphics[width=0.8\linewidth]{chapitre5_img/Mom_comparison_plot_log.png}
+%  \caption{MNIST Mom}
+%  \label{mnist_mom}
+%\end{figure}
 
 
 
@@ -1758,6 +1774,27 @@ and
 	\label{IAG_ex2}
 \end{figure}
 
+
+\section{Figure relative to the study of Adam, RR-Adam, eS-Adam of section \ref{adam}}
+\begin{figure}[h!]
+	\centering
+	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
+	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_5000.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/adam_fb_exs.pgf}}
+        \caption{
+          Application of {\em (full batch)} Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
+ $\eta = 1   \times 10^{-1}$  for \exOne    (a),
+ $\eta = 5.81\times 10^{-3}$  for \exTwo    (b),
+ $\eta = 1   \times 10^{-3}$  for \exThree  (c),
+ $\eta = 3.33\times 10^{-2}$  for \exFour   (d),
+ $\eta = 5   \times 10^{-2}$  for \exFive   (e),
+ $\eta = 1   \times 10^{-2}$  for \exSix    (f).
+ $\eta = 1   \times 10^{-2}$  for \exSeven  (g),
+ $\eta = 2.5 \times 10^{-2}$  for \exHeight (h).
+}
+	\label{adam_fb_exs}
+\end{figure}
+
 \clearpage
 
 \section{\newG{Pseudo-code of the algorithms of sections \ref{extendedSpeth} and \ref{red_mem}}}
@@ -1769,7 +1806,7 @@ and
 \SetAlgoLined
 \SetKwInput{KwInput}{Input}
 \SetKwInput{KwOutput}{Output}
-  \KwInput{\newG{CE QU'ON A ÉCRIT} Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+  \KwInput{Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
          model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
 \KwOutput{Trained network parameters $\theta$, test accuracy}
 
@@ -1782,7 +1819,7 @@ and
 $\mathcal{L}\leftarrow$ Loss \;
 $f(\theta, \cdot)$ \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
-$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimizer)\;
 $Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 
 \BlankLine
@@ -1804,65 +1841,6 @@ $Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
         
         \tcc{Optimiser step with aggregated gradient}
         $y \leftarrow y - \eta F_b(y,\,Agg)$\;
-    }
-    
-    Compute aggregator norm $\,\|Grad\_tab\|$\;
-    \If{$\|Grad\_tab\| < \varepsilon$}{
-        \textbf{break}\;  \tcc{converged}
-    }
-}
-
-\BlankLine
-\tcc{Evaluation}
-Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
-Compute $\text{acc}_{\text{test}}$\;
-
-\Return{$\theta,\,\text{acc}_{\text{test}}$}
-  \caption{Pseudo-code for the extended-Speth splitting procedure (see section \ref{extendedSpeth}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)=\sum_{i=1}^m F_i(y)$.}
-\label{algo_speth}
-\end{algorithm}
-
-
-\begin{algorithm}[H]
-\DontPrintSemicolon
-\SetAlgoLined
-\SetKwInput{KwInput}{Input}
-\SetKwInput{KwOutput}{Output}
-  \KwInput{\newG{CE QUE J'AI CODÉ} Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
-         model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
-\KwOutput{Trained network parameters $\theta$, test accuracy}
-
-%\BlankLine
-%\tcc{Model definition}
-%$\theta \gets$ \{Flatten$(28\times28)$, Dense$(128,\text{ReLU})$, Dense$(10,\text{softmax})$\}\;
-
-\BlankLine
-\tcc{Initialise loss, network, aggregator, gradient table}
-$\mathcal{L}\leftarrow$ Loss \;
-$f(\theta, \cdot)$ \;
-%$\text{opt}\leftarrow$ SGD$(\eta)$\;
-$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
-$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
-
-\BlankLine
-\For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
-    \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
-    $\,\text{loss}_{epochs}\gets 0 \;$\;
-    
-    \ForEach{batch index $b$}{
-        Extract mini‑batch $(x_b,y_b)$\;
-        Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
-        $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
-        Back‑propagate gradients: $g_b\leftarrow\nabla_\theta \ell_b$\;
-        \tcc{remove previous contribution for this batch}
-        $Agg \leftarrow Agg - Grad\_tab[b]$\;  
-        \tcc{Update the gradient table}
-        $Grad\_tab[b]\leftarrow g_b$\;
-        \tcc{Update aggregator}
-        $Agg \leftarrow Agg + Grad\_tab[b]$\;
-        
-        \tcc{Optimiser step with aggregated gradient}
-        $y \leftarrow y - \eta \frac{1}{m}F(y,\,Agg)$\;
     }
     
     Compute aggregator norm $\,\|Grad\_tab\|$\;
@@ -1911,7 +1889,7 @@ Compute $\text{acc}_{\text{test}}$\;
 \tcc{Initialise loss, network, aggregator, grad., pivot }
 $\mathcal{L}\leftarrow$ Loss,  $\theta_{\text{pivot}} = \theta$ \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
-$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimizer)\;
 SumAgg \gets 0, AggGrad \gets 0 \;
 %$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 $L\gets 0$ (stiffness evaluation, one entry per batch)\;
@@ -1968,7 +1946,7 @@ Compute $\text{acc}_{\text{test}}$\;
 \SetAlgoLined
 \SetKwInput{KwInput}{Input}
 \SetKwInput{KwOutput}{Output}
-  \KwInput{\newG{CE QUI EST CODÉ} Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+  \KwInput{Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
          model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
 \KwOutput{Trained network parameters $\theta$, test accuracy}
 
@@ -1977,56 +1955,116 @@ Compute $\text{acc}_{\text{test}}$\;
 %$\theta \gets$ \{Flatten$(28\times28)$, Dense$(128,\text{ReLU})$, Dense$(10,\text{softmax})$\}\;
 
 \BlankLine
-\tcc{Initialise loss, network, aggregator, grad., pivot }
-$\mathcal{L}\leftarrow$ Loss,  $\theta_{\text{pivot}} = \theta$ \;
+\tcc{Initialise loss, network, aggregator, gradient table}
+$\mathcal{L}\leftarrow$ Loss \;
+$f(\theta, \cdot)$ \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
-$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
-$L\gets 0$ (stiffness evaluation, one entry per batch)\;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimizer)\;
+$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 
 \BlankLine
-\For{$\texttt{epochs}\gets 0$ \KwTo \texttt{max\_epochs}}{
+\For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
     \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
-    \,$\text{loss}_{epochs}$\gets 0 \;
-    \If{\texttt{epochs}==0}{
-      $\eta$ = 0\;
-    }
-    SumAgg \gets 0\; 
-    L \gets 0 \;
+    $\,\text{loss}_{epochs}\gets 0 \;$\;
+    
     \ForEach{batch index $b$}{
         Extract mini‑batch $(x_b,y_b)$\;
         Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
         $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
-        Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$\;
-        Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
-        Agg \gets Agg       - $g_{\text{pivot}}$ \tcc*{rm prev. contrib. for $F_b$}
-        SumAgg \gets SumAgg + $g_b$ \tcc*{Update $g_n$}
-        Agg \gets Agg       + $g_b$ \tcc*{Update aggregator}
-        \If{$L < \|g_b\|$}{ 
-           $\theta_\text{pivot} = \theta$\tcc*{Update the pivot weights}
-
-           $L =  \|g_b\|$
-        }
-        \If{b==number\_of\_batch}{
-           Agg = SumAgg
-        }
+        Back‑propagate gradients: $g_b\leftarrow\nabla_\theta \ell_b$\;
+        \tcc{remove previous contribution for this batch}
+        $Agg \leftarrow Agg - Grad\_tab[b]$\;  
+        \tcc{Update the gradient table}
+        $Grad\_tab[b]\leftarrow g_b$\;
+        \tcc{Update aggregator}
+        $Agg \leftarrow Agg + Grad\_tab[b]$\;
+        
         \tcc{Optimiser step with aggregated gradient}
-        $y\leftarrow y- \eta F(y,\,Agg)$\;
+        $y \leftarrow y - \eta \frac{1}{m}F(y,\,Agg)$\;
     }
     
-    Compute aggregator norm $\,\|Agg\|$\;
-    \If{$\|Agg\| < \varepsilon$}{
+    Compute aggregator norm $\,\|Grad\_tab\|$\;
+    \If{$\|Grad\_tab\| < \varepsilon$}{
         \textbf{break}\;  \tcc{converged}
     }
 }
+
 \BlankLine
 \tcc{Evaluation}
 Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
 Compute $\text{acc}_{\text{test}}$\;
 
 \Return{$\theta,\,\text{acc}_{\text{test}}$}
-\caption{Pseudo-code for the extended-Speth splitting procedure {\em with memory reduction} (see section \ref{red_mem}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)=\sum_{i=1}^m F_i(y)$.}
-\label{algo_red_mem}
+  \caption{Pseudo-code for the extended-Speth splitting procedure (see section \ref{extendedSpeth}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)=\sum_{i=1}^m F_i(y)$.}
+\label{algo_speth_adam}
 \end{algorithm}
+
+
+
+%\begin{algorithm}[H]
+%\DontPrintSemicolon
+%\SetAlgoLined
+%\SetKwInput{KwInput}{Input}
+%\SetKwInput{KwOutput}{Output}
+%  \KwInput{\newG{CE QUI EST CODÉ} Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+%         model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
+%\KwOutput{Trained network parameters $\theta$, test accuracy}
+%
+%%\BlankLine
+%%\tcc{Model definition}
+%%$\theta \gets$ \{Flatten$(28\times28)$, Dense$(128,\text{ReLU})$, Dense$(10,\text{softmax})$\}\;
+%
+%\BlankLine
+%\tcc{Initialise loss, network, aggregator, grad., pivot }
+%$\mathcal{L}\leftarrow$ Loss,  $\theta_{\text{pivot}} = \theta$ \;
+%%$\text{opt}\leftarrow$ SGD$(\eta)$\;
+%$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimizer)\;
+%$L\gets 0$ (stiffness evaluation, one entry per batch)\;
+%
+%\BlankLine
+%\For{$\texttt{epochs}\gets 0$ \KwTo \texttt{max\_epochs}}{
+%    \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
+%    \,$\text{loss}_{epochs}$\gets 0 \;
+%    \If{\texttt{epochs}==0}{
+%      $\eta$ = 0\;
+%    }
+%    SumAgg \gets 0\; 
+%    L \gets 0 \;
+%    \ForEach{batch index $b$}{
+%        Extract mini‑batch $(x_b,y_b)$\;
+%        Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
+%        $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
+%        Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$\;
+%        Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
+%        Agg \gets Agg       - $g_{\text{pivot}}$ \tcc*{rm prev. contrib. for $F_b$}
+%        SumAgg \gets SumAgg + $g_b$ \tcc*{Update $g_n$}
+%        Agg \gets Agg       + $g_b$ \tcc*{Update aggregator}
+%        \If{$L < \|g_b\|$}{ 
+%           $\theta_\text{pivot} = \theta$\tcc*{Update the pivot weights}
+%
+%           $L =  \|g_b\|$
+%        }
+%        \If{b==number\_of\_batch}{
+%           Agg = SumAgg
+%        }
+%        \tcc{Optimiser step with aggregated gradient}
+%        $y\leftarrow y- \eta F(y,\,Agg)$\;
+%    }
+%    
+%    Compute aggregator norm $\,\|Agg\|$\;
+%    \If{$\|Agg\| < \varepsilon$}{
+%        \textbf{break}\;  \tcc{converged}
+%    }
+%}
+%\BlankLine
+%\tcc{Evaluation}
+%Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
+%Compute $\text{acc}_{\text{test}}$\;
+%
+%\Return{$\theta,\,\text{acc}_{\text{test}}$}
+%\caption{Pseudo-code for the extended-Speth splitting procedure {\em with memory reduction} (see section \ref{red_mem}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)=\sum_{i=1}^m F_i(y)$.}
+%\label{algo_red_mem}
+%\end{algorithm}
 
 
 

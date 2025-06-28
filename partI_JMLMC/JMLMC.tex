@@ -934,9 +934,9 @@ On another hand, eS-GD and RR-eS-GD are much faster:
     RR-eS-GD shows both low and stable runtimes.
 Low-memory eS-GD is slightly slower than eS-GD. We insist it is based on a heuristic compatible with remaining consistent (see section \ref{red_mem}). As a consequence,  we cannot expect 
 this low memory optimiser to outperform eS-GD. But still, it is efficient in the sense that their performances are comparable (which is not the case for RRGD). 
-Please note that these runtimes do not correspond to equivalent accuracies, see figures \ref{SGD_exs}-\ref{SPETH_exs}-\ref{SGD_exs_001}-\ref{RR_SPETH_exs} for full comparison of performance.
+Please note that these runtimes do not correspond to equivalent accuracies, see figures \ref{SPETH_exs}-\ref{SGD_exs}-\ref{SGD_exs_001}-\ref{RR_SPETH_exs} for full comparison of performance.
     In figure \ref{ex1_table} (c), it is notably slower:
-this benchmark is notable in that the global minimum of $\R_1$ lies near a poor local minimum of $\R$, which may help explain why balanced mini-batch optimizers struggle to escape it.
+this benchmark is notable in that the global minimum of $\R_1$ lies near a poor local minimum of $\R$, which may help explain why balanced mini-batch optimizers struggle to escape it.
 }
 
 %ex1 SPETH
@@ -1028,7 +1028,7 @@ this benchmark is notable in that the global minimum of $\R_1$ lies near a poo
 In this numerical study, the learning rate being constant, it had to be tuned to produce stable trajectories. 
 It is the only hyperparameter to tune because we considered eS-GD here. 
 But other variations such as eS-Momentum or eS-Adam for example would have needed to tune other hyperparameters (classically denoted by $\beta_1,\beta_2, \epsilon_a$ in the literature, see
-\cite{Bilel_thesis}). %Part II will be focused to overcoming this tedious tuning phase.  
+\cite{Bilel_thesis}). They are studied in the next sections. %Part II will be focused to overcoming this tedious tuning phase.  
 
 \subsection{The extended Speth splitting applied to Momentum}
 \label{mom}
@@ -1077,23 +1077,32 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
   At epoch $n=2000$, for which stationarity is reached (in fact, the aformentionned stopping criterion \eqref{stopping_criterion} involving $g_n^i$ is activated at $n\approx 40 - 60 \ll 2000$ depending on the
   initialization), the eS-Momentum algorithm recovers the 
   position of the global and local minimums with a perfect accuracy, with a constant learning rate. 
-\begin{table}[h!]
-	\caption{Runtimes on the different examples for Momentum and eS-Momentum}
-        \begin{tabular}{ccccc}
-%         Runtimes (s.)  & \exOne                &  \exTwo               & \exThree              & \exFour               & \exFive               & \exSix                & \exFive                  & \exSix\\ 
-          Runtimes (s.) for & \begin{tabular}{c}\exOne \\ $n=20$\end{tabular}              &  \begin{tabular}{c}\exTwo \\ $n=20$\end{tabular}                  & \begin{tabular}{c}
-            \exOne \\  $n=2000$ \end{tabular}           &  \begin{tabular}{c}\exTwo \\   $n=2000$ \end{tabular}              \\ 
-          S-Momentum        & $7.48 \times 10^{-1}$ & $9.02\times 10^{-1}$             & $4.16 \times 10^{+1}$      & $5.69\times 10^{+1}$ \\ 
-         eS-Momentum        & $9.76 \times 10^{-1}$ & $1.21\times 10^{-0}$             & $7.21 \times 10^{-1}$      & $1.51\times 10^{-0}$\\ 
-	\end{tabular}
+%\begin{table}[h!]
+%	\caption{Runtimes on the different examples for Momentum and eS-Momentum}
+%        \begin{tabular}{ccccc}
+%%         Runtimes (s.)  & \exOne                &  \exTwo               & \exThree              & \exFour               & \exFive               & \exSix                & \exFive                  & \exSix\\ 
+%          Runtimes (s.) for & \begin{tabular}{c}\exOne \\ $n=20$\end{tabular}              &  \begin{tabular}{c}\exTwo \\ $n=20$\end{tabular}                  & \begin{tabular}{c}
+%            \exOne \\  $n=2000$ \end{tabular}           &  \begin{tabular}{c}\exTwo \\   $n=2000$ \end{tabular}              \\ 
+%          S-Momentum        & $7.48 \times 10^{-1}$ & $9.02\times 10^{-1}$             & $4.16 \times 10^{+1}$      & $5.69\times 10^{+1}$ \\ 
+%         eS-Momentum        & $9.76 \times 10^{-1}$ & $1.21\times 10^{-0}$             & $7.21 \times 10^{-1}$      & $1.51\times 10^{-0}$\\ 
+%	\end{tabular}
+%	\label{ex1_example_mom}
+%\end{table}
+\begin{figure}[h!]
+	\centering
+	%\scalebox{0.60}{\input{chapitre5_img/DGD_exs_1.pgf}}
+        \scalebox{0.90}{\includegraphics[width=\linewidth]{chapitre5_img/runtimes_mom.png}}
+	\caption{Runtimes on \exOne and \exTwo for S-Momentum and eS-Momentum}
 	\label{ex1_example_mom}
-\end{table}
+\end{figure}
 \newG{
-Table \ref{ex1_example_mom}  presents the runtimes observed in the previous numerical experiments. For both test cases with $n=20$, the two mini-batch strategies yield comparable runtimes. Although their accuracies differ significantly (as shown in the top rows of Figures  \ref{mom_ex1_ex2} and \ref{speth_mom_ex1_ex2}), the runtimes confirm that both implementations perform a similar number of operations.
+Figure \ref{ex1_example_mom}  presents the runtimes observed in the previous numerical experiments. 
+For both test cases with $n=20$, the two mini-batch strategies yield comparable runtimes. Although their accuracies differ significantly (as shown in the top rows of Figures  \ref{mom_ex1_ex2} and \ref{speth_mom_ex1_ex2}), the runtimes confirm that both implementations perform a similar number of operations.
 The bottom rows of the same figure offer a fairer comparison: although the stationary distribution of S-Momentum still captures artificial minima, the overall performance is not
 catastrophic. The corresponding runtimes are shown in the last two columns of Table \ref{ex1_example_mom}, where the eS-Momentum algorithm proves to be significantly faster -
 $\times 57$
-faster than S-Momentum on benchmark \exOne, and $\times 37$ faster on benchmark \exTwo.}
+faster than S-Momentum on benchmark \exOne, and $\times 37$ faster on benchmark \exTwo.
+}
 %The bottom lines of the same figure are more comparable in the sense that even if the stationary distribution of S-Momentum captures artificial minima, the results are not that
 %terrible: the computational times are displayed in the two last columns of table \ref{ex1_example_mom}. The eS-Momentum algorithm is $\times 57$ faster than S-Momentum on benchmark
 %\exOne and $\times 37$ on benchmark \exTwo. }

@@ -67,7 +67,7 @@
 \volume{Volume x, Issue x, \myyear\today}
 \title{Numerical splitting schemes as the cornerstone for mini-batch optimization: On the importance of well-balanced methods}
 \titlehead{On the importance of well-balanced methods}
-\authorhead{F.A. Author, S.B. Author, \& T. Author}
+\authorhead{B. Bensaid, G. Po\"ette, R. Turpault}
 %For at least  authors with different addresses, use instead the following commands
 \author[1,2]{{Bilel} {Bensaid}}\corremail{bilel.bensaid30@gmail.com}
 
@@ -248,13 +248,13 @@ criteria}. \textcolor{blue}{In this paper, we focus on these five first points a
 The main contributions of this work are as follows:
 \begin{itemize}
     \item  We introduce a new operator-splitting perspective that helps explain several optimization pathologies.
-    \item 
-We prove that, without relying on the interpolation condition, the mini-batch optimizers we construct - if they do converge - converge to a critical point of the full-batch loss function.
     \item  We develop a balanced update rule that aligns the fixed points of each sub-flow, eliminating the mismatch observed with standard methods. This framework provides, by
       construction, guarantees on the critical points obtained in a mini-batch setting. Some existing mini-batch optimizers can be considered particular cases of our
-      framework. It also enables the design of new full-batch optimizers.
+      framework. %It also enables the design of new full-batch optimizers.
+    \item 
+We prove that, without relying on the interpolation condition, the mini-batch optimizers we construct - if they do converge - converge to a critical point of the full-batch loss function.
     \item   Carefully chosen one-dimensional toy problems show that the proposed method avoids spurious stationary distributions and converges to the true minima even in
-      non-interpolatory, imbalanced scenarios, constant learning rates context.
+      non-interpolatory, imbalanced scenarios, constant learning rates context. The results are confirmed on real-world datasets.
 \end{itemize}
 }
 
@@ -636,11 +636,13 @@ part of $g_n$ related to this batch. It is the most problematic part because it 
 stiffest batch. We suggest to introduce a pivot variable whose indice  $i_{\text{pivot}}$ is such that
 $$i_{\text{pivot}} = \argmax_{j\in\{1,...,m\}} \|\nR_j(y_{n-1+(j-1)/m})\|.$$}
 This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
+\newG{Naturally, this choice is heuristic and inherently non-unique. However, it highlights the method's flexibility, relying only on minimal assumptions—primarily consistency.
+Nonetheless, as we will see in Section \ref{num_res}, it proves to be effective in practice.}
 \newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_red_mem}.}
 
-\begin{remark}
-  \newG{ While memory consumption is a relevant point of discussion, the per-batch computational cost of applying updates (11) and (13) remains low. This will be confirmed in the numerical experiments presented in Section \ref{num_res}.} 
-\end{remark}
+%\begin{remark}
+%  \newG{ While memory consumption is a relevant point of discussion, the per-batch computational cost of applying updates (11) and (13) remains low. This will be confirmed in the numerical experiments presented in Section \ref{num_res}.} 
+%\end{remark}
 
 \subsection{\newG{Theoretical property}}
 \label{th_prop}
@@ -664,7 +666,7 @@ such that $F=\sum_{i=1}^m F_i$ %{+\mathcal{O}(\eta)}$
     have been chosen, 
 \item that the updates $(y_n)_{n\in\mathbb{N}}$ obtained {\em via} expressions \eqref{RAG_scheme} or \eqref{RAGL_splitting}  converges toward $y_\infty$,
 \end{enumerate}
- then $y_\infty$ is a critical points of $F$. 
+ then $y_\infty$ is a critical points of the full batch flow $F$. 
 \end{theorem}
 The proofs can be found in \ref{proof}.\\
 
@@ -673,7 +675,8 @@ first, if convergence occurs in the mini-batch setting, it is toward a critical 
 interpolation condition}.\\
 Second, the choice of the underlying optimizer used in the splitting is crucial. If {\em condition 1} is not satisfied (i.e., the full-batch optimizer does not lead to a critical
 point of $\R$), then its mini-batch variant cannot be expected to do so either.\\
-Finally, {\em condition 2}, which concerns the sub-operators in the splitting, is not particularly restrictive. Given a full-batch optimizer, multiple splitting schemes can be devised due to the non-uniqueness of the sum decomposition. Some of these schemes may be more practical or effective than others - see Section~\ref{adam} for an illustrative example.
+Finally, {\em condition 2}, which pertains to the sub-operators in the splitting scheme, is not especially restrictive. 
+Given a full-batch optimizer, multiple splitting schemes can be devised due to the non-uniqueness of the sum decomposition. Some of these schemes may be more practical or effective than others - see section \ref{adam} for an illustrative example.
 
 \subsection{Stopping criterion}
 ~~\\
@@ -1320,11 +1323,13 @@ The goal of this paper is to serve as a first step towards an extension of full-
 More precisely, the following points are tackled:
 \begin{itemize}
 	\item the interpolation hypothesis is largely discussed through different configurations in one dimension. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new steady states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
-	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied to the gradient flow. This turns the
-          classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an explicit Euler scheme. This
+	\item 
+          \newG{To better understand this undesirable behavior, we propose a new perspective: reinterpret RRGD as a splitting scheme applied to the gradient flow. This approach inverts the traditional methodology - rather than discretizing a known continuous system, we first introduce a new stochastic differential equation (SDE) and then derive RRGD as its discretization using an explicit Euler method.}
+         % To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied to the gradient flow. This turns the classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an explicit Euler scheme. 
+          This
           splitting approach makes it possible to explain the appearance of "artificial" steady states that are related to the unbalancing of the splitting: the steady states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
          \item A new family of algorithms is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch
-           decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping
+           decomposition. In particular, it allows to recover even non-interpolating critical points. Furthermore, it respects 5 properties that seem desirable, including a natural stopping
            criterion which doesn't require to compute full batch gradients. 
 \end{itemize}
 

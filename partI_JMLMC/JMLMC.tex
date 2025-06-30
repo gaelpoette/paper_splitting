@@ -253,7 +253,7 @@ The main contributions of this work are as follows:
       framework. %It also enables the design of new full-batch optimizers.
     \item 
 We prove that, without relying on the interpolation condition, the mini-batch optimizers we construct - if they do converge - converge to a critical point of the full-batch loss function.
-    \item   Carefully chosen one-dimensional toy problems show that the proposed method avoids spurious stationary distributions and converges to the true minima even in
+    \item   Carefully chosen one-dimensional toy problems show that, as opposed to unbalanced ones, the proposed method avoids spurious stationary distributions and converges to true minima even in
       non-interpolatory, imbalanced scenarios, constant learning rates context. The results are confirmed on real-world datasets.
 \end{itemize}
 }
@@ -352,7 +352,7 @@ other words, several stationary states have nothing to do with the minimums of t
  For RRGD, the behavior is completely different, see figure \ref{RRGD_ex1}. When the learning rate decreases, the distribution gets closer to a Dirac centered at the global
  minimum. But for intermediary learning rates (graphs a) and b)) the second Dirac is located at the minimum of $\R_2$, that is to say $\theta=0.5$. It is true that the behavior of RRGD is less troubling than the one of SGD but it is still problematic because the convergence (existence of a stationary distribution) does not imply to find a minimum of $\R$. \\
 Concerning \exTwo (figure \ref{sgd_ex2}), for any learning rate, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. 
-\newG{Unfortunately, SGD appears to favor interpolating minima regardless of their quality, even when the learning rate is sufficiently small.}
+\newG{Unfortunately, SGD appears to favor interpolating minima regardless of their quality, even when the learning rate is small.}
 Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not \newG{overlooked} even for an intermediary value of the learning rate (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
 Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the gaussian-like distribution is not well-centered (\exOne) or interpolating
 local minimum are largely favored.
@@ -1102,9 +1102,9 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
 Figure \ref{ex1_example_mom}  presents the runtimes observed in the previous numerical experiments. 
 For both test cases with $n=20$, the two mini-batch strategies yield comparable runtimes. Although their accuracies differ significantly (as shown in the top rows of Figures  \ref{mom_ex1_ex2} and \ref{speth_mom_ex1_ex2}), the runtimes confirm that both implementations perform a similar number of operations.
 The bottom rows of the same figure offer a fairer comparison: although the stationary distribution of S-Momentum still captures artificial minima, the overall performance is not
-catastrophic. The corresponding runtimes are shown in the last two columns of Table \ref{ex1_example_mom}, where the eS-Momentum algorithm proves to be significantly faster -
-$\times 57$
-faster than S-Momentum on benchmark \exOne, and $\times 37$ faster on benchmark \exTwo.
+catastrophic. The corresponding runtimes are shown in the last two columns of Figure \ref{ex1_example_mom}, where the eS-Momentum algorithm proves to be significantly faster -
+$57$ times 
+faster than S-Momentum on benchmark \exOne, and $37$ times faster on benchmark \exTwo.
 }
 %The bottom lines of the same figure are more comparable in the sense that even if the stationary distribution of S-Momentum captures artificial minima, the results are not that
 %terrible: the computational times are displayed in the two last columns of table \ref{ex1_example_mom}. The eS-Momentum algorithm is $\times 57$ faster than S-Momentum on benchmark

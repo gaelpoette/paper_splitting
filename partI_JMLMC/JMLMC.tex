@@ -348,7 +348,7 @@ The figures
 ~~\\
 On the graphs a) and c) of figure \ref{sgd_ex1} a Dirac comb appears with a lot of stationary states spaced between the minimum $\theta=0$ of $\R_1$ and $\theta=0.5$ of $\R_2$. In
 other words, several stationary states have nothing to do with the minimums of the $\R_i$ or $\R$. 
-\newG{By reducing the learning rate (see graphs b) and d)), the distribution becomes more Gaussian-like, but it remains noticeably off-centered from the global minimum.}
+\newG{By reducing the learning rate (see graphs b) and d)), the distribution becomes more continuous, but it remains noticeably off-centered from the global minimum.}
  For RRGD, the behavior is completely different, see figure \ref{RRGD_ex1}. When the learning rate decreases, the distribution gets closer to a Dirac centered at the global
  minimum. But for intermediary learning rates (graphs a) and b)) the second Dirac is located at the minimum of $\R_2$, that is to say $\theta=0.5$. It is true that the behavior of RRGD is less troubling than the one of SGD but it is still problematic because the convergence (existence of a stationary distribution) does not imply to find a minimum of $\R$. \\
 Concerning \exTwo (figure \ref{sgd_ex2}), for any learning rate, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. 
@@ -637,7 +637,7 @@ stiffest batch. We suggest to introduce a pivot variable whose indice  $i_{\text
 $$i_{\text{pivot}} = \argmax_{j\in\{1,...,m\}} \|\nR_j(y_{n-1+(j-1)/m})\|.$$}
 This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
 \newG{Naturally, this choice is heuristic and inherently non-unique. However, it highlights the method's flexibility, relying only on minimal assumptions—primarily consistency.
-Nonetheless, as we will see in Section \ref{num_res}, it proves to be effective in practice.}
+Nonetheless, as we will see in Section  \ref{num_res}, it proves to be effective in practice.}
 \newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_red_mem}.}
 
 %\begin{remark}
@@ -734,7 +734,7 @@ The studies will numerically emphasize that the balanced mini-batch optimizers a
 satisfy condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). 
 The sections also emphasize the fact that the next step for further improvements may be closely related to adaptiveness. 
-\newG{Finally, section \ref{mnist} focuses on a well-known high dimensional problem, the MNIST benchmark, highlighting the fact that the balanced splittings we suggest can
+\newG{Finally, section \ref{s_mnist} focuses on a well-known high dimensional problem, the MNIST benchmark, highlighting the fact that the balanced splittings we suggest can
 be applied to real-world datasets. }
 %Part II of this paper will be dedicated to condition 6, namely adaptativeness. \\ %It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
 
@@ -1242,7 +1242,7 @@ F = \sum_{b=1}^m F_b = \sum_{b=1}^m \frac{1}{m}F,
 $$
 which reuses Adam's update rule given by \eqref{Flow_adam}. 
 The idea here is simply to build a consistent aggregator for the gradient $\nR$ and for its squared component $\nR^{\otimes 2}$ and use it within $F_b=\frac{1}{m}F$. 
-The strategy is fully described in algorithm \ref{algo_speth_adam} (which can be applied to any optimizer, as will be verified in section \ref{mnist} with an application to Momentum).
+The strategy is fully described in algorithm \ref{algo_speth_adam} (which can be applied to any optimizer, as will be verified in section \ref{s_mnist} with an application to Momentum).
 {\em As such, if the code is ran on the 8 previous benchmarks, for many initializations, divergences occur}. 
 A closer look at the divergent runs lead to the conclusion that the consistent approximation of $\nR^{\otimes}$ needs to preserve positivity for stability. 
 In practice, in order to obtain the results of figure \ref{speth_adam_exs_10000}, the aggregator on $\nR^{\otimes 2}$ has been limited (use of $\max(0, Aggregator^{\otimes})$): in
@@ -1254,7 +1254,7 @@ other words, for the moment, this eS-Adam version slightly out of the scope of s
 %        Note finally that additionnally to being independent of the choice of $F$, our methodology allows any choice of summable decomposition $F=\sum_{i=1}^m F_i$ for the       splitting. 
 
 \subsection{MNIST}
-\label{mnist}
+\label{s_mnist}
 
 In this section, we compare the previously described splitting strategies to their classical stochastic mini-batch counteparts on the MNIST benchmark. 
 The MNIST benchmark is a classic dataset and evaluation task used to test and compare machine learning models on handwritten digit classification. 
@@ -2083,7 +2083,7 @@ Compute $\text{acc}_{\text{test}}$\;
 \section{\newG{Proof of theorem \ref{th}}}
 \label{proof}
 
-Assume $(F_i)_{i\in\{1,...,m\}}$ as in theorem \ref{th} and consider first update \eqref{RAG_scheme} recalled here: 
+Assume $(F_i)_{i\in\{1,...,m\}}$ as in theorem \ref{th} and consider first update \eqref{RAG_scheme} (extended Speth splitting) recalled here: 
 \begin{equation}
   y_{n+i/m} = y_{n+(i-1)/m}+\eta \left(\sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right)\right).
 \end{equation}
@@ -2095,7 +2095,7 @@ Then we have
 leading to $F(y_\infty) = 0$ as soon as $\eta\neq 0$. 
 The property of the full batch optimizer (condition 1 of theorem \ref{th}) allows to conclude. \\ \ \\
 
-Assume once again that $(F_i)_{i\in\{1,...,m\}}$ are as in theorem \ref{th} and consider update \eqref{RAGL_splitting} recalled here: 
+Assume once again that $(F_i)_{i\in\{1,...,m\}}$ are as in theorem \ref{th} and consider update \eqref{RAGL_splitting} (low-memory extended Speth splitting) recalled here: 
 \begin{equation}
   y_{n+i/m} = y_{n+(i-1)/m}+\eta \left(g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{{n-1+(i_{\text{pivot}}-1})/m}\right)\right]\right).
 \end{equation}

@@ -1241,13 +1241,14 @@ $$
 F = \sum_{b=1}^m F_b = \sum_{b=1}^m \frac{1}{m}F,
 $$
 which reuses Adam's update rule given by \eqref{Flow_adam}. 
-The idea here is simply to build a consistent aggregator for the gradient $\nR$ and for its squared component $\nR^{\otimes 2}$ and use it within $F_b=\frac{1}{m}F$. 
+The idea here is simply to build a consistent aggregator for the gradient $\nR$ \textcolor{red}{and for its squared component $\nR^{\otimes 2}$} 
+and use it within $F_b(y,\nR(\theta)=\frac{1}{m}F(y,\nR(\theta))$. 
 The strategy is fully described in algorithm \ref{algo_speth_adam} (which can be applied to any optimizer, as will be verified in section \ref{s_mnist} with an application to Momentum).
 {\em As such, if the code is ran on the 8 previous benchmarks, for many initializations, divergences occur}. 
-A closer look at the divergent runs lead to the conclusion that the consistent approximation of $\nR^{\otimes}$ needs to preserve positivity for stability. 
-In practice, in order to obtain the results of figure \ref{speth_adam_exs_10000}, the aggregator on $\nR^{\otimes 2}$ has been limited (use of $\max(0, Aggregator^{\otimes})$): in
+A closer look at the divergent runs lead to the conclusion that the consistent approximation of $\nR^{\otimes 2}$ needs to preserve positivity for stability. 
+In practice, in order to obtain the results of figure \ref{speth_adam_exs}, the aggregator on $\nR^{\otimes 2}$ has been limited (use of $\max(0, Aggregator^{\otimes 2})$): in
 other words, for the moment, this eS-Adam version slightly out of the scope of section \ref{new_splitting}. Still, numerical results are displayed in figure
-\ref{speth_adam_exs_10000} and some very satisfactory results are obtained, even if many epochs are need in practice to reach stationarity. \\ 
+\ref{speth_adam_exs} and some very satisfactory results are obtained, even if many epochs are need in practice to reach stationarity. \\ 
 %\textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., adam fb = 83m56,667s and grad**2 can be negative}
 
         Note, once again, the variance reduction versions related to Adam, see Adam$^+$ \cite{adam_variance1}, are fundamentally different from the present approach.
@@ -1808,7 +1809,7 @@ and
 
 \clearpage
 
-\section{\newG{Pseudo-code of the algorithms of sections \ref{extendedSpeth} and \ref{red_mem}}}
+\section{\newG{Pseudo-code of the different new algorithms}}
 \label{pseudo_code}
 
 
@@ -1851,7 +1852,7 @@ $Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
         $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$\;
         
         \tcc{Optimiser step with aggregated gradient}
-        $y \leftarrow y - \eta F_b(y,\,Agg)$\;
+        $y \leftarrow y - \eta Agg$\; %F_b(y,\,Agg)$\;
     }
     
     Compute aggregator norm $\,\|Grad\_tab\|$\;
@@ -1919,11 +1920,11 @@ $L\gets 0$ (stiffness evaluation, one entry per batch)\;
         $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
         Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$\;
         Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
-        $Agg \leftarrow Agg - F_b(y,g_\text{pivot})$ \tcc*{rm prev. contrib. for $F_b$}
-        $AggGrad \leftarrow AggGrad - g_\text{pivot}$ \tcc*{rm prev. contrib. for $\nabla R_b$}
-        SumAgg \gets SumAgg + $g_b$  \tcc*{Update $g_n$}
+        Agg \gets Agg - $F_b(y,g_\text{pivot})$ \tcc*{rm prev. contrib. for $F_b$}
+        AggGrad \gets AggGrad - $g_\text{pivot}$ \tcc*{rm prev. contrib. for $\nabla R_b$}
         AggGrad \gets AggGrad + $g_b$  \tcc*{Update $g_n$}
-        $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$ \tcc*{Update aggregator}
+        SumAgg \gets SumAgg + $F_b(y,AggGrad)$  \tcc*{Update the sum of $F_n$}
+        Agg \gets Agg + $F_b(y,AggGrad)$ \tcc*{Update aggregator}
         \If{$L < \|g_b\|$}{ 
            $\theta_\text{pivot} = \theta$\tcc*{Update the pivot weights}
 
@@ -1933,11 +1934,11 @@ $L\gets 0$ (stiffness evaluation, one entry per batch)\;
            Agg = SumAgg
         }
         \tcc{Optimiser step with aggregated gradient}
-        $y=(\theta,v) \leftarrow y(\theta,v) - \eta F_b(y,\,Agg)$\;
+        $y=(\theta,v) \leftarrow y(\theta,v) - \eta Agg$ \; %F_b(y,\,Agg)$\;
     }
     
-    Compute aggregator norm $\,\|Grad\_tab\|$\;
-    \If{$\|Grad\_tab\| < \varepsilon$}{
+    Compute aggregator norm $\,\| AggGrad \|$\;
+    \If{$\| AggGrad \| < \varepsilon$}{
         \textbf{break}\;  \tcc{converged}
     }
 }
@@ -2006,7 +2007,8 @@ Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
 Compute $\text{acc}_{\text{test}}$\;
 
 \Return{$\theta,\,\text{acc}_{\text{test}}$}
-  \caption{Pseudo-code for the extended-Speth splitting procedure (see section \ref{extendedSpeth}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)=\sum_{i=1}^m F_i(y)$.}
+  \caption{Pseudo-code for the extended-Speth splitting procedure {\em building only an aggregator on the gradient} (as in sections \ref{adam}--\ref{mnist}) on an arbitrary full
+  batch optimizer of flow $\dot{y}=F(y, \nR(\theta))=\sum_{i=1}^m F_i(y,\nR(\theta))$.}
 \label{algo_speth_adam}
 \end{algorithm}
 
@@ -2080,7 +2082,7 @@ Compute $\text{acc}_{\text{test}}$\;
 
 
 
-\section{\newG{Proof of theorem \ref{th}}}
+\section{\newG{Proofs of the theorems}}
 \label{proof}
 
 Assume $(F_i)_{i\in\{1,...,m\}}$ as in theorem \ref{th} and consider first update \eqref{RAG_scheme} (extended Speth splitting) recalled here: 

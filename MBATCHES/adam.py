@@ -221,7 +221,9 @@ def adam_fb(x0,m,lr_init,eps,maxEpoch,typeR, num):
       x_prec=x0
       v_prec=v0
       m_prec=m0
-      grad=gradR(x,0,typeR) +gradR(x,1,typeR)  
+      grad= 0.
+      for i in range(P):
+        grad+=gradR(x_prec,i,typeR)
       m = (1-b1) * m + b1 * grad
       v = (1-b2) * v + b2 * (grad** 2)
       f = np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
@@ -238,10 +240,9 @@ def adam_fb(x0,m,lr_init,eps,maxEpoch,typeR, num):
       m0 = m_prec
       epoch+=1
       gNorm=np.linalg.norm(grad)
-    if epoch == maxEpoch:
-        print(str(num)+" max epoch reached")
+    #if epoch == maxEpoch:
+    #    print(str(num)+" max epoch reached")
     #print(num, x, epoch) 
-    print(num, x)
     return x, epoch
 
 def F(m, v, f, eta, grad, b1, b2, epsilon):
@@ -365,6 +366,65 @@ def adam_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
     print(num, x, epoch) 
     return x, epoch
 
+def speth_adam_F_no_clipping(x0,m,lr_init,eps,maxEpoch,typeR, num):
+    epoch=0
+    P=m
+    v0 = 0
+    s0 = 0
+    x  = x0
+    v  = v0 
+    s   = s0
+    b1   = 0.9
+    b2=0.999
+    epsilon=1e-8
+    bb   = 1.0
+    eta  = 1.e-15
+    grad = 0.
+    grad_tab=np.zeros(m)
+    for i in range(m):
+       grad_tab[i] = gradR(x,i,typeR)
+    g  =  np.sum(grad_tab)
+
+    F_tab =np.array([[0.,0.,0.],[0.,0.,0.]])
+    gNorm = 1000
+    Fl =np.array([0.,0.,0.])
+
+    while epoch < maxEpoch and gNorm/P > eps:
+      if epoch > 0:
+        eta=lr_init; 
+      x_prec=x0
+      v_prec=v0
+      s_prec=s0
+      for i in range(m):
+        grad=gradR(x,i,typeR)  
+        g  -= grad_tab[i]
+        g += grad
+        g2 = g**2
+        f = np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
+        Fl = np.array(Fi(s_prec, v_prec, f, eta, g, g2, b1, b2, epsilon, m))
+        s += eta * Fl[0]
+        v += eta * Fl[1]
+        x += eta * Fl[2]
+        grad_tab[i] = grad
+        x_prec = x
+        v_prec = v
+        s_prec = s
+        #print(f"epoch: {x, v, s}")
+        #if epoch > 2:
+        #   abort
+
+      x0 = x_prec
+      v0 = v_prec
+      s0 = s_prec
+      epoch+=1
+      gNorm=np.linalg.norm(g)
+      #print(epoch, gNorm) 
+    #if epoch == maxEpoch:
+    #    print(str(num)+" max epoch reached "+str(g)+"")
+    #print(num, x, epoch) 
+    return x, epoch
+
+
 
 def speth_adam_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
     epoch=0
@@ -403,6 +463,7 @@ def speth_adam_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
         g += grad
         g2+= grad**2
         g2 = max(g2,0) # sans ça, g2 peut passer négatif
+        g2 = g**2
         f = np.sqrt((1 - b2**(epoch+1)))/(1 - b1**(epoch+1))
         Fl = np.array(Fi(s_prec, v_prec, f, eta, g, g2, b1, b2, epsilon, m))
         s += eta * Fl[0]
@@ -422,9 +483,9 @@ def speth_adam_F(x0,m,lr_init,eps,maxEpoch,typeR, num):
       epoch+=1
       gNorm=np.linalg.norm(g)
       #print(epoch, gNorm) 
-    if epoch == maxEpoch:
-        print(str(num)+" max epoch reached "+str(g)+"")
-    print(num, x, epoch) 
+    #if epoch == maxEpoch:
+    #    print(str(num)+" max epoch reached "+str(g)+"")
+    #print(num, x, epoch) 
     return x, epoch
 
 
@@ -456,8 +517,9 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
             
             #x,epoch = adam_fb(x0,m,lr_init,eps,maxEpoch,typeR, p)
             #x,epoch = adam_fb_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
-            x,epoch = adam_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
+            #x,epoch = adam_F   (x0,m,lr_init,eps,maxEpoch,typeR, p)
             #x,epoch = speth_adam_F(x0,m,lr_init,eps,maxEpoch,typeR, p)
+            x,epoch = speth_adam_F_no_clipping(x0,m,lr_init,eps,maxEpoch,typeR, p)
 
             if(x>a and x<b):
                 #print(x) 
@@ -505,7 +567,9 @@ def exs(nbPoints, nbParticules, lr_init, eps, maxEpoch, typeCI):
         print(f"time = {t1-t0:e}")
  
     #plt.savefig('speth_adam_exs.pgf')
-    plt.savefig('adam_exs.pgf')
+    plt.savefig('speth_adam_no_clip_exs.pgf')
+    #plt.savefig('adam_exs.pgf')
+    #plt.savefig('adam_fb_exs.pgf')
     plt.show()
 
 

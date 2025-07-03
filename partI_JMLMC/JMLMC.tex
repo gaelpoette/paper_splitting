@@ -401,7 +401,7 @@ solution of \eqref{Cauchy_problem}. A splitting method then \newG{consists of}:
 	\item Solve exactly or approximately the ODE $y'(t)=F_i(y(t))$.
 	\item Put the different solutions together in order to build a solution for \eqref{Cauchy_problem}. 
 \end{itemize}
-As a basis for splitting schemes, see \cite{splitting_ode_review,splitting_ode_review2}, and \cite{DepresNN} for an introduction in a deep learning context.
+As a basis for splitting schemes, see \cite{splitting_ode_review,splitting_ode_review2}, and \cite{DespresNN} for an introduction in a deep learning context.
 
 \subsection{RRGD as a splitting}
 ~~\\
@@ -1196,7 +1196,8 @@ making it usable in a mini-batch context, at the cost of memory consumption.
 	\centering
 	%\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_1000.pgf}}
 	%\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_5000.pgf}}
-	\scalebox{0.60}{\input{chapitre5_img/speth_adam_exs_10000.pgf}}
+        %%\scalebex{0.60}{\input{chapitre5_img/speth_adam_exs_10000.pgf}}
+	\scalebox{0.60}{\input{chapitre5_img/speth_adam_no_clip_exs.pgf}}
         \caption{
           Application of eS-Adam for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and
  $\eta = 1   \times 10^{-1}$  for \exOne    (a),
@@ -1704,7 +1705,7 @@ and
 \end{table}
 
 
-\section{Figures relative to the studies of section \ref{section_splitting_schemes}}
+\section{Figures relative to the studies of section 3}
 %In this section, we gather the figures relative to the studies of section \ref{section_splitting_schemes} as we think it eases the readability of the paper. 
 
 \begin{figure}[h!]
@@ -1785,9 +1786,9 @@ and
 	\caption{Stationary distributions of \eqref{RAG_2batch} for different learning rates on \exTwo: a) $\eta=\frac{1}{\max(L_1,L_2)}$, b) $\eta=\frac{1}{3\max(L_1,L_2)}$, c) $\eta=\frac{1}{L_1+L_2}$, d) $\eta=\frac{1}{3(L_1+L_2)}$. The green vertical line represents the position of the global minimum and the blue one the position of the local minimum of $\R$.}
 	\label{IAG_ex2}
 \end{figure}
+\clearpage
 
-
-\section{Figure relative to the study of Adam, RR-Adam, eS-Adam of section \ref{adam}}
+\section{Figure relative to the study of Adam, RR-Adam, eS-Adam}
 \begin{figure}[h!]
 	\centering
 	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
@@ -1902,7 +1903,7 @@ Compute $\text{acc}_{\text{test}}$\;
 $\mathcal{L}\leftarrow$ Loss,  $\theta_{\text{pivot}} = \theta$ \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
 $Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimizer)\;
-SumAgg \gets 0, AggGrad \gets 0 \;
+AggGrad \gets 0 \;
 %$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 $L\gets 0$ (stiffness evaluation, one entry per batch)\;
 
@@ -1913,17 +1914,16 @@ $L\gets 0$ (stiffness evaluation, one entry per batch)\;
     \If{\texttt{epochs}==0}{
       \eta = 0\;
     }
- 
+    SumAgg \gets 0 \; 
     \ForEach{batch index $b$}{
         Extract mini‑batch $(x_b,y_b)$\;
-        Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
-        $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
-        Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$\;
-        Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
-        Agg \gets Agg - $F_b(y,g_\text{pivot})$ \tcc*{rm prev. contrib. for $F_b$}
+        Forward passes: $z_b\leftarrow f_\theta(x_b)$,  $z_{\text{pivot}}\leftarrow f_\theta(x_\text{pivot})$\;
+        $\ell_b\leftarrow\mathcal{L}(y_b,z_b), \ell_\text{pivot}\leftarrow\mathcal{L}(y_b,z_{\text{pivot}})$\;
+        Back‑propagate gradients: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$, $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
+        Agg \gets Agg - $F_b(y,g_\text{pivot})$ \tcc*{rm prev. contrib. }
         AggGrad \gets AggGrad - $g_\text{pivot}$ \tcc*{rm prev. contrib. for $\nabla R_b$}
-        AggGrad \gets AggGrad + $g_b$  \tcc*{Update $g_n$}
-        SumAgg \gets SumAgg + $F_b(y,AggGrad)$  \tcc*{Update the sum of $F_n$}
+        AggGrad \gets AggGrad + $g_b$  \tcc*{Update grad. aggregator}
+        SumAgg \gets SumAgg + $F_b(y,AggGrad)$  \tcc*{Update the sum }
         Agg \gets Agg + $F_b(y,AggGrad)$ \tcc*{Update aggregator}
         \If{$L < \|g_b\|$}{ 
            $\theta_\text{pivot} = \theta$\tcc*{Update the pivot weights}

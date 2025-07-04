@@ -2080,11 +2080,13 @@ Compute $\text{acc}_{\text{test}}$\;
 %\end{algorithm}
 
 
+\clearpage
 
-
-\section{\newG{Proofs of the theorems}}
+\section{\newG{Proofs of the theorem}}
 \label{proof}
-
+\ \\
+\textit{Proof for the extended Speth's splitting}
+\ \\ \ \\
 Assume $(F_i)_{i\in\{1,...,m\}}$ as in theorem \ref{th} and consider first update \eqref{RAG_scheme} (extended Speth splitting) recalled here: 
 \begin{equation}
   y_{n+i/m} = y_{n+(i-1)/m}+\eta \left(\sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right)\right).
@@ -2095,8 +2097,11 @@ Then we have
   0= \eta \left(\sum_{j=1}^i F_j\left(y_{\infty}\right)+\sum_{j=i+1}^m F_j\left(y_{\infty}\right)\right) = \eta \sum_{j=1}^m F_j(y_\infty) = \eta F(y_\infty),
 \end{equation}
 leading to $F(y_\infty) = 0$ as soon as $\eta\neq 0$. 
-The property of the full batch optimizer (condition 1 of theorem \ref{th}) allows to conclude. \\ \ \\
-
+The property of the full batch optimizer (condition 1 of theorem \ref{th}) allows to conclude. 
+\ \\
+\ \\
+\textit{Proof for the low memory version of the extended Speth's splitting}
+\ \\ \ \\
 Assume once again that $(F_i)_{i\in\{1,...,m\}}$ are as in theorem \ref{th} and consider update \eqref{RAGL_splitting} (low-memory extended Speth splitting) recalled here: 
 \begin{equation}
   y_{n+i/m} = y_{n+(i-1)/m}+\eta \left(g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{{n-1+(i_{\text{pivot}}-1})/m}\right)\right]\right).

@@ -161,7 +161,7 @@ abstract = {Our aim is to establish the feasibility of Machine-Learning-designed
 }
 
 @article{Lyapunov_Nesterov,
-	author = {A.C. Wilson and B. Recht and M.I. Jordan},
+	author = {A. C. Wilson and B. Recht and M. I. Jordan},
 	keywords = {Optimization and Control (math.OC), Data Structures and Algorithms (cs.DS), FOS: Mathematics, FOS: Mathematics, FOS: Computer and information sciences, FOS: Computer and information sciences},
 	title = {{A Lyapunov Analysis of Accelerated Methods in Optimization}},
 	journal = {Journal of Machine Learning Research},
@@ -170,7 +170,7 @@ abstract = {Our aim is to establish the feasibility of Machine-Learning-designed
 
 %Bregman ODE: generalizes Nesterov one, Cubic-regularized Nesterov, .... Discretization mathching the continuous cv rates for uniformly convex functions.
 @article{variational_perspective,
-	author = {A. Wibisono  and A.C. Wilson  and M.I. Jordan },
+	author = {A. Wibisono  and A. C. Wilson  and M. I. Jordan },
 	title = {{A Variational Perspective on Accelerated Methods in Optimization}},
 	journal = {Proceedings of the National Academy of Sciences},
 	volume = {113},
@@ -242,7 +242,7 @@ abstract = {Our aim is to establish the feasibility of Machine-Learning-designed
 %--------------------------------------------------Applications Physiques-----------------------------------------------------------------------------------
 
 @article{plasma,
-	author = {G. Kluth  and K.D. Humbird  and B.K. Spears  and J.L. Peterson  and H.A. Scott  and M.V. Patel  and J. Koning  and M. Marinak  and L. Divol  and C.V. Young},
+	author = {G. Kluth  and K.D. Humbird  and B.K. Spears  and J.L. Peterson  and H.A. Scott  and M.V. Patel  and J. Koning  and M. Marinak  and L. Divol  and C. V. Young},
 	title = {Deep {L}earning for {NLTE} {S}pectral {O}pacities},
 	journal = {Physics of Plasmas},
 	volume = {27},
@@ -317,7 +317,7 @@ keywords = {Newton’s method, Neural networks, Fourier neural operators, Nonlin
 abstract = {It is well known that Newton’s method can have trouble converging if the initial guess is too far from the solution. Such a problem particularly occurs when this method is used to solve nonlinear elliptic partial differential equations (PDEs) discretized via finite differences. This work focuses on accelerating Newton’s method convergence in this context. We seek to construct a mapping from the parameters of the nonlinear PDE to an approximation of its discrete solution, independently of the mesh resolution. This approximation is then used as an initial guess for Newton’s method. To achieve these objectives, we elect to use a Fourier neural operator (FNO). The loss function is the sum of a data term (i.e., the comparison between known solutions and outputs of the FNO) and a physical term (i.e., the residual of the PDE discretization). Numerical results, in one and two dimensions, show that the proposed initial guess accelerates the convergence of Newton’s method by a large margin compared to a naive initial guess, especially for highly nonlinear and anisotropic problems, with larger gains on coarse grids.}
 }
 @article{FV_scheme,
-	author = {A. Bourriaud and R. Loubère and R. Turpault},
+	author = {A. Bourriaud and R. Loub\`ere and R. Turpault},
 	year = {2020},
 	month = {07},
 	pages = {},
@@ -489,7 +489,7 @@ abstract = {It is well known that Newton’s method can have trouble converging 
 % Convergence of the gradients, the function values (convex or p growth condition) under a more restrictive assumption than Lipshitz gradient (strongly smooth)
 % Called rescaled gradient descent in this paper.
 @inproceedings{pGD,
-	author = {A.C. Wilson and L. Mackey and A. Wibisono},
+	author = {A. C. Wilson and L. Mackey and A. Wibisono},
 	title = {{Accelerating Rescaled Gradient Descent: Fast Optimization of Smooth Functions}},
 	booktitle = {Neural Information Processing Systems (NeurIPS)},
 	year = {2019},
@@ -649,7 +649,7 @@ abstract = {It is well known that Newton’s method can have trouble converging 
 
 % Same thing
 @book{sgd_dynamical_basis,
-	author = {V.S. Borkar},
+	author = {V. S. Borkar},
 	title = {{Stochastic Approximation}},
 	year = {2009},
 	doi={https://doi.org/10.1007/978-93-86279-38-5},
@@ -957,7 +957,7 @@ abstract = {It is well known that Newton’s method can have trouble converging 
 
 % Quadratics and smooth strongly convex.
 @article{RR_outperforms_quadratics,
-	author = {M. G\"urb\"uzbalaban and A. Ozdaglar and P.A. Parrilo},
+	author = {M. G\"urb\"uzbalaban and A. Ozdaglar and P. A. Parrilo},
 	title = {{Why Random Reshuffling Beats Stochastic Gradient Descent}},
 	journaltitle = {Mathematical Programming},
 	year = {2021},
@@ -1054,7 +1054,7 @@ abstract = {It is well known that Newton’s method can have trouble converging 
 % Looks like SARAH but uses the first weight in an epoch and not the previous one.
 % As SVRG achieves upper bound in n^{2/3}eps^{-2}.
 @inproceedings{SCSG,
-	author = {L. Lei and C. Ju and J. Chen and M.I. Jordan},
+	author = {L. Lei and C. Ju and J. Chen and M. I. Jordan},
 	booktitle = {Advances in Neural Information Processing Systems},
 	editor = {I. Guyon and U. Von Luxburg and S. Bengio and H. Wallach and R. Fergus and S. Vishwanathan and R. Garnett},
 	pages = {},
@@ -1113,7 +1113,7 @@ abstract = {It is well known that Newton’s method can have trouble converging 
 % GEOM-SARAH. SARAH with the lengh of the outer loop sampled from a geometric distribution (more hyperparameters).
 % upper bound in n^{3/2}+sqrt(n)eps^{-2} for smooth PL functions.
 @article{GEOM_SARAH,
-	author = {S. Horv\'{a}th and L. Lei and P. Richt\'{a}rik and M.I. Jordan},
+	author = {S. Horv\'{a}th and L. Lei and P. Richt\'{a}rik and M. I. Jordan},
 	title = {{Adaptivity of Stochastic Gradient Methods for Nonconvex Optimization}},
 	journal = {SIAM Journal on Mathematics of Data Science},
 	volume = {4},
@@ -1147,7 +1147,7 @@ abstract = {It is well known that Newton’s method can have trouble converging 
 
 % SPIDER method: SARAH algo applied to NGD. Optimal upper bound in the finite sum-case as SNVRG. Sufficient decrease for batch size depending on eps.
 @inproceedings{SPIDER_first,
-	author = {C. Fang and C.J. Li and Z. Lin and T. Zhang},
+	author = {C. Fang and C. J. Li and Z. Lin and T. Zhang},
 	title = {{SPIDER: Near-Optimal Non-Convex Optimization via Stochastic Path Integrated Differential Estimator}},
 	year = {2018},
 	publisher = {Curran Associates Inc.},
@@ -1604,7 +1604,7 @@ CMA algorithms: do not need assumptions on data distribution but use full gradie
 %escape saddle points and shape min
 @misc{hu2018diffusion,
 	title={{On the Diffusion Approximation of Nonconvex Stochastic Gradient Descent}}, 
-	author={W. Hu and C.J. Li and L. Li and J.G. Liu},
+	author={W. Hu and C. J. Li and L. Li and J.G. Liu},
 	year={2018},
 	eprint={1705.07562},
 	archivePrefix={arXiv},
@@ -1623,7 +1623,7 @@ CMA algorithms: do not need assumptions on data distribution but use full gradie
 % linear time escaping saddles morse function
 @misc{yang2020fast,
 	title={{On the Fast Convergence of Random Perturbations of the Gradient Flow}}, 
-	author={J. Yang and W. Hu and C.J. Li},
+	author={J. Yang and W. Hu and C. J. Li},
 	year={2020},
 	eprint={1706.00837},
 	archivePrefix={arXiv},
@@ -1631,7 +1631,7 @@ CMA algorithms: do not need assumptions on data distribution but use full gradie
 }
 
 @inproceedings{sgd_implicit_regularisation,
-	author = {A. Ali and E. Dobriban and R.J. Tibshirani},
+	author = {A. Ali and E. Dobriban and R. J. Tibshirani},
 	title = {{The Implicit Regularization of Stochastic Gradient Flow for Least Squares}},
 	year = {2020},
 	publisher = {JMLR.org},
@@ -1835,7 +1835,7 @@ CMA algorithms: do not need assumptions on data distribution but use full gradie
 % Interpretation of composite objective splitting as numerical splitting of ODEs.
 @article{splitting_proximal_ode,
 	title = {{Gradient Flows and Proximal Splitting Methods: A Unified View on Accelerated and Stochastic Optimization}},
-	author = {G. França and D.P. Robinson and R. Vidal},
+	author = {G. França and D. P. Robinson and R. Vidal},
 	journal = {Physical Review E},
 	volume = {103},
 	issue = {5},

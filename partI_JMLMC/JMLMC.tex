@@ -93,15 +93,12 @@
 %\dataF{}
 
 \abstract{
+  %250 mots max pour JMLMC
 	Mini-batch optimizers are at the center of neural network training. 
         Most of them are also called stochastic optimizers due to their intensive use of samplings within their implementations. 
-        %In practice, these optimizers need an extensive tuning of the hyperparameters (learning rate, batch size,...) to converge and exhibit expected behaviours. %give appropriate performances. 
         In theory, many mini-batch algorithms used in this setting rely on the interpolation condition for convergence. 
         This condition is closely related to the overparametrization of the network. 
-        %In this first part,
-        Here, we investigate the non-interpolating case and highlight some undesirable behaviors for the stationary distributions of %the most popular stochastic
-        optimizers. 
-        %Moreover, we exploit the notion of balanced splitting to explain such behavior.
+        Here, we investigate the non-interpolating case and highlight some undesirable behaviors for the stationary distributions of optimizers. 
         These behaviors are explained thanks to the interpretation of mini-batch optimizers as unbalanced operator splittings.
         \newG{Building on this observation, we propose a simple modification that balances the sub-flows. We show that the resulting mini-batch optimizers, if they converge, do so toward critical points of the full-batch cost function-without relying on the interpolation condition. The proposed balanced splitting not only enables the construction of a new family of mini-batch optimizers derived from classical ones, but also paves the way for designing novel full-batch optimizers.}
 }
@@ -1342,7 +1339,7 @@ machine-learning test than the full-batch counterpart. %This is the subject of p
 
 
 \section*{Data availibility and harware}
-The examples are implemented in Python and Tensorflow: the code is available at \textcolor{blue} {https://github.com/gaelpoette/extended\_Speth\_splitting\_for\_minibatch\_optimizers}. 
+The examples are implemented in Python and Tensorflow: the code is available at \url{https://github.com/gaelpoette/extended_Speth_splitting_for_minibatch_optimizers}. 
 
 \section*{Conflict of interest}
 The authors declare that they have no conflict of interest.

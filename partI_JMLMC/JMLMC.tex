@@ -1264,6 +1264,7 @@ Figure \ref{mnist} presents, for exactly the same initialization and exactly the
 eS-Momentum and lm-eS-Momentum. Each time, the learning rate is $\eta = 1e-2$ and for Momentum, $\beta_1 = 0.9$. 
 A total of $n_\max=10000$ epochs has been used for the training (the consistent approximation of the gradient remained above the $\epsilon = 1e-4$ fixed threshold). 
 The architecture is an MLP with 128 neurons, with relu activation function and softmax activation function on the last layer.  
+The number of batches is $m=5$. 
 \begin{figure}[!h]
  \includegraphics[width=0.5\linewidth]{chapitre5_img/GD_loss_log.png}
  \includegraphics[width=0.5\linewidth]{chapitre5_img/Momentum_loss_log.png}\\
@@ -1289,10 +1290,6 @@ On this benchmark, it is noteworthy that the low-memory variant—despite relyin
 
 In contrast, on this benchmark, lm-eS-Momentum performs similarly to S-Momentum. This outcome can be interpreted in several ways. One possibility is that the heuristic introduced in Section \ref{red_mem}, which relies solely on gradient information and ignores momentum, may be inadequate for this particular task. However, if we assume that lm-eS-Momentum is still capable of identifying non-interpolating critical points—as observed in the 1D test cases—then S-Momentum may also be capturing such points under these conditions. In that case, the results could suggest that the advantages of eS-Momentum extend beyond merely improving performance on non-interpolating landscapes. Naturally, in the absence of ground-truth information about the critical points on this benchmark, it remains difficult to determine which of these interpretations is accurate.
 
-Figure \ref{mnist_stats} presents results on the same benchmark under identical conditions, except with $n_{\max} = 1000$ and multiple training runs using different random seeds (40 in total). First, the 40 runs per learning strategy highlight the statistical significance of the improvements achieved by the eS-based splitting methods. This effect is particularly evident in the left plot. The right plot shows the final epoch accuracies for each method: eS-GD demonstrates a marked improvement over RRGD. Notably, the best outcomes of eS-GD are comparable to the worst outcomes of S-Momentum, while the highest accuracies achieved by S-Momentum are among the lowest recorded for eS-Momentum.
-
-Overall, these results suggest that eS-based strategies provide substantial empirical advantages over traditional mini-batch methods in real-world scenarios.
-
 \begin{figure}[!h]
  \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_loss.png}
  \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_accuracy.png}\\
@@ -1303,6 +1300,12 @@ Overall, these results suggest that eS-based strategies provide substantial empi
   \label{mnist_stats_2l}
 \end{figure}
 
+
+Figure \ref{mnist_stats} presents results on the same benchmark under identical conditions, except with $n_{\max} = 1000$ and multiple training runs using different random seeds (40 in total). First, the 40 runs per learning strategy highlight the statistical significance of the improvements achieved by the eS-based splitting methods. This effect is particularly evident in the left plot. The right plot shows the final epoch accuracies for each method: eS-GD demonstrates a marked improvement over RRGD. Notably, the best outcomes of eS-GD are comparable to the worst outcomes of S-Momentum, while the highest accuracies achieved by S-Momentum are among the lowest recorded for eS-Momentum.
+
+Overall, these results suggest that eS-based strategies provide substantial empirical advantages over traditional mini-batch methods in real-world scenarios.
+
+Figure \ref{mnist_stats_2l} illustrates the training dynamics over $n_{\max} = 1500$ epochs on the MNIST benchmark, showing the evolution of loss (top left), accuracy (top right), and the final distributions of loss (bottom left) and accuracy (bottom right). The comparison includes four mini-batch strategies—RRGD, eS-GD, S-Momentum, and eS-Momentum—each run with $m = 5$ batches, a fixed learning rate $\eta = 10^{-4}$, and initialized with the same weights across 40 different seeds. The results once again highlight the advantages of momentum-based methods: eS-Momentum consistently reaches near-perfect accuracy with the fastest convergence and lowest variance, followed closely by S-Momentum. eS-GD also improves upon RRGD, approaching the performance of S-Momentum. By contrast, RRGD converges more slowly, exhibits higher variability, and results in significantly larger final losses.
 %\begin{figure}[!h]
 %  %\includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}
 %  \includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot_log.png}

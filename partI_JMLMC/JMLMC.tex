@@ -645,6 +645,7 @@ Nonetheless, as we will see in Section  \ref{num_res}, it proves to be effecti
 \label{th_prop}
 %\textcolor{red}{VERIFIER QUE PAS AUSSI VRAI AVEC LE SPLITTING CLASSIQUE...}
 
+\newG{
 The previous construction allows stating the following theorem.
 \begin{theorem}
 \label{th}
@@ -666,14 +667,16 @@ such that $F=\sum_{i=1}^m F_i$ %{+\mathcal{O}(\eta)}$
  then $y_\infty$ is a critical points of the full batch flow $F$. 
 \end{theorem}
 The proofs can be found in \ref{proof}.\\
+}
 
-Several remarks can be made regarding theorem \ref{th}:
+\newG{Several remarks can be made regarding theorem \ref{th}:
 first, if convergence occurs in the mini-batch setting, it is toward a critical point of the full-batch objective $F$, and this is achieved {\em without relying on the
 interpolation condition}.\\
 Second, the choice of the underlying optimizer used in the splitting is crucial. If {\em condition 1} is not satisfied (i.e., the full-batch optimizer does not lead to a critical
 point of $\R$), then its mini-batch variant cannot be expected to do so either.\\
 Finally, {\em condition 2}, which pertains to the sub-operators in the splitting scheme, is not especially restrictive. 
-Given a full-batch optimizer, multiple splitting schemes can be devised due to the non-uniqueness of the sum decomposition. Some of these schemes may be more practical or effective than others - see section \ref{adam} for an illustrative example.
+Given a full-batch optimizer, multiple splitting schemes can be devised due to the non-uniqueness of the sum decomposition. Some of these schemes may be more practical or effective
+than others - see section \ref{adam} for an illustrative example.}
 
 \subsection{Stopping criterion}
 ~~\\
@@ -1115,7 +1118,8 @@ faster than S-Momentum on benchmark \exOne, and $37$ times faster on benchmark \
 
 \subsection{\newG{The extended Speth splitting applied to Adam}}
 \label{adam}
-The flow for Adam is given by \cite{barakat,Bilel,Bilel_thesis}
+
+\newG{The flow for Adam is given by \cite{barakat,Bilel,Bilel_thesis}
 \begin{eqnarray}
   \label{Flow_adam}
   \dot{y}(t) = F(y(t),t) \Longleftrightarrow  \left\{\begin{array}{l}
@@ -1127,13 +1131,14 @@ The flow for Adam is given by \cite{barakat,Bilel,Bilel_thesis}
 with $f(t)= \frac{\sqrt{1-e^{-\bar{\beta}_2 t}}}{1-e^{-\bar{\beta}_1 t}}$
     where $a^{\otimes 2}$  denotes the element-wise squaring operator on a vector $a$ and $\bar{\beta}_\alpha = \frac{\beta_\alpha}{\eta}$, $\alpha\in\{1,2\}$, see \cite{Bilel}.
 Note that Adam's flow verifies {\em condition 1} of theorem \ref{th} \cite{Bilel}.
+}
 
-Figure \ref{adam_fb_exs} displays the results on the 8 benchmarks of this section but with {\em full batch} Adam in exactly the same conditions as before.  
+\newG{Figure \ref{adam_fb_exs} displays the results on the 8 benchmarks of this section but with {\em full batch} Adam in exactly the same conditions as before.  
 It is noticeable that full batch Adam captures the critical points of $\R$, local or global ones depending on the initialization, without any particular problems.  
 On another hand, figure \ref{rr_adam_exs} displays the results with RR-Adam, i.e. with the classical stochastic mini-batching. Similar comments as in section \ref{section_stationary} for
 SGD/RRGD can be made: RR-Adam satisfactorily captures interpolating critical points but fails to do so for non-interpolary ones. Artificial critical points, i.e. Dirac masses at
 locations which are more related to the chosen learning rate than the full batch loss $\R$, are recovered on at least $4$ of the benchmarks. The global minimum is totally ignored in
-benchmark \exSeven (figure \ref{rr_adam_exs} (g)), whereas it was not by the full-batch Adam optimizer. 
+benchmark \exSeven (figure \ref{rr_adam_exs} (g)), whereas it was not by the full-batch Adam optimizer.} 
 \begin{figure}[h!]
 	\centering
 	%\scalebox{0.60}{\input{chapitre5_img/adam_exs_1000.pgf}}
@@ -1154,9 +1159,9 @@ benchmark \exSeven (figure \ref{rr_adam_exs} (g)), whereas it was not by the ful
 \end{figure}
 
 
-Now, let us build operators $(F_i)_{i\in\{1,..,m\}}$ fulfilling {\em condition 2} in order to design an eS-Adam mini-batch optimizer.
+\newG{Now, let us build operators $(F_i)_{i\in\{1,..,m\}}$ fulfilling {\em condition 2} in order to design an eS-Adam mini-batch optimizer.
 As explained in section \ref{new_splitting}, the choice of the splitting is not unique. 
-One possibility, close to the one chosen in the previous section \ref{mom}, is to choose for batch $b\in\{1,..,m\}$:
+One possibility, close to the one chosen in the previous section \ref{mom}, is to choose for batch $b\in\{1,..,m\}$:}
 \begin{eqnarray}
 \label{F_j_adam_1}
 F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
@@ -1165,10 +1170,11 @@ F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
      -\bar{\beta}_2 \frac{s(t)}{m}+\frac{1}{m}\bar{\beta}_2\nR^{\otimes 2}(\theta(t))\\
   \end{array}\right).
 \end{eqnarray}
-As above, we have $\sum_{b=1}^m F_b=F$. But in the last line, the full batch gradient (or a consistent estimator of it) is necessary for this choice of sub-operators $(F_i)_{i\in\{1,..,m\}}$. 
+\newG{As above, we have $\sum_{b=1}^m F_b=F$. But in the last line, the full batch gradient (or a consistent estimator of it) is necessary for this choice of sub-operators
+$(F_i)_{i\in\{1,..,m\}}$.} 
 %In a sense, this splitting, fulfilling the conditions of theorem \ref{th}, is not satisfactory in practice (see point 3 in section \ref{obj}) as it will need a full-batch gradient evaluation. 
 
-Another option, illustrated here with $m=2$ batches for clarity, would be to choose:
+\newG{Another option, illustrated here with $m=2$ batches for clarity, would be to choose:
 \begin{eqnarray}
 \label{F_j_adam_2}
 F_1(\theta(t),v(t),s(t))=\left(\begin{array}{l}
@@ -1187,6 +1193,7 @@ $
 \nR_1(\theta(t_n))\otimes\nR_2(\theta(t_n)) = \nR_1(\theta^n)\otimes\nR_2(\theta^{n-\frac12}) + \mathcal{O}(\eta)
 $
 making it usable in a mini-batch context, at the cost of memory consumption. 
+}
 
 
 \begin{figure}[h!]
@@ -1210,7 +1217,7 @@ making it usable in a mini-batch context, at the cost of memory consumption.
 \end{figure}
 
 
-Note finally that choosing $F_b$ as
+\newG{Note finally that choosing $F_b$ as
 \begin{eqnarray}
 \label{F_j_adam_3}
 F_b(\theta(t),v(t),s(t))=\left(\begin{array}{l}
@@ -1231,36 +1238,35 @@ leads to an $F$ given by
 \end{eqnarray}
 which is {\em not the classical Adam update rule}. Still, this new full batch update rule satisfies
 {\em condition 1} of theorem \ref{th}. But strictly speaking, in our splitting point of view, the mini-batch update \eqref{F_j_adam_3} is not the split version of Adam. 
-It is the split version of the full batch optimizer of flow \eqref{F_adam_mod}, which, in a sense, is {\em a new full batch optimizer}.  
+It is the split version of the full batch optimizer of flow \eqref{F_adam_mod}, which, in a sense, is {\em a new full batch optimizer}. } 
 
-Our aim now is to build a balanced mini-batch optimizer having Adam as a full batch one. 
+\newG{Our aim now is to build a balanced mini-batch optimizer having Adam as a full batch one. 
 Let us choose this simple splitting
 $$
 F = \sum_{b=1}^m F_b = \sum_{b=1}^m \frac{1}{m}F,
 $$
 which reuses Adam's update rule given by \eqref{Flow_adam}. 
-The idea here is simply to build a consistent aggregator for the gradient $\nR$ \textcolor{red}{and for its squared component $\nR^{\otimes 2}$} 
+The idea here is simply to build a consistent aggregator for the gradient $\nR$ 
 and use it within $F_b(y,\nR(\theta)=\frac{1}{m}F(y,\nR(\theta))$. 
 The strategy is fully described in algorithm \ref{algo_speth_adam} (which can be applied to any optimizer, as will be verified in section \ref{s_mnist} with an application to Momentum).
-{\em As such, if the code is ran on the 8 previous benchmarks, for many initializations, divergences occur}. 
-A closer look at the divergent runs lead to the conclusion that the consistent approximation of $\nR^{\otimes 2}$ needs to preserve positivity for stability. 
-In practice, in order to obtain the results of figure \ref{speth_adam_exs}, the aggregator on $\nR^{\otimes 2}$ has been limited (use of $\max(0, Aggregator^{\otimes 2})$): in
-other words, for the moment, this eS-Adam version slightly out of the scope of section \ref{new_splitting}. Still, numerical results are displayed in figure
+The numerical results are displayed in figure
 \ref{speth_adam_exs} and some very satisfactory results are obtained, even if many epochs are need in practice to reach stationarity. \\ 
 %\textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., adam fb = 83m56,667s and grad**2 can be negative}
-
-        Note, once again, the variance reduction versions related to Adam, see Adam$^+$ \cite{adam_variance1}, are fundamentally different from the present approach.
+        Note, once again, that the variance reduction versions related to Adam, see Adam$^+$ \cite{adam_variance1}, are fundamentally different from the present approach.
 %        Note finally that additionnally to being independent of the choice of $F$, our methodology allows any choice of summable decomposition $F=\sum_{i=1}^m F_i$ for the       splitting. 
+        }
 
-\subsection{MNIST}
+\subsection{\newG{MNIST}}
 \label{s_mnist}
 
+\newG{
 In this section, we compare the previously described splitting strategies to their classical stochastic mini-batch counteparts on the MNIST benchmark. 
 The MNIST benchmark is a classic dataset and evaluation task used to test and compare machine learning models on handwritten digit classification. 
 It consists of $60000$ training and $10000$ test grayscale images of digits $(0-9)$, each sized $28\times 28$ pixels (hence it is a high dimensional benchmark). 
 It is a standard baseline for evaluating the effectiveness of new algorithms, especially in image classification and deep learning.
+}
 
-Figure \ref{mnist} presents, for exactly the same initialization and exactly the same architecture, the loss (log scale) and accuracy curves along a training for RRGD, eS-GD, lm-eS-GD (left) and RR-Momentum,
+\newG{Figure \ref{mnist} presents, for exactly the same initialization and exactly the same architecture, the loss (log scale) and accuracy curves along a training for RRGD, eS-GD, lm-eS-GD (left) and RR-Momentum,
 eS-Momentum and lm-eS-Momentum. Each time, the learning rate is $\eta = 1e-2$ and for Momentum, $\beta_1 = 0.9$. 
 A total of $n_\max=10000$ epochs has been used for the training (the consistent approximation of the gradient remained above the $\epsilon = 1e-4$ fixed threshold). 
 The architecture is an MLP with 128 neurons, with relu activation function and softmax activation function on the last layer.  
@@ -1276,6 +1282,7 @@ The number of batches is $m=5$.
 \end{figure}
 In figure \ref{mnist} (left column), SGD, eS-GD and lm-eS-GD can be compared, in terms of both loss and accuracies across epochs. 
 The eS-GD and lm-eS-GD display equivalent results while ensuring a gain of almost a decade at the final epoch when compared to SGD. 
+}
 
 \begin{figure}[!h]
  \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_loss.png}
@@ -1286,9 +1293,11 @@ The eS-GD and lm-eS-GD display equivalent results while ensuring a gain of almos
  eS-Momentum for a 1 hidden layer architecture of 128 neurons.}
   \label{mnist_stats}
 \end{figure}
-On this benchmark, it is noteworthy that the low-memory variant—despite relying on a heuristic approach (as described in Section \ref{red_mem})—achieves performance comparable to that of eS-GD. The right column of Figure \ref{mnist} shows results obtained under identical conditions (including initialization) for S-Momentum, eS-Momentum, and lm-eS-Momentum. First, S-Momentum improves the loss by more than an order of magnitude compared to RRGD. Building on this, eS-Momentum further reduces the loss by over half an order of magnitude relative to S-Momentum.
+\newG{On this benchmark, it is noteworthy that the low-memory variant—despite relying on a heuristic approach (as described in Section \ref{red_mem})—achieves performance comparable to that of eS-GD. The right column of Figure \ref{mnist} shows results obtained under identical conditions (including initialization) for S-Momentum, eS-Momentum, and lm-eS-Momentum. First, S-Momentum improves the loss by more than an order of magnitude compared to RRGD. Building on this, eS-Momentum further reduces the loss by over half an order of magnitude relative to S-Momentum.
+}
 
-In contrast, on this benchmark, lm-eS-Momentum performs similarly to S-Momentum. This outcome can be interpreted in several ways. One possibility is that the heuristic introduced in Section \ref{red_mem}, which relies solely on gradient information and ignores momentum, may be inadequate for this particular task. However, if we assume that lm-eS-Momentum is still capable of identifying non-interpolating critical points—as observed in the 1D test cases—then S-Momentum may also be capturing such points under these conditions. In that case, the results could suggest that the advantages of eS-Momentum extend beyond merely improving performance on non-interpolating landscapes. Naturally, in the absence of ground-truth information about the critical points on this benchmark, it remains difficult to determine which of these interpretations is accurate.
+\newG{In contrast, on this benchmark, lm-eS-Momentum performs similarly to S-Momentum. This outcome can be interpreted in several ways. One possibility is that the heuristic introduced in Section \ref{red_mem}, which relies solely on gradient information and ignores momentum, may be inadequate for this particular task. However, if we assume that lm-eS-Momentum is still capable of identifying non-interpolating critical points—as observed in the 1D test cases—then S-Momentum may also be capturing such points under these conditions. In that case, the results could suggest that the advantages of eS-Momentum extend beyond merely improving performance on non-interpolating landscapes. Naturally, in the absence of ground-truth information about the critical points on this benchmark, it remains difficult to determine which of these interpretations is accurate.
+}
 
 \begin{figure}[!h]
  \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_loss.png}
@@ -1301,11 +1310,13 @@ In contrast, on this benchmark, lm-eS-Momentum performs similarly to S-Momentum.
 \end{figure}
 
 
-Figure \ref{mnist_stats} presents results on the same benchmark under identical conditions, except with $n_{\max} = 1000$ and multiple training runs using different random seeds (40 in total). First, the 40 runs per learning strategy highlight the statistical significance of the improvements achieved by the eS-based splitting methods. This effect is particularly evident in the left plot. The right plot shows the final epoch accuracies for each method: eS-GD demonstrates a marked improvement over RRGD. Notably, the best outcomes of eS-GD are comparable to the worst outcomes of S-Momentum, while the highest accuracies achieved by S-Momentum are among the lowest recorded for eS-Momentum.
+\newG{Figure \ref{mnist_stats} presents results on the same benchmark under identical conditions, except with $n_{\max} = 1000$ and multiple training runs using different random seeds (40 in total). First, the 40 runs per learning strategy highlight the statistical significance of the improvements achieved by the eS-based splitting methods. This effect is particularly evident in the left plot. The right plot shows the final epoch accuracies for each method: eS-GD demonstrates a marked improvement over RRGD. Notably, the best outcomes of eS-GD are comparable to the worst outcomes of S-Momentum, while the highest accuracies achieved by S-Momentum are among the lowest recorded for eS-Momentum.
+}
 
-Overall, these results suggest that eS-based strategies provide substantial empirical advantages over traditional mini-batch methods in real-world scenarios.
+\newG{Overall, these results suggest that eS-based strategies provide substantial empirical advantages over traditional mini-batch methods in real-world scenarios.}
 
-Figure \ref{mnist_stats_2l} illustrates the training dynamics over $n_{\max} = 1500$ epochs on the MNIST benchmark, showing the evolution of loss (top left), accuracy (top right), and the final distributions of loss (bottom left) and accuracy (bottom right). The comparison includes four mini-batch strategies—RRGD, eS-GD, S-Momentum, and eS-Momentum—each run with $m = 5$ batches, a fixed learning rate $\eta = 10^{-4}$, and initialized with the same weights across 40 different seeds. The results once again highlight the advantages of momentum-based methods: eS-Momentum consistently reaches near-perfect accuracy with the fastest convergence and lowest variance, followed closely by S-Momentum. eS-GD also improves upon RRGD, approaching the performance of S-Momentum. By contrast, RRGD converges more slowly, exhibits higher variability, and results in significantly larger final losses.
+\newG{Figure \ref{mnist_stats_2l} illustrates the training dynamics over $n_{\max} = 1500$ epochs on the MNIST benchmark, showing the evolution of loss (top left), accuracy (top right), and the final distributions of loss (bottom left) and accuracy (bottom right). The comparison includes four mini-batch strategies—RRGD, eS-GD, S-Momentum, and eS-Momentum—each run with $m = 5$ batches, a fixed learning rate $\eta = 10^{-4}$, and initialized with the same weights across 40 different seeds. The results once again highlight the advantages of momentum-based methods: eS-Momentum consistently reaches near-perfect accuracy with the fastest convergence and lowest variance, followed closely by S-Momentum. eS-GD also improves upon RRGD, approaching the performance of S-Momentum. By contrast, RRGD converges more slowly, exhibits higher variability, and results in significantly larger final losses.
+}
 %\begin{figure}[!h]
 %  %\includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}
 %  \includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot_log.png}
@@ -2094,9 +2105,9 @@ Compute $\text{acc}_{\text{test}}$\;
 \section{\newG{Proofs of the theorem}}
 \label{proof}
 \ \\
-\textit{Proof for the extended Speth's splitting}
+\newG{\textit{Proof for the extended Speth's splitting}}
 \ \\ \ \\
-Assume $(F_i)_{i\in\{1,...,m\}}$ as in theorem \ref{th} and consider first update \eqref{RAG_scheme} (extended Speth splitting) recalled here: 
+\newG{Assume $(F_i)_{i\in\{1,...,m\}}$ as in theorem \ref{th} and consider first update \eqref{RAG_scheme} (extended Speth splitting) recalled here: 
 \begin{equation}
   y_{n+i/m} = y_{n+(i-1)/m}+\eta \left(\sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right)\right).
 \end{equation}
@@ -2106,12 +2117,12 @@ Then we have
   0= \eta \left(\sum_{j=1}^i F_j\left(y_{\infty}\right)+\sum_{j=i+1}^m F_j\left(y_{\infty}\right)\right) = \eta \sum_{j=1}^m F_j(y_\infty) = \eta F(y_\infty),
 \end{equation}
 leading to $F(y_\infty) = 0$ as soon as $\eta\neq 0$. 
-The property of the full batch optimizer (condition 1 of theorem \ref{th}) allows to conclude. 
+The property of the full batch optimizer (condition 1 of theorem \ref{th}) allows to conclude.} 
 \ \\
 \ \\
-\textit{Proof for the low memory version of the extended Speth's splitting}
+\newG{\textit{Proof for the low memory version of the extended Speth's splitting}}
 \ \\ \ \\
-Assume once again that $(F_i)_{i\in\{1,...,m\}}$ are as in theorem \ref{th} and consider update \eqref{RAGL_splitting} (low-memory extended Speth splitting) recalled here: 
+\newG{Assume once again that $(F_i)_{i\in\{1,...,m\}}$ are as in theorem \ref{th} and consider update \eqref{RAGL_splitting} (low-memory extended Speth splitting) recalled here: 
 \begin{equation}
   y_{n+i/m} = y_{n+(i-1)/m}+\eta \left(g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{{n-1+(i_{\text{pivot}}-1})/m}\right)\right]\right).
 \end{equation}
@@ -2121,6 +2132,7 @@ Then we have
   0= \eta \left(g_\infty+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{\infty}\right)-F_j\left(y_{\infty}\right)\right] \right) = \eta \left(\sum_{j=1}^m F_j(y_\infty) +0\right)= \eta F(y_\infty),
 \end{equation}
 which ends the proof. 
+}
 
 
 %\section{Classical algorithms}

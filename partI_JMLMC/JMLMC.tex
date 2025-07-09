@@ -1282,7 +1282,7 @@ The eS-GD and lm-eS-GD display equivalent results while ensuring a gain of almos
 % \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_accuracy.png}
  \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_final_accuracy_hist.png}\\
   \caption{Loss curves (log scale on left picture) across epochs and histograms of the final ($n_{\max}=1000$) accuracy (right picture) on MNIST for (exactly) the same initializations for RRGD, eS-GD, S-Momentum and
- eS-Momentum.}
+ eS-Momentum for a 1 hidden layer architecture of 128 neurons.}
   \label{mnist_stats}
 \end{figure}
 On this benchmark, it is noteworthy that the low-memory variant—despite relying on a heuristic approach (as described in Section \ref{red_mem})—achieves performance comparable to that of eS-GD. The right column of Figure \ref{mnist} shows results obtained under identical conditions (including initialization) for S-Momentum, eS-Momentum, and lm-eS-Momentum. First, S-Momentum improves the loss by more than an order of magnitude compared to RRGD. Building on this, eS-Momentum further reduces the loss by over half an order of magnitude relative to S-Momentum.
@@ -1292,6 +1292,17 @@ In contrast, on this benchmark, lm-eS-Momentum performs similarly to S-Momentum.
 Figure \ref{mnist_stats} presents results on the same benchmark under identical conditions, except with $n_{\max} = 1000$ and multiple training runs using different random seeds (40 in total). First, the 40 runs per learning strategy highlight the statistical significance of the improvements achieved by the eS-based splitting methods. This effect is particularly evident in the left plot. The right plot shows the final epoch accuracies for each method: eS-GD demonstrates a marked improvement over RRGD. Notably, the best outcomes of eS-GD are comparable to the worst outcomes of S-Momentum, while the highest accuracies achieved by S-Momentum are among the lowest recorded for eS-Momentum.
 
 Overall, these results suggest that eS-based strategies provide substantial empirical advantages over traditional mini-batch methods in real-world scenarios.
+
+\begin{figure}[!h]
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_loss.png}
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_accuracy.png}\\
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_final_loss_hist.png}
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_final_accuracy_hist.png}\\
+  \caption{Loss curves (log scale on left picture) across epochs and histograms of the final ($n_{\max}=1500$) accuracy (right picture) on MNIST for (exactly) the same initializations for RRGD, eS-GD, S-Momentum and
+ eS-Momentum for a 2 hidden layers architecture of 16 neurons.}
+  \label{mnist_stats_2l}
+\end{figure}
+
 %\begin{figure}[!h]
 %  %\includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}
 %  \includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot_log.png}

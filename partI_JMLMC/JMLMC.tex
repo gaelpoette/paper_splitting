@@ -1264,20 +1264,6 @@ Figure \ref{mnist} presents, for exactly the same initialization and exactly the
 eS-Momentum and lm-eS-Momentum. Each time, the learning rate is $\eta = 1e-2$ and for Momentum, $\beta_1 = 0.9$. 
 A total of $n_\max=10000$ epochs has been used for the training (the consistent approximation of the gradient remained above the $\epsilon = 1e-4$ fixed threshold). 
 The architecture is an MLP with 128 neurons, with relu activation function and softmax activation function on the last layer.  
-%\begin{figure}[!h]
-%  %\includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot.png}
-%  \includegraphics[width=0.8\linewidth]{chapitre5_img/comparison_plot_log.png}
-%  \caption{MNIST}
-%  \label{mnist_tout}
-%\end{figure}
-
-%\begin{figure}[!h]
-% \includegraphics[width=0.5\linewidth]{chapitre5_img/GD_comparison_plot_log.png}
-% \includegraphics[width=0.5\linewidth]{chapitre5_img/Mom_comparison_plot_log.png}
-%  \caption{MNIST GD and MOM}
-%  \label{mnist}
-%\end{figure}
-
 \begin{figure}[!h]
  \includegraphics[width=0.5\linewidth]{chapitre5_img/GD_loss_log.png}
  \includegraphics[width=0.5\linewidth]{chapitre5_img/Momentum_loss_log.png}\\
@@ -1287,27 +1273,25 @@ The architecture is an MLP with 128 neurons, with relu activation function and s
   RR-Momentum, eS-Momentum and lm-eS-Momentum (right).}
   \label{mnist}
 \end{figure}
+In figure \ref{mnist} (left column), SGD, eS-GD and lm-eS-GD can be compared, in terms of both loss and accuracies across epochs. 
+The eS-GD and lm-eS-GD display equivalent results while ensuring a gain of almost a decade at the final epoch when compared to SGD. 
 
 \begin{figure}[!h]
  \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_loss.png}
- \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_final_loss_hist.png}\\
- \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_accuracy.png}
+% \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_final_loss_hist.png}\\
+% \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_accuracy.png}
  \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_final_accuracy_hist.png}\\
-  \caption{Loss curves (log scale on top pictures) and accuracy curves (bottom pictures) on MNIST for (exactly) the same initializations for RRGD, eS-GD, lm-eS-GD (left) and
-  RR-Momentum, eS-Momentum and lm-eS-Momentum (right).}
-  \label{mnist}
+  \caption{Loss curves (log scale on left picture) across epochs and histograms of the final ($n_{\max}=1000$) accuracy (right picture) on MNIST for (exactly) the same initializations for RRGD, eS-GD, S-Momentum and
+ eS-Momentum.}
+  \label{mnist_stats}
 \end{figure}
+On this benchmark, it is noteworthy that the low-memory variant—despite relying on a heuristic approach (as described in Section \ref{red_mem})—achieves performance comparable to that of eS-GD. The right column of Figure \ref{mnist} shows results obtained under identical conditions (including initialization) for S-Momentum, eS-Momentum, and lm-eS-Momentum. First, S-Momentum improves the loss by more than an order of magnitude compared to RRGD. Building on this, eS-Momentum further reduces the loss by over half an order of magnitude relative to S-Momentum.
 
+In contrast, on this benchmark, lm-eS-Momentum performs similarly to S-Momentum. This outcome can be interpreted in several ways. One possibility is that the heuristic introduced in Section \ref{red_mem}, which relies solely on gradient information and ignores momentum, may be inadequate for this particular task. However, if we assume that lm-eS-Momentum is still capable of identifying non-interpolating critical points—as observed in the 1D test cases—then S-Momentum may also be capturing such points under these conditions. In that case, the results could suggest that the advantages of eS-Momentum extend beyond merely improving performance on non-interpolating landscapes. Naturally, in the absence of ground-truth information about the critical points on this benchmark, it remains difficult to determine which of these interpretations is accurate.
 
-On figure \ref{mnist}, the losses obtained by eS-GD and eS-Momentum present almost one decade of gain with respect to their classical stochastic counteparts.  
-The comment is quite the same for the accuracies, even if the gain of eS-Momentum with respect to RR-Momentum is less obvious. 
-Note that the low memory version of eS-GD (lm-eS-GD) gives very similar results than eS-GD. On another hand, lm-eS-Momentum only leads to a small improvement of RR-Momentum whereas
-eS-Momentum allows a noticeable gain. 
-One has to recall that the low memory versions are based on a heuristic. While this heuristic, based on an evaluation of the stiffest gradient, seems relevant
-for GD, some more elaborated ones may be needed for other flows. 
+Figure \ref{mnist_stats} presents results on the same benchmark under identical conditions, except with $n_{\max} = 1000$ and multiple training runs using different random seeds (40 in total). First, the 40 runs per learning strategy highlight the statistical significance of the improvements achieved by the eS-based splitting methods. This effect is particularly evident in the left plot. The right plot shows the final epoch accuracies for each method: eS-GD demonstrates a marked improvement over RRGD. Notably, the best outcomes of eS-GD are comparable to the worst outcomes of S-Momentum, while the highest accuracies achieved by S-Momentum are among the lowest recorded for eS-Momentum.
 
-\newG{Stats for MNIST}
-
+Overall, these results suggest that eS-based strategies provide substantial empirical advantages over traditional mini-batch methods in real-world scenarios.
 %\begin{figure}[!h]
 %  %\includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}
 %  \includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot_log.png}

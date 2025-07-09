@@ -1130,7 +1130,7 @@ Note that Adam's flow verifies {\em condition 1} of theorem \ref{th} \cite{Bilel
 
 Figure \ref{adam_fb_exs} displays the results on the 8 benchmarks of this section but with {\em full batch} Adam in exactly the same conditions as before.  
 It is noticeable that full batch Adam captures the critical points of $\R$, local or global ones depending on the initialization, without any particular problems.  
-On another hand, figure \ref{rr_adam_exs} displays the results with RR-Adam, i.e. with stochastic mini-batching. Similar comments as in section \ref{section_stationary} for
+On another hand, figure \ref{rr_adam_exs} displays the results with RR-Adam, i.e. with the classical stochastic mini-batching. Similar comments as in section \ref{section_stationary} for
 SGD/RRGD can be made: RR-Adam satisfactorily captures interpolating critical points but fails to do so for non-interpolary ones. Artificial critical points, i.e. Dirac masses at
 locations which are more related to the chosen learning rate than the full batch loss $\R$, are recovered on at least $4$ of the benchmarks. The global minimum is totally ignored in
 benchmark \exSeven (figure \ref{rr_adam_exs} (g)), whereas it was not by the full-batch Adam optimizer. 
@@ -1287,6 +1287,17 @@ The architecture is an MLP with 128 neurons, with relu activation function and s
   RR-Momentum, eS-Momentum and lm-eS-Momentum (right).}
   \label{mnist}
 \end{figure}
+
+\begin{figure}[!h]
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_loss.png}
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_final_loss_hist.png}\\
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_accuracy.png}
+ \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_final_accuracy_hist.png}\\
+  \caption{Loss curves (log scale on top pictures) and accuracy curves (bottom pictures) on MNIST for (exactly) the same initializations for RRGD, eS-GD, lm-eS-GD (left) and
+  RR-Momentum, eS-Momentum and lm-eS-Momentum (right).}
+  \label{mnist}
+\end{figure}
+
 
 On figure \ref{mnist}, the losses obtained by eS-GD and eS-Momentum present almost one decade of gain with respect to their classical stochastic counteparts.  
 The comment is quite the same for the accuracies, even if the gain of eS-Momentum with respect to RR-Momentum is less obvious. 

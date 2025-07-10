@@ -1304,7 +1304,7 @@ The eS-GD and lm-eS-GD display equivalent results while ensuring a gain of almos
  \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_accuracy.png}\\
  \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_final_loss_hist.png}
  \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_final_accuracy_hist.png}\\
-  \caption{Loss curves (log scale on left picture) across epochs and histograms of the final ($n_{\max}=1500$) accuracy (right picture) on MNIST for (exactly) the same initializations for RRGD, eS-GD, S-Momentum and
+  \caption{Loss curves (log scale on left picture) across epochs and histograms of the final ($n_{\max}=3000$) accuracy (right picture) on MNIST for (exactly) the same initializations for RRGD, eS-GD, S-Momentum and
  eS-Momentum for a 2 hidden layers architecture of 16 neurons.}
   \label{mnist_stats_2l}
 \end{figure}
@@ -1315,7 +1315,7 @@ The eS-GD and lm-eS-GD display equivalent results while ensuring a gain of almos
 
 \newG{Overall, these results suggest that eS-based strategies provide substantial empirical advantages over traditional mini-batch methods in real-world scenarios.}
 
-\newG{Figure \ref{mnist_stats_2l} illustrates the training dynamics over $n_{\max} = 1500$ epochs on the MNIST benchmark, showing the evolution of loss (top left), accuracy (top right), and the final distributions of loss (bottom left) and accuracy (bottom right). The comparison includes four mini-batch strategies—RRGD, eS-GD, S-Momentum, and eS-Momentum—each run with $m = 5$ batches, a fixed learning rate $\eta = 10^{-4}$, and initialized with the same weights across 40 different seeds. The results once again highlight the advantages of momentum-based methods: eS-Momentum consistently reaches near-perfect accuracy with the fastest convergence and lowest variance, followed closely by S-Momentum. eS-GD also improves upon RRGD, approaching the performance of S-Momentum. By contrast, RRGD converges more slowly, exhibits higher variability, and results in significantly larger final losses.
+\newG{Figure \ref{mnist_stats_2l} illustrates the training dynamics over $n_{\max} = 3000$ epochs on the MNIST benchmark, showing the evolution of loss (top left), accuracy (top right), and the final distributions of loss (bottom left) and accuracy (bottom right). The comparison includes four mini-batch strategies—RRGD, eS-GD, S-Momentum, and eS-Momentum—each run with $m = 5$ batches, a fixed learning rate $\eta = 10^{-4}$, and initialized with the same weights across 40 different seeds. The results once again highlight the advantages of momentum-based methods: eS-Momentum consistently reaches near-perfect accuracy with the fastest convergence and lowest variance, followed closely by S-Momentum. eS-GD also improves upon RRGD, approaching the performance of S-Momentum. By contrast, RRGD converges more slowly, exhibits higher variability, and results in significantly larger final losses.
 }
 %\begin{figure}[!h]
 %  %\includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}

@@ -1269,7 +1269,8 @@ It is a standard baseline for evaluating the effectiveness of new algorithms, es
 \newG{Figure \ref{mnist} presents, for exactly the same initialization and exactly the same architecture, the loss (log scale) and accuracy curves along a training for RRGD, eS-GD, lm-eS-GD (left) and RR-Momentum,
 eS-Momentum and lm-eS-Momentum. Each time, the learning rate is $\eta = 1e-2$ and for Momentum, $\beta_1 = 0.9$. 
 A total of $n_\max=10000$ epochs has been used for the training (the consistent approximation of the gradient remained above the $\epsilon = 1e-4$ fixed threshold). 
-The architecture is an MLP with 128 neurons, with relu activation function and softmax activation function on the last layer.  
+The architecture is an MLP with 128 neurons, with relu activation function and softmax activation function on the last layer. 
+Of course here, care is taken to avoid the interpolary case (underparametrization).
 The number of batches is $m=5$. 
 \begin{figure}[!h]
  \includegraphics[width=0.5\linewidth]{chapitre5_img/GD_loss_log.png}

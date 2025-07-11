@@ -539,6 +539,7 @@ Figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distributio
 	\begin{itemize}
 		\item In \cite{splitting_sgd}, the authors interpret SGD (in fact RRGD) as a Lie-Trotter splitting. As an application, the same splitting is conserved by replacing the explicit Euler scheme by a Dormand\&Prince scheme (default integrator of the Scipy library). This process tested on linear and logistic regression problems improves the performances of SGD. However, there is no mention of the essential notion of equilibrium and of stationary distribution. 
 		\item For the composite problems where $\R=f+g$ with $f$ a differentiable function and $g$ a non-smooth convex function, there exists a literature about splitting methods \cite{splitting_proximal}. At first glance, no link was developed (until recently) between these methods and splitting schemes for ODE/PDE. The recent article \cite{splitting_proximal_ode} reinterprets the forward-backward, Douglas-Rachford and ADMM methods as splitting schemes on specific ODE.   
+                \item \newG{Recently, in \cite{shaw2025}, the authors explore the link between stochastic gradient and randomized splitting strategies.}
 	\end{itemize}
 \end{remark}
 
@@ -600,7 +601,7 @@ for all $i \in \{1,\dots,m\}$ and $n\geq 1$.
 ~~\\
 Now, the issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Therefore, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
 %The previous algorithm has been described as if all the batches were in memory. 
-The main ingredient of the previous algorithm consists in using an aggregator which \newG{is {\em consistent if not equal} with the full batch gradient}.
+The main ingredient of the previous algorithm consists in using an aggregator which \newG{is {\em consistent if not equal} to the full batch gradient}.
 The memory cost question hence resumes to being able to build a lighter but still consistent aggregator.
 It seems natural that the main source of inaccuracy of the aggregator comes from the stiffest batch. 
 With this in mind, we suggest the following modification of \eqref{RAG_scheme}, for $n\geq 1$:
@@ -633,7 +634,7 @@ part of $g_n$ related to this batch. It is the most problematic part because it 
 stiffest batch. We suggest to introduce a pivot variable whose indice  $i_{\text{pivot}}$ is such that
 $$i_{\text{pivot}} = \argmax_{j\in\{1,...,m\}} \|\nR_j(y_{n-1+(j-1)/m})\|.$$}
 This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
-\newG{Naturally, this choice is heuristic and inherently non-unique. However, it highlights the method's flexibility, relying only on minimal assumptionsi -- primarily consistency.
+\newG{Naturally, this choice is heuristic and inherently non-unique. However, it highlights the method's flexibility, relying only on minimal assumptions -- primarily consistency.
 Nonetheless, as we will see in Section  \ref{num_res}, it proves to be effective in practice.}
 \newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_red_mem}.}
 
@@ -651,13 +652,14 @@ The previous construction allows stating the following theorem.
 \label{th}
   Consider the flow of a given (full batch) optimizer
 $
-\dot{y}(t) = F(y(t)).
+\dot{y}(t) = F(y(t))
 $
+ with  $y=(\theta,v)^\top$.  
 Assume
 \begin{enumerate}
 \item  that the flow is such that 
 $
-F(y)=0 \Longrightarrow \nR(y)=0,
+F(y)=0 \Longrightarrow \nR(\theta)=0,
 $
 \item that $m$ operators $(F_i)_{i\in\{1,..,m\}}$
 such that $F=\sum_{i=1}^m F_i$ %{+\mathcal{O}(\eta)}$ 
@@ -1286,15 +1288,15 @@ The eS-GD and lm-eS-GD display equivalent results while ensuring a gain of almos
 }
 
 \begin{figure}[!h]
- \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_loss.png}
+ \includegraphics[width=0.8\linewidth]{chapitre5_img/128n_40s_loss.png}\\
 % \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_final_loss_hist.png}\\
 % \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_accuracy.png}
- \includegraphics[width=0.5\linewidth]{chapitre5_img/128n_40s_final_accuracy_hist.png}\\
-  \caption{Loss curves (log scale on left picture) across epochs and histograms of the final ($n_{\max}=1000$) accuracy (right picture) on MNIST for (exactly) the same initializations for RRGD, eS-GD, S-Momentum and
+ \includegraphics[width=0.8\linewidth]{chapitre5_img/128n_40s_final_accuracy_hist.png}\\
+  \caption{Loss curves (log scale on top  picture) across epochs and histograms of the final ($n_{\max}=1000$) accuracy (bottom picture) on MNIST for (exactly) the same initializations for RRGD, eS-GD, S-Momentum and
  eS-Momentum for a 1 hidden layer architecture of 128 neurons.}
   \label{mnist_stats}
 \end{figure}
-\newG{On this benchmark, it is noteworthy that the low-memory variant -- despite relying on a heuristic approach (as described in Section \ref{red_mem}) -- achieves performance comparable to that of eS-GD. The right column of Figure \ref{mnist} shows results obtained under identical conditions (including initialization) for S-Momentum, eS-Momentum, and lm-eS-Momentum. First, S-Momentum improves the loss by more than an order of magnitude compared to RRGD. Building on this, eS-Momentum further reduces the loss by over half an order of magnitude relative to S-Momentum.
+\newG{On this benchmark, it is noteworthy that the low-memory variant -- despite relying on a heuristic approach (as described in Section \ref{red_mem}) -- achieves performances comparable to that of eS-GD. The right column of Figure \ref{mnist} shows results obtained under identical conditions (including initialization) for S-Momentum, eS-Momentum, and lm-eS-Momentum. First, S-Momentum improves the loss by more than an order of magnitude compared to RRGD. Building on this, eS-Momentum further reduces the loss by over half an order of magnitude relative to S-Momentum.
 }
 
 \newG{In contrast, on this benchmark, lm-eS-Momentum performs similarly to S-Momentum. This outcome can be interpreted in several ways. One possibility is that the heuristic
@@ -1303,26 +1305,29 @@ lm-eS-Momentum is still capable of identifying non-interpolating critical points
 }
 
 \begin{figure}[!h]
- \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_loss.png}
- \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_accuracy.png}\\
- \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_final_loss_hist.png}
- \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_final_accuracy_hist.png}\\
-  \caption{Loss curves (log scale on left picture) across epochs and histograms of the final ($n_{\max}=3000$) accuracy (right picture) on MNIST for (exactly) the same initializations for RRGD, eS-GD, S-Momentum and
+ \includegraphics[width=0.8\linewidth]{chapitre5_img/16_16_lr1e-4_loss.png}\\
+% \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_accuracy.png}\\
+% \includegraphics[width=0.5\linewidth]{chapitre5_img/16_16_lr1e-4_final_loss_hist.png}
+ \includegraphics[width=0.8\linewidth]{chapitre5_img/16_16_lr1e-4_final_accuracy_hist.png}\\
+  \caption{Loss curves (log scale on top picture) across epochs and histograms of the final ($n_{\max}=3000$) accuracy (bottom picture) on MNIST for (exactly) the same initializations for RRGD, eS-GD, S-Momentum and
  eS-Momentum for a 2 hidden layers architecture of 16 neurons.}
   \label{mnist_stats_2l}
 \end{figure}
 
 
-\newG{Figure \ref{mnist_stats} presents results on the same benchmark under identical conditions, except with $n_{\max} = 1000$ and multiple training runs using different random seeds (40 in total). First, the 40 runs per learning strategy highlight the statistical significance of the improvements achieved by the eS-based splitting methods. This effect is particularly evident in the left plot. The right plot shows the final epoch accuracies for each method: eS-GD demonstrates a marked improvement over RRGD. Notably, the best outcomes of eS-GD are comparable to the worst outcomes of S-Momentum, while the highest accuracies achieved by S-Momentum are among the lowest recorded for eS-Momentum.
+\newG{Figure \ref{mnist_stats} presents results on the same benchmark under identical conditions, except with $n_{\max} = 1000$ and multiple training runs using different random
+seeds (40 in total). First, the 40 runs per learning strategy highlight the statistical significance of the improvements achieved by the eS-based splitting methods. This effect is
+particularly obvious in the top plot. The bottom plot shows the final epoch accuracies for each method: eS-GD demonstrates a marked improvement over RRGD. Notably, the best outcomes of eS-GD are comparable to the worst outcomes of S-Momentum, while the highest accuracies achieved by S-Momentum are among the lowest recorded for eS-Momentum.
 }
 
 \newG{Overall, these results suggest that eS-based strategies provide substantial empirical advantages over traditional mini-batch methods in real-world scenarios.}
 
-\newG{Figure \ref{mnist_stats_2l} illustrates the training dynamics over $n_{\max} = 3000$ epochs on the MNIST benchmark, showing the evolution of loss (top left), accuracy (top
-right), and the final distributions of loss (bottom left) and accuracy (bottom right). The comparison includes four mini-batch strategies -- RRGD, eS-GD, S-Momentum, and
-eS-Momentum -- each run with $m = 5$ batches, a {\em constant} learning rate $\eta = 10^{-4}$, and initialized with the same weights across 40 different seeds. 
-Once again, the architecture is underparametrized to maximize the chances of being in the non-interpolary case, with 2 layers of only 16 neurons.
-The results once again highlight the advantages of momentum-based methods: eS-Momentum consistently reaches near-perfect accuracy with the fastest convergence and lowest variance, followed closely by S-Momentum. eS-GD also improves upon RRGD, approaching the performance of S-Momentum. By contrast, RRGD converges more slowly, exhibits higher variability, and results in significantly larger final losses.
+\newG{Figure \ref{mnist_stats_2l} illustrates the training dynamics over $n_{\max} = 3000$ epochs on the same test-case but with a different architecture consisting in 2 layers of
+16 neurons. 
+Once again, the architecture is underparametrized to maximize the chances of being in the non-interpolary case.
+The evolution of loss (top), and the final distributions accuracy (bottom) are displayed. The comparison includes the same four mini-batch strategies each run with $m = 5$ batches and a
+{\em constant} learning rate $\eta = 10^{-4}$. %, and initialized with the same weights across 40 different seeds. 
+The results once again highlight the edges of momentum-based methods: eS-Momentum consistently reaches near-perfect accuracy with the fastest convergence and lowest variance, followed closely by S-Momentum. eS-GD also improves upon RRGD, approaching the performance of S-Momentum. By contrast, RRGD converges more slowly, exhibits higher variability, and results in significantly larger final losses.
 }
 %\begin{figure}[!h]
 %  %\includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}

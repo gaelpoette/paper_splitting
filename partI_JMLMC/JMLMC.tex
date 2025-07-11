@@ -633,7 +633,7 @@ part of $g_n$ related to this batch. It is the most problematic part because it 
 stiffest batch. We suggest to introduce a pivot variable whose indice  $i_{\text{pivot}}$ is such that
 $$i_{\text{pivot}} = \argmax_{j\in\{1,...,m\}} \|\nR_j(y_{n-1+(j-1)/m})\|.$$}
 This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
-\newG{Naturally, this choice is heuristic and inherently non-unique. However, it highlights the method's flexibility, relying only on minimal assumptions—primarily consistency.
+\newG{Naturally, this choice is heuristic and inherently non-unique. However, it highlights the method's flexibility, relying only on minimal assumptionsi -- primarily consistency.
 Nonetheless, as we will see in Section  \ref{num_res}, it proves to be effective in practice.}
 \newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_red_mem}.}
 
@@ -670,7 +670,7 @@ The proofs can be found in \ref{proof}.\\
 }
 
 \newG{Several remarks can be made regarding theorem \ref{th}:
-first, if convergence occurs in the mini-batch setting, it is toward a critical point of the full-batch objective $F$, and this is achieved {\em without relying on the
+first, if convergence occurs in the mini-batch setting, it is toward a critical point of the full-batch objective $\R$, and this is achieved {\em without relying on the
 interpolation condition}.\\
 Second, the choice of the underlying optimizer used in the splitting is crucial. If {\em condition 1} is not satisfied (i.e., the full-batch optimizer does not lead to a critical
 point of $\R$), then its mini-batch variant cannot be expected to do so either.\\
@@ -1102,7 +1102,7 @@ global minimums of $\R$. A faster convergence rate is consequently numerically o
 Figure \ref{ex1_example_mom}  presents the runtimes observed in the previous numerical experiments. 
 For both test cases with $n=20$, the two mini-batch strategies yield comparable runtimes. Although their accuracies differ significantly (as shown in the top rows of Figures  \ref{mom_ex1_ex2} and \ref{speth_mom_ex1_ex2}), the runtimes confirm that both implementations perform a similar number of operations.
 The bottom rows of the same figure offer a fairer comparison: although the stationary distribution of S-Momentum still captures artificial minima, the overall performance is not
-catastrophic. The corresponding runtimes are shown in the last two columns of Figure \ref{ex1_example_mom}, where the eS-Momentum algorithm proves to be significantly faster -
+catastrophic. The corresponding runtimes are shown in the last two columns of Figure \ref{ex1_example_mom}, where the eS-Momentum algorithm proves to be significantly faster --
 $57$ times 
 faster than S-Momentum on benchmark \exOne, and $37$ times faster on benchmark \exTwo.
 }
@@ -1247,8 +1247,8 @@ F = \sum_{b=1}^m F_b = \sum_{b=1}^m \frac{1}{m}F,
 $$
 which reuses Adam's update rule given by \eqref{Flow_adam}. 
 The idea here is simply to build a consistent aggregator for the gradient $\nR$ 
-and use it within $F_b(y,\nR(\theta)=\frac{1}{m}F(y,\nR(\theta))$. 
-The strategy is fully described in algorithm \ref{algo_speth_adam} (which can be applied to any optimizer, as will be verified in section \ref{s_mnist} with an application to Momentum).
+and use it within $F_b(y,\nR(\theta))=\frac{1}{m}F(y,\nR(\theta))$. 
+The strategy is fully described\footnote{Note that in the previous case, factor $\frac{1}{m}$ is not necessary as stationarity is obtained up to a multiplicative constant in practice.} in algorithm \ref{algo_speth_adam} (which can be applied to any optimizer, as will be verified in section \ref{s_mnist} with an application to Momentum).
 The numerical results are displayed in figure
 \ref{speth_adam_exs} and some very satisfactory results are obtained, even if many epochs are need in practice to reach stationarity. \\ 
 %\textcolor{red}{Figure \ref{speth_adam_ex1_ex2}, times 30min40s vs. 21min44s., adam fb = 83m56,667s and grad**2 can be negative}
@@ -1267,10 +1267,10 @@ It is a standard baseline for evaluating the effectiveness of new algorithms, es
 }
 
 \newG{Figure \ref{mnist} presents, for exactly the same initialization and exactly the same architecture, the loss (log scale) and accuracy curves along a training for RRGD, eS-GD, lm-eS-GD (left) and RR-Momentum,
-eS-Momentum and lm-eS-Momentum. Each time, the learning rate is $\eta = 1e-2$ and for Momentum, $\beta_1 = 0.9$. 
+eS-Momentum and lm-eS-Momentum. Each time, the learning rate is constant, chosen to $\eta = 10^{-2}$, and for Momentum $\beta_1 = 0.9$ is taken. 
 A total of $n_\max=10000$ epochs has been used for the training (the consistent approximation of the gradient remained above the $\epsilon = 1e-4$ fixed threshold). 
 The architecture is an MLP with 128 neurons, with relu activation function and softmax activation function on the last layer. 
-Of course here, care is taken to avoid the interpolary case (underparametrization).
+Care is taken to avoid the interpolating regime (i.e., underparameterization), although in practice, verifying this condition remains challenging.
 The number of batches is $m=5$. 
 \begin{figure}[!h]
  \includegraphics[width=0.5\linewidth]{chapitre5_img/GD_loss_log.png}
@@ -1294,10 +1294,12 @@ The eS-GD and lm-eS-GD display equivalent results while ensuring a gain of almos
  eS-Momentum for a 1 hidden layer architecture of 128 neurons.}
   \label{mnist_stats}
 \end{figure}
-\newG{On this benchmark, it is noteworthy that the low-memory variant—despite relying on a heuristic approach (as described in Section \ref{red_mem})—achieves performance comparable to that of eS-GD. The right column of Figure \ref{mnist} shows results obtained under identical conditions (including initialization) for S-Momentum, eS-Momentum, and lm-eS-Momentum. First, S-Momentum improves the loss by more than an order of magnitude compared to RRGD. Building on this, eS-Momentum further reduces the loss by over half an order of magnitude relative to S-Momentum.
+\newG{On this benchmark, it is noteworthy that the low-memory variant -- despite relying on a heuristic approach (as described in Section \ref{red_mem}) -- achieves performance comparable to that of eS-GD. The right column of Figure \ref{mnist} shows results obtained under identical conditions (including initialization) for S-Momentum, eS-Momentum, and lm-eS-Momentum. First, S-Momentum improves the loss by more than an order of magnitude compared to RRGD. Building on this, eS-Momentum further reduces the loss by over half an order of magnitude relative to S-Momentum.
 }
 
-\newG{In contrast, on this benchmark, lm-eS-Momentum performs similarly to S-Momentum. This outcome can be interpreted in several ways. One possibility is that the heuristic introduced in Section \ref{red_mem}, which relies solely on gradient information and ignores momentum, may be inadequate for this particular task. However, if we assume that lm-eS-Momentum is still capable of identifying non-interpolating critical points—as observed in the 1D test cases—then S-Momentum may also be capturing such points under these conditions. In that case, the results could suggest that the advantages of eS-Momentum extend beyond merely improving performance on non-interpolating landscapes. Naturally, in the absence of ground-truth information about the critical points on this benchmark, it remains difficult to determine which of these interpretations is accurate.
+\newG{In contrast, on this benchmark, lm-eS-Momentum performs similarly to S-Momentum. This outcome can be interpreted in several ways. One possibility is that the heuristic
+introduced in Section \ref{red_mem}, which relies solely on gradient information and ignores momentum, may be inadequate for this particular task. However, if we assume that
+lm-eS-Momentum is still capable of identifying non-interpolating critical points -- as observed in the 1D test cases -- then S-Momentum may also be capturing such points under these conditions. In that case, the results could suggest that the advantages of eS-Momentum extend beyond merely improving performance on non-interpolating landscapes. Naturally, in the absence of ground-truth information about the critical points on this benchmark, it remains difficult to determine which of these interpretations is accurate.
 }
 
 \begin{figure}[!h]
@@ -1316,7 +1318,11 @@ The eS-GD and lm-eS-GD display equivalent results while ensuring a gain of almos
 
 \newG{Overall, these results suggest that eS-based strategies provide substantial empirical advantages over traditional mini-batch methods in real-world scenarios.}
 
-\newG{Figure \ref{mnist_stats_2l} illustrates the training dynamics over $n_{\max} = 3000$ epochs on the MNIST benchmark, showing the evolution of loss (top left), accuracy (top right), and the final distributions of loss (bottom left) and accuracy (bottom right). The comparison includes four mini-batch strategies—RRGD, eS-GD, S-Momentum, and eS-Momentum—each run with $m = 5$ batches, a fixed learning rate $\eta = 10^{-4}$, and initialized with the same weights across 40 different seeds. The results once again highlight the advantages of momentum-based methods: eS-Momentum consistently reaches near-perfect accuracy with the fastest convergence and lowest variance, followed closely by S-Momentum. eS-GD also improves upon RRGD, approaching the performance of S-Momentum. By contrast, RRGD converges more slowly, exhibits higher variability, and results in significantly larger final losses.
+\newG{Figure \ref{mnist_stats_2l} illustrates the training dynamics over $n_{\max} = 3000$ epochs on the MNIST benchmark, showing the evolution of loss (top left), accuracy (top
+right), and the final distributions of loss (bottom left) and accuracy (bottom right). The comparison includes four mini-batch strategies -- RRGD, eS-GD, S-Momentum, and
+eS-Momentum -- each run with $m = 5$ batches, a {\em constant} learning rate $\eta = 10^{-4}$, and initialized with the same weights across 40 different seeds. 
+Once again, the architecture is underparametrized to maximize the chances of being in the non-interpolary case, with 2 layers of only 16 neurons.
+The results once again highlight the advantages of momentum-based methods: eS-Momentum consistently reaches near-perfect accuracy with the fastest convergence and lowest variance, followed closely by S-Momentum. eS-GD also improves upon RRGD, approaching the performance of S-Momentum. By contrast, RRGD converges more slowly, exhibits higher variability, and results in significantly larger final losses.
 }
 %\begin{figure}[!h]
 %  %\includegraphics[width=0.8\linewidth]{chapitre5_img/GD_comparison_plot.png}
@@ -2132,7 +2138,7 @@ Then we have
 \begin{equation}
   0= \eta \left(g_\infty+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{\infty}\right)-F_j\left(y_{\infty}\right)\right] \right) = \eta \left(\sum_{j=1}^m F_j(y_\infty) +0\right)= \eta F(y_\infty),
 \end{equation}
-which ends the proof. 
+which ends the proof assuming $\eta\nes0$. 
 }
 
 

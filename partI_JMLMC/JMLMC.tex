@@ -1,9 +1,9 @@
 % Please use the review version when submitting papers for review.
 % The option below provides the final form of your paper
 
-%\documentclass[review,authoryear,jeh]{beg_32}      %  review version
-\documentclass[article,authoryear,jmlmc]{beg_32}             %  final version
-% Use option "equation" for numbering equation as section
+\documentclass[review,authoryear,jeh]{beg_32}      %  review version
+%\documentclass[article,authoryear,jmlmc]{beg_32}             %  final version
+% Use option "eqtion" for numbering equation as section
 
 %\count0=115
 \usepackage[hang]{footmisc}
@@ -20,7 +20,6 @@
 \usepackage{dsfont}
 %
 \usepackage{url}
-\usepackage{tikz,xcolor}
 %\usepackage{hyperref}
 %\usepackage{booktabs}
 \usepackage{algorithm2e}
@@ -37,7 +36,6 @@
 \usepackage{amsthm}%
 \usepackage{mathrsfs}%
 %\usepackage[title]{appendix}%
-\usepackage{xcolor}%
 %\usepackage{textcomp}%
 %\usepackage{manyfoot}%
 %\usepackage{booktabs}%
@@ -146,7 +144,7 @@ The most studied optimizer to minimize \eqref{pb_somme_fini} is the stochastic g
 	\label{SGD}
 \end{equation}
 The convergence of SGD was studied under several assumptions:
-bounded variance \cite{sgd_general_diminishing_lr,Bertsekas_basis,sgd_dynamical_basis,bertsekas_theorem,SGD_upper_bound}, relaxed strong growth condition \cite{RG_mean,RG_almost_sure}, gradient confusion \cite{gradient_confusion}, sure-smoothness \cite{sure_smoothness_sgd} and expected smoothness \cite{ES_sgd,sgd_descent_condition,ES_sgd,sgd_global_KL}. In all these studies, learning rates need to decrease so that
+bounded variance \cite{sgd_general_diminishing_lr,Bertsekas_basis,sgd_dynamical_basis,bertsekas_theorem,SGD_upper_bound}, relaxed strong growth condition \cite{RG_mean,RG_almost_sure}, gradient confusion \cite{gradient_confusion}, sure-smoothness \cite{sure_smoothness_sgd} and expected smoothness \cite{sgd_descent_condition,ES_sgd,sgd_global_KL}. In all these studies, learning rates need to decrease so that
 $
 	\sum_{n\geq 0} \eta_n = +\infty \text{ , } \sum_{n\geq 0} \eta_n^{2}<+\infty
 $
@@ -270,7 +268,7 @@ The balanced strategy developed here serves as an excellent starting point for t
 \label{section_stationary}
 
 The aim of this section is to empirically investigate the stationary distributions of the neural network weights obtained with SGD and RRGD with constant learning rate. 
-We expect their supports to be "centered" around the minimums of $\R$. We will see that it is far from always being the case in the non-interpolating case. 
+We expect their supports to be "centered" around the minima of $\R$. We will see that it is far from always being the case in the non-interpolating case. 
 
 \subsection{Beyond the interpolation condition}
 \label{subsection_beyond_interpolation}
@@ -279,8 +277,8 @@ We expect their supports to be "centered" around the minimums of $\R$. We will s
 %~~\\
 %To evaluate the properties of the different optimizers (specifically their stability and speed), it is necessary to have some analytical benchmarks. In \cite{Bilel}, the authors build some toy neural networks in two dimensions with different properties. These examples are recalled in appendix \ref{annexe_polys} (their names are modified for pedagogical reasons) but we mention below some of their caracteristics:
 %\begin{itemize}
-%	\item the benchmark \polyTwo admits four global minimums of zero values and four non-degenerate saddle points. It is the most simple configuration presented in \cite{Bilel}.
-%	\item The benchmark \polyThree presents one global minimum of zero value and three local minimums with different values. The saddle points are still non-degenerated but their values are differents.
+%	\item the benchmark \polyTwo admits four global minima of zero values and four non-degenerate saddle points. It is the most simple configuration presented in \cite{Bilel}.
+%	\item The benchmark \polyThree presents one global minimum of zero value and three local minima with different values. The saddle points are still non-degenerated but their values are differents.
 %	\item The benchmark \polyFive is very stiff and possesses several mimimums with different orders of degeneracy. It also possesses degenerate saddle points. 
 %\end{itemize}
 %Despite their pertinence concerning the evaluation of full-batch optimizer, they are not sufficient for mini-batch optimization since they satisfy the interpolation condition. 
@@ -297,15 +295,15 @@ Succintly, we present their caracteristics below:
 	\item for benchmark \exOne, the number of batches is $m=2$. Each function $\R_i$ is strongly convex and the function $\R$ admits a \textbf{unique non-interpolating minimum}. The name
           expresses the fact that the general interest should prevail. 
           Being selfish (i.e. focusing on $\R_1$ or $\R_2$)  always leads to a penalized agent.
-	\item In the case of \exTwo, $m=2$. Each function $\R_i$ is quadric (non-convex) and admits two minimums with a shared global minimum at $0.5$. Then the objective function
+	\item In the case of \exTwo, $m=2$. Each function $\R_i$ is quadric (non-convex) and admits two minima with a shared global minimum at $0.5$. Then the objective function
           $\R$ has an \textbf{interpolating local minimum} at $0.5$ and a \textbf{non-interpolating global minimum}. The name means that if the agents are self-centered, they are all individually satisfied (global minimum of $\R_i$) but it is not the best compromise (the global minimum of $\R_i$ becomes a local one for $\R$).
-	\item Concerning \exThree, $m=2$. Each function $\R_i$ is a polynomial of degree 6 or 10. Each of the three minimums is \textbf{non-interpolating}. The local minimum in 0
+	\item Concerning \exThree, $m=2$. Each function $\R_i$ is a polynomial of degree 6 or 10. Each of the three minima is \textbf{non-interpolating}. The local minimum in 0
           is the \textbf{intersection of the graphs of $\R_1$ and $\R_2$}. The \textbf{global minimum of $\R_1$ is very close to the one of $\R$}. Here, the general interest is not a big "sacrifice" for the first agent. There also exists a balanced choice ($\theta=0$) insofar as the two agents are just as much (un)satisfied. 
-	\item For \exFour, $m=2$. Each function $\R_i$ is non-convex and the two minimums of $\R$ are \textbf{non-interpolating}. Here, the \textbf{global minimum of $\R$ is far from the ones of $\R_1$ and $\R_2$}. The general interest does not suit to the agent individually. 
+	\item For \exFour, $m=2$. Each function $\R_i$ is non-convex and the two minima of $\R$ are \textbf{non-interpolating}. Here, the \textbf{global minimum of $\R$ is far from the ones of $\R_1$ and $\R_2$}. The general interest does not suit to the agent individually. 
 	\item The benchmark \exFive concerns three strongly convex functions ($m=3$). The unique global minimum of $\R$ is non-interpolating. The situation is similar as \exOne but with three agents.
 	\item For \exSix, $m=3$. The \textbf{local} minimum at $\theta=0.5$ is \textbf{interpolating}. There exists a point $\theta=-0.75$ which is the minimum of two functions among the three (\textbf{"semi-interpolation"}). Finally, the global minimum is non-interpolating. In this case, if two agents plot ($\theta=-0.75$), the last agent is badly done, but globally this plot leads to a choice close to the general interest. 
 	\item \exSeven also possesses $m=3$ batches. Despite being non-convex, $\R$ admits an unique \textbf{non-interpolating global minimum}. The situation is similar as \exFour but with three agents.
-	\item \exHeight is made up of $m=4$ batches. The function $\R$ admits a \textbf{non-interpolating local and global minimum}. The global minimums of $\R_1$ and $\R_3$ are close enough, which is not the case for the rest of the global minimums. Therefore, two of the agents may plot but this is detrimental to the general interest, contrary to \exSix.      
+	\item \exHeight is made up of $m=4$ batches. The function $\R$ admits a \textbf{non-interpolating local and global minimum}. The global minima of $\R_1$ and $\R_3$ are close enough, which is not the case for the rest of the global minima. Therefore, two of the agents may plot but this is detrimental to the general interest, contrary to \exSix.      
 \end{itemize}
 
 \subsection{Graph description}
@@ -337,10 +335,10 @@ The figures
 \subsection{Comments}
 ~~\\
 On the graphs a) and c) of figure \ref{sgd_ex1} a Dirac comb appears with a lot of stationary states spaced between the minimum $\theta=0$ of $\R_1$ and $\theta=0.5$ of $\R_2$. In
-other words, several stationary states have nothing to do with the minimums of the $\R_i$ or $\R$. By decreasing the learning rate (graphs b) and d)), we get closer to a gaussian
+other words, several stationary states have nothing to do with the minima of the $\R_i$ or $\R$. By decreasing the learning rate (graphs b) and d)), we get closer to a Gaussian
 distribution but it is not really centered on the global minimum. For RRGD, the behavior is completely different, see figure \ref{RRGD_ex1}. When the learning rate decreases, the distribution gets closer to a Dirac centered at the global minimum but for intermediary learning rates (graphs a) and b)) the second Dirac is located at the minimum of $\R_2$, that is to say $\theta=0.5$. It is true that the behavior of RRGD is less troubling than the one of SGD but it is still problematic because the convergence (existence of a stationary distribution) does not imply to find a minimum of $\R$. \\
-Concerning \exTwo (figure \ref{sgd_ex2}), for any learning rate, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. Unfortunately, it seems that SGD favors interpolating minimums without taking into account their quality even for learning rates sufficiently small. Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not neglected even for an intermediary value of the learning rate (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
-Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the gaussian-like distribution is not well-centered (\exOne) or interpolating
+Concerning \exTwo (figure \ref{sgd_ex2}), for any learning rate, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. Unfortunately, it seems that SGD favors interpolating minima without taking into account their quality even for learning rates sufficiently small. Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not neglected even for an intermediary value of the learning rate (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
+Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the Gaussian-like distribution is not well-centered (\exOne) or interpolating
 local minimum are largely favored.
 
 In this section, we built new benchmarks to analyse the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble
@@ -354,7 +352,7 @@ The goal of this section is to explain the previous behaviors of SGD and RRGD an
 
 \newG{In the literature, the behavior of SGD is typically analyzed by interpreting it as a discretization of a stochastic differential equation driven by Brownian motion}
  \cite{SDE_comparison,SDE_modified,SDE_edp,malladi_adam,hu2018diffusion,flat_minima_exponential,yang2020fast,sgd_implicit_regularisation,sgd_implicit_regularisation2}. 
-\newG{In contrast, we adopt a different perspective: we interpret RRGD—specifically, its deterministic variant—as a particular discretization of the classical gradient flow}
+\newG{In contrast, we adopt a different perspective: we interpret RRGD\textendash specifically, its deterministic variant\textendash as a particular discretization of the classical gradient flow}
 $\theta'(t)=-\nR(\theta(t))$, using an operator splitting approach. Let us remember the principle on the following Cauchy problem:
 \begin{equation}
 	\left\{
@@ -390,7 +388,7 @@ As a basis for splitting schemes, see \cite{splitting_ode_review,splitting_ode_r
 
 \subsection{RRGD as a splitting}
 ~~\\
-Let us remember that the deterministic version of RRGD is IG ({\it Incremental Gradient}) in the literature \cite{IG_proximal,despres2022neural}. The latter can be interpreted as a Lie-Trotter
+Let us remember that the deterministic version of RRGD is IG ({\it Incremental Gradient}) in the literature \cite{IG_proximal}. The latter can be interpreted as a Lie-Trotter
 splitting with an explicit Euler scheme consisting in applying an explicit Euler scheme to each ODE $\theta'(t)=-\nR_i(\theta(t))$ and then to put them together like in \eqref{splitting_lie_trotter}. \\
 In the same way as for SGD and RRGD, we plot the stationary distributions of IG on \exOne and \exTwo for the same choices of learning rates, on the figures \ref{IG_ex1} and \ref{IG_ex2}. Since there is no stochasticity, we only represent $u$, the stationary distribution corresponding to the initial condition:
 \begin{equation*}
@@ -440,7 +438,7 @@ Let us begin by the two cases where this splitting makes it possible to retrieve
 	\item if $A^{-1}a=B^{-1}b$  then $y_{\infty}$ is the steady state of each $F_i$ (interpolation).
 	\item If $A$ and $B$ commute then for every $\eta>0$, $e^{(A+B)\eta}=e^{B\eta}e^{A\eta}$. Therefore the splitting is exact and the steady state $y_{\infty}$ is recovered asymptotically. 
 \end{itemize}
-In the general case, the Taylor development \eqref{Taylor_split} suggests that the local error introduced by a first order splitting is $\mathcal{O}(\eta^2)$ in the neighborhood of $y_{\infty}$ is:
+In the general case, the Taylor development \eqref{Taylor_split} suggests that the local error introduced by a first order splitting is $\mathcal{O}(\eta^2)$ in the neighborhood of $y_{\infty}$:
 \begin{equation*}
 	\left[e^{(A+B)\eta}-e^{B\eta}e^{A\eta}\right]y_{\infty} \approx \frac{\eta^2}{2}\left[B,A\right]y_{\infty}.
 \end{equation*}
@@ -525,7 +523,7 @@ Figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distributio
 \begin{remark}
 	To finish this section, let us cite some connected works:
 	\begin{itemize}
-		\item In \cite{splitting_sgd}, the authors interpret SGD (in fact RRGD) as a Lie-Trotter splitting. As an application, the same splitting is conserved by replacing the explicit Euler scheme by a Dormand\&Prince scheme (default integrator of the Scipy library). This process tested on linear and logistic regression problems improves the performances of SGD. However, there is no mention of the essential notion of equilibrium and of stationary distribution. 
+		\item In \cite{splitting_sgd}, the authors interpret SGD (in fact RRGD) as a Lie-Trotter splitting. As an application, the same splitting is conserved by replacing the explicit Euler scheme by a Dormand\&Prince scheme (default integrator of the Scipy library). This process tested on linear and logistic regression problems improves the performances of SGD. However, there is no mention of the essential notion of stationary distribution and of balancedness. 
 		\item For the composite problems where $\R=f+g$ with $f$ a differentiable function and $g$ a non-smooth convex function, there exists a literature about splitting methods \cite{splitting_proximal}. At first glance, no link was developed (until recently) between these methods and splitting schemes for ODE/PDE. The recent article \cite{splitting_proximal_ode} reinterprets the forward-backward, Douglas-Rachford and ADMM methods as splitting schemes on specific ODE.   
 	\end{itemize}
 \end{remark}
@@ -637,12 +635,13 @@ Assume
 \begin{enumerate}
 \item the flow is such that 
 $
-F(y)=0 \Longrightarrow \nR(y)=0,
+F(y)=0 \Longrightarrow \nR(\theta)=0,
 $
 \item we identified $m$ operators $(F_i)_{i\in\{1,..,m\}}$
-such that $F=\sum_{i=1}^m F_i \newG{+\mathcal{O}(\eta)}$. 
-\item If $(y_n)_{n\in\mathbb{N}}$ following the updates described in sections \ref{extendedSpeth}--\ref{red_mem} with operators $(F_i)_{i\in\{1,..,m\}}$ converges toward $y_\infty$, then $y_\infty$ is a critical points of $F$ (the full batch). 
+such that $F=\sum_{i=1}^m F_i \newG{+\mathcal{O}(\eta)}$,
+\item $(y_n)_{n\in\mathbb{N}}$ following the updates described in sections \ref{extendedSpeth}--\ref{red_mem} with operators $(F_i)_{i\in\{1,..,m\}}$ converges toward $y_\infty$. 
 \end{enumerate}
+Then $y_\infty$ is a critical points of $F$ (the full batch).
 \end{theorem}
 The proofs can be found in \ref{proof}.\\
 
@@ -658,13 +657,16 @@ Finally, {\em Condition 2}, which concerns the sub-operators in the splitting, i
 ~~\\
 Something important which seems, to our knowledge, to not have been noticed in the literature is that 
   expression \eqref{gni} (or its equivalent in \eqref{RAGL_splitting}) is consistent with $F=\sum_{i=1}^m F_i$ in the sense that $\forall i\in\{1,...,m\}$ 
-  \begin{equation}
-    \label{stopping_criterion}
+  \begin{equation*}
     g_n^i = F(y_n) +\mathcal{O}(\eta). 
-  \end{equation}
+  \end{equation*}
   This typically means that $g_n^i$ can be used as such in order to define a stopping criterion for the optimizer.
-  Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(y_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as $\|g_{n+1}^m\|/P \leq
-  \epsilon$, with $\epsilon$ prescribed by the user, and this without resorting to a full batch evaluation of $\nR$. This will be numerically verified in section \ref{num_res}. \\
+  Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(\theta_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as:
+  \begin{equation}
+  \|g_{n+1}^m\|/P \leq \epsilon, 
+  \label{stopping_criterion}
+  \end{equation}
+  with $\epsilon$ prescribed by the user, and this without resorting to a full batch evaluation of $\nR$. This will be numerically verified in section \ref{num_res}. \\
 \ \\
 
 \subsection{Initialization of the algorithm}
@@ -694,20 +696,21 @@ The initialization of the scheme ($n=0$) can be done in two ways:
 ~~\\
 The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG without random permutation) if memory reduction is not taken into account. % and RR-SARAH (without random permutation) otherwise. 
 	The splitting scheme we suggest in this paper can be applied to any differential equation $y'(t)=F(y(t))$. For example in the case of the Momentum/Heavy-Ball equation \cite{momentum_sutskever_RNN,Polyak,polyak_momentum_stability,continuous_general} a natural decomposition of the vector field is given by:
-	\begin{equation*}
+	\begin{equation}
 		F_i(\theta,v) = 
 		\begin{pmatrix}
                   -\frac{v}{m} \\
                         -{\bbetone}\frac{v}{m}+\nR_i(\theta)
 		\end{pmatrix},
-	\end{equation*}
+	\label{vector_field_momentum}
+	\end{equation}
         where $m$ is the number of batches.\\ 
         We suggest testing the mini-batch optimizer obtained above with this choice. Figure \ref{mom_ex1_ex2} revisits the benchmarks \exOne and \exTwo but with S-Momentum (stochastic Momentum) with $\beta_1=0.9$. 
         The learning rate is chosen as $\eta=0.125$, which is larger than the most restrictive stability condition dictated by the Lipschitz constants for GD for these benchmarks:
-        Momentum is indeed more stable than GD for example, at least on these benchmarks. 
+        Momentum is indeed more stable than GD, at least on these benchmarks. 
         The distributions are displayed at two epochs: for epoch $n=20$, stationarity is not yet reached with S-Momentum whereas for epoch $n=2000$, it is.  
         %In such conditions, the distributions obtained with Momentum have not yet reached stationarity as testifies figure \ref{mom_ex1_ex2}.
-        At epoch $n=20$, the (local and global) mimima seem to be within the supports of the distributions, for both benchmarks. This 
+        At epoch $n=20$, the (local and global) mimimums seem to be within the supports of the distributions, for both benchmarks. This 
         is qualitatively better than the results obtained with SGD, see figure \ref{sgd_ex1}. 
         But at epoch $n=20$, the results are not yet converged.  
 \begin{figure}[!h]
@@ -720,7 +723,7 @@ The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG w
   The last line of figure \ref{mom_ex1_ex2} displays the results at epoch $n=2000$, for which we verified that stationarity is reached:  S-Momentum captures respectively
   $x=0.40533333$ instead of the unique global minimum $0.4$ of \exOne, 
   and $x=-0.72457792$ instead of $0.71$, the global minimum of \exTwo. 
-  In other words, the appearance of artificial minimums strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimisers
+  In other words, the appearance of artificial minima strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimisers
   (other $F$) and is not only restricted to SGD or RRGD. 
 
   On the other hand, figure \ref{speth_mom_ex1_ex2} presents the results obtained with eS-Momentum, for {\em extended Speth Momentum} {(without memory reduction)}, in exactly the same conditions as the ones of figure \ref{mom_ex1_ex2}. 
@@ -732,10 +735,10 @@ The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG w
 	\label{speth_mom_ex1_ex2}
 \end{figure}
 For the eS-Momentum optimizer, stationarity is very close to being reached with only $20$ epochs: the supports of the obtained distributions are way tighter around the local and
-global minimums of $\R$. A faster convergence rate is consequently numerically observed.  
-  At epoch $n=2000$, for which stationarity is reached (in fact, the aformentionned stopping criterion \eqref{stopping_criterion} involving $g_n^i$ is activated at $n\approx 40 - 60 \ll 2000$ depending on the
+global minima of $\R$. A faster convergence rate is consequently numerically observed.  
+  At epoch $n=2000$, for which stationarity is reached (in fact, the stopping criterion \eqref{stopping_criterion} involving $g_n^i$ is activated at $n\approx 40 - 60 \ll 2000$ depending on the
   initialization), the eS-Momentum algorithm recovers the 
-  position of the global and local minimums with a perfect accuracy, with a constant learning rate. 
+  position of the global and local minima with a perfect accuracy, with a constant learning rate. 
 
 \begin{table}[h!]
 	\caption{Runtimes on the different examples for Momentum and eS-Momentum}
@@ -775,7 +778,7 @@ In this section, we suggest applying the new previously described {low memory} s
 analytical {\em non interpolating} benchmarks described in section \ref{subsection_beyond_interpolation}. 
 It is denoted as {eS-GD} for {\em extended Speth GD}.
 The study hence numerically emphasizes that this mini-batch optimiser also
-satisfies condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
+satisfies condition 5, relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation, and condition 1 related to the fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). 
 The section also emphasizes the fact that the next step for further improvements may be closely related to adaptiveness. 
 %Part II of this paper will be dedicated to condition 6, namely adaptativeness. \\ %It will be applied to Speth-GD but, once again, the adaptive strategy we suggest can be applied to any flow $F$ decomposed into a sum. \\ 
@@ -851,20 +854,40 @@ The section also emphasizes the fact that the next step for further improvements
 \end{figure}
 
 \begin{table}[h!]
-	\caption{Runtimes on the different examples}
-        \hspace{-3cm}\begin{tabular}{lllllllll}
+	\begin{center}
+	\caption{Runtimes on the four first examples}
+        \hspace{-3cm}\begin{tabular}{lllll}
 %         Runtimes (s.)  & \exOne                &  \exTwo               & \exThree              & \exFour               & \exFive               & \exSix                & \exFive                  & \exSix\\ 
-          Runtimes (s.) for & (a)                &  (b)              & (c)              & (d)               & (e)               & (f)               & (g)                  & (h)\\ 
-          RRGD           & $2.46 \times 10^{-0}$ & $2.40\times 10^{+1}$  & $6.83 \times 10^{+1}$ & $3.21 \times 10^{+1}$ & $4.26 \times 10^{+1}$ & $2.81\times 10^{+1}$& $6.20 \times
-          10^{+1}$ & $5.14\times 10^{+1}$ \\ 
-          eS-GD         & $7.28 \times 10^{-1}$ & $9.49\times 10^{-1}$  & $7.23 \times 10^{+1}$ & $1.32 \times 10^{+0}$ & $1.32 \times 10^{+0}$ & $9.00\times 10^{-1}$& $2.14 \times  10^{+0}$ & $1.46\times 10^{-0}$ \\ 
-          low memory eS-GD   & $8.56 \times 10^{-1}$ & $9.76\times 10^{-1}$  & $1.12 \times 10^{+2}$ & $4.04 \times 10^{+0}$ & $1.68 \times 10^{+0}$ & $1.83\times 10^{+0}$& $3.70 \times 10^{+0}$ & $1.57\times 10^{+0}$\\ 
-      S-eS-GD         & $1.50 \times 10^{-0}$ & $2.00\times 10^{-0}$  & $1.12 \times 10^{+2}$ & $1.85 \times 10^{+0}$ & $1.30 \times 10^{+0}$ & $1.45\times 10^{-0}$& $3.61 \times  10^{+0}$ & $2.11\times 10^{-0}$ \\ 
-     RR-eS-GD         & $1.38 \times 10^{-0}$ & $1.81\times 10^{-0}$  & $1.27 \times 10^{+2}$ & $1.27 \times 10^{+0}$ & $6.71 \times 10^{-1}$ & $8.20\times 10^{-1}$& $2.54 \times 10^{+0}$ & $1.31\times 10^{-0}$ \\ 
+          Runtimes (s.) for & (a)                &  (b)              & (c)              & (d) \\ 
+          RRGD           & $2.46 \times 10^{-0}$ & $2.40\times 10^{+1}$  & $6.83 \times 10^{+1}$ & $3.21 \times 10^{+1}$ \\ 
+          eS-GD         & $7.28 \times 10^{-1}$ & $9.49\times 10^{-1}$  & $7.23 \times 10^{+1}$ & $1.32 \times 10^{+0}$ \\ 
+          low memory eS-GD   & $8.56 \times 10^{-1}$ & $9.76\times 10^{-1}$  & $1.12 \times 10^{+2}$ & $4.04 \times 10^{+0}$ \\ 
+      S-eS-GD         & $1.50 \times 10^{-0}$ & $2.00\times 10^{-0}$  & $1.12 \times 10^{+2}$ & $1.85 \times 10^{+0}$ \\ 
+     RR-eS-GD         & $1.38 \times 10^{-0}$ & $1.81\times 10^{-0}$  & $1.27 \times 10^{+2}$ & $1.27 \times 10^{+0}$ \\ 
 
 	\end{tabular}
-	\label{ex1_example}
+	\end{center}
+	\label{tab1_example}
 \end{table}
+
+\begin{table}[h!]
+	\begin{center}
+	\caption{Runtimes on the four last examples}
+	\hspace{-3cm}\begin{tabular}{lllllllll}
+		%         Runtimes (s.)  & \exOne                &  \exTwo               & \exThree              & \exFour               & \exFive               & \exSix                & \exFive                  & \exSix\\ 
+		Runtimes (s.) for & (e)               & (f)               & (g)                  & (h)\\ 
+		RRGD & $4.26 \times 10^{+1}$ & $2.81\times 10^{+1}$& $6.20 \times
+		10^{+1}$ & $5.14\times 10^{+1}$ \\ 
+		eS-GD  & $1.32 \times 10^{+0}$ & $9.00\times 10^{-1}$& $2.14 \times  10^{+0}$ & $1.46\times 10^{-0}$ \\ 
+		low memory eS-GD  & $1.68 \times 10^{+0}$ & $1.83\times 10^{+0}$& $3.70 \times 10^{+0}$ & $1.57\times 10^{+0}$\\ 
+		S-eS-GD  & $1.30 \times 10^{+0}$ & $1.45\times 10^{-0}$& $3.61 \times  10^{+0}$ & $2.11\times 10^{-0}$ \\ 
+		RR-eS-GD & $6.71 \times 10^{-1}$ & $8.20\times 10^{-1}$& $2.54 \times 10^{+0}$ & $1.31\times 10^{-0}$ \\ 
+		
+	\end{tabular}
+	\end{center}
+	\label{tab2_example}
+\end{table}
+
 %ex1 SPETH
 %time = 7.285564e-01
 %ex2 SPETH
@@ -976,12 +999,11 @@ Note that for eS-GD, the final time always corresponds to the activation of the 
 10^{-4}$ here. We remind the reader that stopping criterion \eqref{stopping_criterion} never needs the estimation on the full batch: it is estimated {\em on-the-fly} during the successive
 epochs/batches.  
 \ \\ \ \\
-For the eight next benchmarks, the first step was to tune of the (constant) learning rate $\eta$ and the total number of epochs $n_{max}$ for eS-GD (figure \ref{SPETH_exs}). 
-By tuning the learning rate for eS-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to 
-have stable resolutions. 
+For the eight next benchmarks, the first step was to tune the (constant) learning rate $\eta$ and the total number of epochs $n_{max}$ for eS-GD (figure \ref{SPETH_exs}). 
+By tuning the learning rate for eS-GD, we mean having an estimation of the larger one we can use on the benchmarks in order to have stable resolutions. 
 By tuning $n_{max}$, we mean ensuring stationarity of the distributions for the algorithms which suffer from not having a stopping criterion.
 For all the benchmarks, $n_{max}=10000$ seems to be a qualitatively good choice. 
-For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $F_1,F_2$ are available: they correspond to 
+For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $\nR_1,\nR_2$ are available: they correspond to 
 the largest estimation of the stability condition available. 
 For all the other benchmarks, the larger learning rates have been (coarsely) manually obtained. They are given by 
  $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
@@ -992,7 +1014,7 @@ For all the other benchmarks, the larger learning rates have been (coarsely) man
  $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
  $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
  $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
-As can be seen on figure \ref{SPETH_exs}, the distributions obtained with eS-GD are all peaked on the different local and global minimums, for the eight benchmarks, with
+As can be seen on figure \ref{SPETH_exs}, the distributions obtained with eS-GD are all peaked on the different local and global minima, for the eight benchmarks, with
 constant learning
 rates which are tractable. 
 %Note that on example \exHeight, figure \ref{SPETH_exs} (f), the eS-GD optimiser does not find the global minimum and remains stuck on the local one: 
@@ -1000,7 +1022,7 @@ Note that on these benchmarks, we noticed that decreasing the time step does hel
 It hints toward the fact that adaptivity may be necessary here in order to capture stiff global minima.  
 We will see in the descriptions of the behaviors of RRGD in the same conditions that the balanced splitting already provides significant benefits (with a way smaller cost
 than reducing and tuning the learning rate). \\ 
-Now, in the eight cases, the distributions are made up of Dirac delta functions at the minimums, regardless of the distance between the minimums of $\R_i$ and $\R$ (zero distance as
+Now, in the eight cases, the distributions are made up of Dirac delta functions at the minima, regardless of the distance between the minima of $\R_i$ and $\R$ (zero distance as
 soon as there is interpolation, "small" for \exThree and "large" for \exFour), which suggests that the interpolation assumption is not necessary anymore. 
 The benchmarks also point out that
 our stopping criterion seems sufficient: when {\em a posteriori} computing the full-batch gradient, it satisfies $\|\nR(\theta)\|/P<\epsilon$. \\
@@ -1010,14 +1032,14 @@ our stopping criterion seems sufficient: when {\em a posteriori} computing the f
 	\scalebox{0.60}{\input{chapitre5_img/SGD_exs_001.pgf}}
 	\caption{
           Application of RRGD for the eight benchmarks depicted in section \ref{subsection_beyond_interpolation}, with $n_{max}=10000$ and 
- $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
- $\eta = 5.81\times 10^{-3}$  for \exTwo    (b), 
- $\eta = 1   \times 10^{-3}$  for \exThree  (c), 
- $\eta = 3.33\times 10^{-2}$  for \exFour   (d), 
- $\eta = 5   \times 10^{-2}$  for \exFive   (e), 
- $\eta = 1   \times 10^{-2}$  for \exSix    (f). 
- $\eta = 1   \times 10^{-2}$  for \exSeven  (g), 
- $\eta = 2.5 \times 10^{-2}$  for \exHeight (h). 
+ $\eta = 1   \times 10^{-3}$  for \exOne    (a), 
+ $\eta = 5.81\times 10^{-5}$  for \exTwo    (b), 
+ $\eta = 1   \times 10^{-5}$  for \exThree  (c), 
+ $\eta = 3.33\times 10^{-4}$  for \exFour   (d), 
+ $\eta = 5   \times 10^{-4}$  for \exFive   (e), 
+ $\eta = 1   \times 10^{-4}$  for \exSix    (f). 
+ $\eta = 1   \times 10^{-4}$  for \exSeven  (g), 
+ $\eta = 2.5 \times 10^{-4}$  for \exHeight (h). 
 }
 	\label{SGD_exs_001}
 \end{figure}
@@ -1025,17 +1047,17 @@ our stopping criterion seems sufficient: when {\em a posteriori} computing the f
 
 Figure \ref{SGD_exs} is obtained in the previous configurations of learning rates and maximum of epochs, the same as the ones of figure \ref{SPETH_exs} for eS-GD, but with RRGD. 
 On \exTwo, the results are satisfactory. But they are far from being acceptable for all the other benchmarks: for \exOne, \exThree, \exFour, \exFive, \exSeven and \exHeight,
-artificial minimums are captured. These artificial minimums can be quite far from the true ones, see \exFour, \exSeven, \exHeight.    
-Very often, the distributions are not peaked in the vicinities of the minimums.
-On the last benchmark (figure \ref{SGD_exs} f)), neither the local nor the global minimums is captured. 
+artificial minima are captured. These artificial minima can be quite far from the true ones, see \exFour, \exSeven, \exHeight.    
+Very often, the distributions are not peaked in the vicinities of the minima.
+On the last benchmark (figure \ref{SGD_exs} f)), neither the local nor the global minima is captured. 
 The first hypothesis coming to mind to obtain better results would be to decrease the learning rate: figure \ref{SGD_exs_001} is obtained in exactly the same configurations but
 with learning rates $100$ times smaller than for figures \ref{SPETH_exs} and \ref{SGD_exs}. 
-For benchmarks \exOne and \exFour, it does mitigate the problem: the minimums of $\R$ are recovered with good probabilities. 
+For benchmarks \exOne and \exFour, it does mitigate the problem: the minima of $\R$ are recovered with good probabilities. 
 However, for all the other benchmarks, this is far from being enough: on benchmark \exTwo, i.e. on figure \ref{SGD_exs_001} (b), the distribution is not anymore
-converged: with a  learning rate $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
-On \exThree, the local and global minimums are now within the support of the distribution, but their probabilities of occurrence remain low.
+convergent: with a  learning rate $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
+On \exThree, the local and global minima are now within the support of the distribution, but their probabilities of occurrence remain low.
 For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from being captured even if an improvement is noticeable. 
-Globally, without the balanced splitting we suggest in this paper, interpolatory minimums are favored, independently of their performances.  
+Globally, without the balanced splitting we suggest in this paper, interpolatory minima are favored, independently of their performances.  
 
 \ \\
 In this numerical study, the learning rate being constant, it had to be tuned to produce stable trajectories. 
@@ -1058,18 +1080,18 @@ But other variations such as eS-Momentum or eS-Adam for example would have neede
 The goal of this paper is to serve as a first step towards an extension of full-batch adaptive methods \cite{Bilel} to mini-batch algorithms which ensures well-balancedness.
 More precisely, the following points are tackled:
 \begin{itemize}
-	\item the interpolation hypothesis is largely discussed through different configurations in one dimension. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minimums of the objective function and create new steady states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
+	\item the interpolation hypothesis is largely discussed through different configurations in one dimension. It appears that two of the most popular algorithms used in practice, namely SGD and RRGD, admit (in case of convergence) stationary distributions with undesirable supports: they may not contain minima of the objective function and create new steady states, when this assumption is not satisfied. This is very concerning if one wants to reduce the size of a model (possibly under-parametrized networks).
 	\item To understand this undesirable behavior, we suggest a new point of view on RRGD reinterpreted as a splitting scheme applied to the gradient flow. This turns the
           classical approaches upside down: it consists in suggesting a new continuous system (a stochastic ODE) and then to discretize it with an explicit Euler scheme. This
           splitting approach makes it possible to explain the appearance of "artificial" steady states that are related to the unbalancing of the splitting: the steady states may depend on the learning rate. With the classical approach based on the brownian motion, it is impossible to explain the source of such a singular behavior (if the diffusion is constant, the stationary distribution is the Gibbs distribution).
-         \item A new family of algorithms is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minimums due to the batch
+         \item A new family of algorithms is then proposed to overcome the former issue. Based on a well-balanced strategy, it avoids to capture artificial minima due to the batch
            decomposition. In particular, it allows to recover even non-interpolating cases. Furthermore, it respects 5 properties that seem desirable, including a natural stopping
            criterion which doesn't require to compute full batch gradients. 
 \end{itemize}
 
 The notion of \textbf{balanced splitting is then crucial} to get an appropriate behavior with constant learning rate and {\em a fortiori} with adaptive learning rate. Improving the
 proposed algorithms to include adaptative learning rate selection is therefore the natural next step to obtain efficient algorithms, able to produce comparable results on
-machine-learning test than the full-batch counterpart. %This is the subject of part II.
+machine-learning test than their full-batch counterpart. %This is the subject of part II.
 
 
 
@@ -1102,7 +1124,7 @@ The authors declare that they have no conflict of interest.
 %~~\\
 %Each caracteristic of the benchmarks is described in tables \ref{polyTwo_example}, \ref{polyThree_example}, \ref{polyFive_example1} and \ref{polyFive_example2}. 
 %The term "order of dominating terms" refers to the order of the first non-zero term in the asymptotic development of $\mathcal{R}(\theta)-\mathcal{R}(\theta^*)$ in the neighborhood of a critical point $\theta^*$. 
-%The values of the critical points $\theta^*$, in other words $\R(\theta^*)$, appear in the same order than the minimums.
+%The values of the critical points $\theta^*$, in other words $\R(\theta^*)$, appear in the same order than the minima.
 %The critical points can be global minimum (\mg), local one (\ml) or saddle point (\ps).
 %
 %\paragraph{{\it Benchmark} \polyTwo}
@@ -1207,7 +1229,7 @@ The authors declare that they have no conflict of interest.
 \section{Non-interpolating benchmarks}
 \label{annexe_non_interpolated}
 
-For each example, we present the functions $\R_i$ as well as the position $\theta$ of their global minimums (\mg) and local ones (\ml). For \exOne and \exTwo, the Lipschitz constants of $\nR$ on $[-1,1]$ are computed.
+For each example, we present the functions $\R_i$ as well as the position $\theta$ of their global minima (\mg) and local ones (\ml). For \exOne and \exTwo, the Lipschitz constants of $\nR$ on $[-1,1]$ are computed.
 
 \subsection{Example \exOne}
 ~~\\
@@ -1226,7 +1248,7 @@ The Lipschitz constants of the gradients on $[-1,1]$ are: $L_1=2$ and $L_2=8$.
 	\caption{Description of benchmark \exOne}
 	\begin{tabular}{ll}
 		
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} \\ 
+		\begin{bf} \diagbox{Functions}{Minima} \end{bf} & \begin{bf}\mg\end{bf} \\ 
 		
 		\begin{bf}$\R_1$\end{bf} &  0   \\ 
 		\begin{bf}$\R_2$\end{bf} &  0.5 \\ 
@@ -1251,7 +1273,7 @@ The Lipschitz constants of the gradients on $[-1,1]$ are respectively: $L_1=22$ 
 	\caption{Description of benchmark \exTwo}
 	\begin{tabular}{lll}
 		
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
+		\begin{bf} \diagbox{Functions}{Minima} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
 		
 		
 		\begin{bf}$\R_1$\end{bf} & 0.5 & -0.5  \\ 
@@ -1270,14 +1292,14 @@ The benchmark is described by the functions ($m=2$):
 \begin{equation*}
 	\R_2(\theta) = \theta^6-\theta^5-\theta^3+\theta+1.
 \end{equation*}
-Let us notice that at the minimum $\theta=0$: $\R_1(0)=\R_2(0)$. The function $\R$ is quasi-constant between $\theta=0$ and $\theta=0.229$ where it varies between $1$ and $1.01$. The global minimums of $\R_1$ and $\R$ are close.
+Let us notice that at the minimum $\theta=0$: $\R_1(0)=\R_2(0)$. The function $\R$ is quasi-constant between $\theta=0$ and $\theta=0.229$ where it varies between $1$ and $1.01$. The global minima of $\R_1$ and $\R$ are close.
 
 \begin{table}[h!]
 	\centering
 	\caption{Description of benchmark \exThree}
 	\begin{tabular}{lll}
 		
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
+		\begin{bf} \diagbox{Functions}{Minima} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
 		
 		
 		\begin{bf}$\R_1$\end{bf} & 0.707 &   \\ 
@@ -1302,7 +1324,7 @@ The functions are of the form ($m=2$):
 	\caption{Description of benchmark \exFour}
 	\begin{tabular}{lll}
 		
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
+		\begin{bf} \diagbox{Functions}{Minima} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
 		
 		
 		\begin{bf}$\R_1$\end{bf} & -1.364 & 0.624  \\ 
@@ -1331,7 +1353,7 @@ and
 	\caption{Description of benchmark \exFive}
 	\begin{tabular}{ll}
 		
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} \\ 
+		\begin{bf} \diagbox{Functions}{Minima} \end{bf} & \begin{bf}\mg\end{bf} \\ 
 		
 		\begin{bf}$\R_1$\end{bf} & 0 \\ 
 		\begin{bf}$\R_2$\end{bf} & 0.5  \\ 
@@ -1360,7 +1382,7 @@ and
 	\caption{Description of benchmark \exSix}
 	\begin{tabular}{lll}
 		
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
+		\begin{bf} \diagbox{Functions}{Minima} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
 		
 		
 		\begin{bf}$\R_1$\end{bf} & 0.5 & -0.5  \\ 
@@ -1390,7 +1412,7 @@ and
 	\caption{Description of benchmark \exSeven}
 	\begin{tabular}{lll}
 		
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
+		\begin{bf} \diagbox{Functions}{Minima} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
 		
 		
 		\begin{bf}$\R_1$\end{bf} & -1.364 & 0.624  \\ 
@@ -1424,7 +1446,7 @@ and
 	\caption{Description of benchmark \exHeight}
 	\begin{tabular}{lll}
 		
-		\begin{bf} \diagbox{Functions}{Minimums} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
+		\begin{bf} \diagbox{Functions}{Minima} \end{bf} & \begin{bf}\mg\end{bf} & \begin{bf}\ml\end{bf} \\
 		
 		
 		\begin{bf}$\R_1$\end{bf} & -1.364 & 0.624  \\ 
@@ -1437,8 +1459,8 @@ and
 \end{table}
 
 
-\section{Figures relative to the studies of section \ref{section_splitting_schemes}}
-%In this section, we gather the figures relative to the studies of section \ref{section_splitting_schemes} as we think it eases the readability of the paper. 
+\section{Additional figures}
+In this section, we gather the figures relative to the studies of sections \ref{section_stationary} and \ref{section_splitting_schemes} as we think it eases the readability of the paper. 
 
 \begin{figure}[h!]
 	\centering
@@ -1521,18 +1543,20 @@ and
 
 \clearpage
 
-\section{\newG{Pseudo-code of the algorithms of sections \ref{extendedSpeth} and \ref{red_mem}}}
+\section{\newG{Pseudo-code of the algorithms}}
 \label{pseudo_code}
 
+In this section, we present the pseudo-code of the algorithms 
+of sections \ref{extendedSpeth} and \ref{red_mem}. Let us recall that for gradient descent, $F=-\nR$ and for Momentum, it is given by \eqref{vector_field_momentum}.
 
 \begin{algorithm}[H]
 \DontPrintSemicolon
 \SetAlgoLined
 \SetKwInput{KwInput}{Input}
 \SetKwInput{KwOutput}{Output}
-\KwInput{Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+\KwInput{Training set $(X_{\text{train}},Y_{\text{train}})$ \\
          model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
-\KwOutput{Trained network parameters $\theta$, test accuracy}
+\KwOutput{Trained network parameters $\theta$}
 
 %\BlankLine
 %\tcc{Model definition}
@@ -1540,60 +1564,41 @@ and
 
 \BlankLine
 \tcc{Initialise loss, network, aggregator, gradient table}
-$\mathcal{L}\leftarrow$ Loss \;
-$f(\theta, \cdot)$ \;
+$\mathcal{L}\leftarrow$ Loss; $f(\theta, \cdot)$ (network output) \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
 $Agg \gets 0$ (aggregator list matching $y=(\theta,v,...)^t$ depending on the used optimiser)\;
-$Grad\_tab[\;]\gets 0$ (gradient table, one entryusedr per batch)\;
+$F\_tab[\;]\gets 0$ (vector field table, one entry per batch)\;
 
 \BlankLine
 \For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
     \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
-    $\,\text{loss}_{epochs}\gets 0 \;$\;
     
     \ForEach{batch index $b$}{
         Extract mini‑batch $(x_b,y_b)$\;
         Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
         $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
         Back‑propagate gradients: $g_b\leftarrow\nabla_\theta \ell_b$\;
+        Evaluate $F_b$ from $y$ and $g_b$\;
         \tcc{remove previous contribution for this batch}
-        $Agg \leftarrow Agg - F_b(y,Grad\_tab[b])$\;  
+        $Agg \leftarrow Agg - F\_tab[b]$\;  
         \tcc{Update the gradient table}
-        $Grad\_tab[b]\leftarrow g_b$\;
+        $F\_tab[b]\leftarrow F_b$\;
         \tcc{Update aggregator}
-        $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$\;
+        $Agg \leftarrow Agg + F\_tab[b]$\;
         
         \tcc{Optimiser step with aggregated gradient}
-        $y \leftarrow y - \eta F_b(y,\,Agg)$\;
+        $y \leftarrow y + \eta Agg$\;
     }
     
-    Compute aggregator norm $\,\|Grad\_tab\|$\;
-    \If{$\|Grad\_tab\| < \varepsilon$}{
+    Compute aggregator norm $\|Agg\|$\;
+    \If{$\|Agg\| < \varepsilon$}{
         \textbf{break}\;  \tcc{converged}
     }
 }
-
-\BlankLine
-\tcc{Evaluation}
-Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
-Compute $\text{acc}_{\text{test}}$\;
-
-\Return{$\theta,\,\text{acc}_{\text{test}}$}
+\Return{$\theta$}
 \caption{Pseudo-code for the extended-Speth splitting procedure (see section \ref{extendedSpeth}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)$.}
 \label{algo_speth}
 \end{algorithm}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1602,75 +1607,62 @@ Compute $\text{acc}_{\text{test}}$\;
 \SetAlgoLined
 \SetKwInput{KwInput}{Input}
 \SetKwInput{KwOutput}{Output}
-\KwInput{Training set $(X_{\text{train}},Y_{\text{train}})$, test set $(X_{\text{test}},Y_{\text{test}})$\\
+\KwInput{Training set $(X_{\text{train}},Y_{\text{train}})$\\
          model hyper‑parameters: \texttt{max\_epochs}, \texttt{batch\_size}, learning rate $\eta$, tolerance $\varepsilon$}
-\KwOutput{Trained network parameters $\theta$, test accuracy}
+\KwOutput{Trained network parameters $\theta$}
 
 %\BlankLine
 %\tcc{Model definition}
 %$\theta \gets$ \{Flatten$(28\times28)$, Dense$(128,\text{ReLU})$, Dense$(10,\text{softmax})$\}\;
-
-\BlankLine
-\tcc{Initialise loss, network, aggregator, grad. table, pivot }
-$\mathcal{L}\leftarrow$ Loss \;
-%$\text{opt}\leftarrow$ SGD$(\eta)$\;
-$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
+$\mathcal{L}\leftarrow$ Loss; $Agg \gets 0$; $F\_tab[\;]\gets 0$; $\theta_{\text{pivot}} = \theta$ \;
+%$\text{opt}\leftarrow$ SGD$(\eta)$\; (aggregator list matching $y=(\theta,v)^t$ depending on the used optimiser)\;
 %$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 $L[\;]\gets 0$ (stiffness evaluation, one entry per batch)\;
-$\theta_{\text{pivot}} = \theta$ \;
 
 \BlankLine
 \For{$\texttt{epochs}\gets 1$ \KwTo \texttt{max\_epochs}}{
     \tcc{Shuffle $(X_{\text{train}},Y_{\text{train}})$ to apply stochastic batching}
-    $\,\text{loss}_{epochs}\gets 0 \;$\;
    
     SumAgg \gets 0
  
     \ForEach{batch index $b$}{
         Extract mini‑batch $(x_b,y_b)$\;
-        Forward pass: $z_b\leftarrow f_\theta(x_b)$\;
-        $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
-        Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$\;
-        Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
-        \tcc{remove previous contribution for this batch}
-        $Agg \leftarrow Agg - F_b(y,g_\text{pivot})$\;  
-        \tcc{Update the gradient table}
-        $Grad\_tab[b]\leftarrow g_b$\;
-        \tcc{Update the sum over the batches}
-        SumAgg \gets SumAgg + Grad\_tab[g]
-        \tcc{Update aggregator}
-        $Agg \leftarrow Agg + F_b(y,Grad\_tab[b])$\;
+        Forward pass: $z_b\leftarrow f_\theta(x_b)$; $\ell_b\leftarrow\mathcal{L}(y_b,z_b)$\;
+        Back‑propagate gradients at pivot   location: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$; Compute $F_\text{pivot}$\;
+        Back‑propagate gradients at current location: $g_b\leftarrow\nabla_\theta \ell_b(\theta)$; Compute $F_b$ \;
+        $Agg \leftarrow Agg - F_\text{pivot}$\;  
+        $F\_tab[b]\leftarrow F_b$\;
+        \tcc{Update the sum over the batches and the aggregator}
+        SumAgg \gets SumAgg + $F$\_tab[b];
+        $Agg \leftarrow Agg + F\_tab[b]$\;
         \tcc{Update the pivot weights} 
-        \If{$L[b] < \|g_b\|$}{
-           $\theta_\text{pivot} = \theta$
-
-           $L[b] =  \|g_b\|$
+        \If{$L[b] < \|F_b\|$}{
+           $\theta_\text{pivot} \leftarrow \theta$;
+           $L[b] \leftarrow  \|F_b\|$
         }
         \If{b==number\_of\_batch}{
-           Agg = SumAgg
+           Agg $\leftarrow$ SumAgg
         }
-        \tcc{Optimiser step with aggregated gradient}
-        $y=(\theta,v) \leftarrow y(\theta,v) - \eta F_b(y,\,Agg)$\;
+        $y\leftarrow y + \eta Agg$\;
     }
-    
-    Compute aggregator norm $\,\|Grad\_tab\|$\;
-    \If{$\|Grad\_tab\| < \varepsilon$}{
-        \textbf{break}\;  \tcc{converged}
+    \If{$\|Agg\| < \varepsilon$}{
+        \textbf{break} \tcc{converged} \;
     }
 }
+\Return{$\theta$}
 \BlankLine
-\tcc{Evaluation}
-Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
-Compute $\text{acc}_{\text{test}}$\;
-
-\Return{$\theta,\,\text{acc}_{\text{test}}$}
 \caption{Pseudo-code for the extended-Speth splitting procedure {\em with memory reduction} (see section \ref{red_mem}) on an arbitrary full batch optimizer of flow $\dot{y}=F(y)$.}
 \label{algo_red_mem}
 \end{algorithm}
 
+%\tcc{Evaluation}
+%Test $z_{\text{test}}\gets f_\theta(X_{\text{test}})$\;
+%Compute $\text{acc}_{\text{test}}$\;
+%\Return{$\theta,\,\text{acc}_{\text{test}}$}
 
-\section{\newG{Proof of theorem \ref{th}}}
-\label{proof}
+
+%\section{\newG{Proof of theorem \ref{th}}}
+%\label{proof}
 
 %\section{Classical algorithms}
 %\label{annexe_adam}

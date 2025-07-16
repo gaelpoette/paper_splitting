@@ -653,7 +653,7 @@ The previous construction allows stating the following theorem.
 $
 \dot{y}(t) = F(y(t))
 $
- with  $y=(\theta,v, \dots)^\top$.  
+ with  $y=(\theta,\dots)^\top$.  
 Assume
 \begin{enumerate}
 \item  that the flow is such that 
@@ -1885,7 +1885,7 @@ $F\_tab[\;]\gets 0$ (vector field table, one entry per batch)\;
         \tcc{remove previous contribution for this batch}
         $Agg \leftarrow Agg - F_\_tab[b]$\;  
         \tcc{Update the gradient table}
-        $F\_tab[b]\leftarrow F_b$\;
+        $F_\_tab[b]\leftarrow F_b$\;
         \tcc{Update aggregator}
         $Agg \leftarrow Agg + F_b$\;
         

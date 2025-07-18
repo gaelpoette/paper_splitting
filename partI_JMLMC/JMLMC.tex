@@ -1869,7 +1869,7 @@ of sections \ref{extendedSpeth} and \ref{red_mem}. Let us recall that for gradie
 $\mathcal{L}\leftarrow$ Loss \;
 $f(\theta, \cdot)$ (network model)\;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
-$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimizer)\;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^\top$ depending on the used optimizer)\;
 $F\_tab[\;]\gets 0$ (vector field table, one entry per batch)\;
 $Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 
@@ -1942,8 +1942,8 @@ Compute $\text{acc}_{\text{test}}$\;
 \tcc{Initialise loss, network, aggregator, grad., pivot }
 $\mathcal{L}\leftarrow$ Loss,  $\theta_{\text{pivot}} = \theta$ \;
 %$\text{opt}\leftarrow$ SGD$(\eta)$\;
-$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^t$ depending on the used optimizer)\;
-AggGrad \gets 0 \;
+$Agg \gets 0$ (aggregator list matching $y=(\theta,v)^\top$ depending on the used optimizer)\;
+$AggGrad \gets 0$ \;
 %$Grad\_tab[\;]\gets 0$ (gradient table, one entry per batch)\;
 $L\gets 0$ (stiffness evaluation, one entry per batch)\;
 
@@ -1953,25 +1953,25 @@ $L\gets 0$ (stiffness evaluation, one entry per batch)\;
     \If{\texttt{epochs}==0}{
       \eta = 0\;
     }
-    SumAgg \gets 0 \; 
+    $SumAgg \gets 0$ \; 
     \ForEach{batch index $b$}{
         Extract mini‑batch $(x_b,y_b)$\;
         Forward passes: $z_b\leftarrow f_\theta(x_b)$,  $z_{\text{pivot}}\leftarrow f_\theta(x_\text{pivot})$\;
         $\ell_b\leftarrow\mathcal{L}(y_b,z_b), \ell_\text{pivot}\leftarrow\mathcal{L}(y_b,z_{\text{pivot}})$\;
         Back‑propagate gradients: $g_\text{pivot}\leftarrow\nabla_{\theta} \ell_b(\theta_\text{pivot})$, $g_b\leftarrow\nabla_\theta \ell_b(\theta)$\;
         Compute $F_b$ and $F_\text{pivot}$ from $y$ and $g_b$, $g_\text{pivot}$\;
-        Agg \gets Agg - $F_\text{pivot}$ \tcc*{rm prev. contrib. }
-        AggGrad \gets AggGrad - $g_\text{pivot}$ \tcc*{rm prev. contrib. for $\nabla R_b$}
-        AggGrad \gets AggGrad + $g_b$  \tcc*{Update grad. aggregator}
-        SumAgg \gets SumAgg + $F_b$  \tcc*{Update the sum }
-        Agg \gets Agg + $F_b$ \tcc*{Update aggregator}
+        $Agg \gets Agg - F_\text{pivot}$ \tcc*{rm prev. contrib. }
+        $AggGrad \gets AggGrad - g_\text{pivot}$ \tcc*{rm prev. contrib. for $\nabla R_b$}
+        $AggGrad \gets AggGrad + g_b$  \tcc*{Update grad. aggregator}
+        $SumAgg \gets SumAgg + F_b$  \tcc*{Update the sum }
+        $Agg \gets Agg + F_b$ \tcc*{Update aggregator}
         \If{$L < \|g_b\|$}{ 
            $\theta_\text{pivot} = \theta$\tcc*{Update the pivot weights}
 
            $L =  \|g_b\|$
         }
         \If{b==number\_of\_batch}{
-           Agg = SumAgg
+           $Agg = SumAgg$
         }
         \tcc{Optimiser step with aggregated gradient}
         $y \leftarrow y+\eta Agg$ \; %F_b(y,\,Agg)$\;

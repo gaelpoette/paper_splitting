@@ -351,9 +351,9 @@ other words, several stationary states have nothing to do with the minima of the
 Concerning \exTwo (figure \ref{sgd_ex2}), for any learning rate, the interpolating local minimum at $\theta=0.5$ is largely favored. By diminishing $\eta$ on the graphs b) and d), the proportion of global minimum increases slightly. 
 \newG{Unfortunately, SGD appears to favor interpolating minima regardless of their quality, even when the learning rate is small.}
 Concerning RRGD (figure \ref{RRGD_ex2}), the global minimum is not \newG{overlooked} even for an intermediary value of the learning rate (see graph a)). On the graph d), when the learning rate is small enough, the global minimum is favored despite not being interpolating. We will see in what follows that this difference with SGD can be explained by operator splitting. 
-Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the Gaussian-like distribution is not well-centered (\exOne) or interpolating local minimum are largely favored.
+Note that for SGD, even when decreasing the learning rate, the stationary distributions are not satisfactory: the Gaussian-like distribution is not well-centered (\exOne) or the interpolating local minimum is largely favored.
 
-In this section, we built new benchmarks to analyse the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble
+In this section, we built new benchmarks to analyze the influence of the interpolation condition on the long run behavior of SGD and RRGD. It appears that they have trouble
 catching non-interpolating critical points. Even worse, SGD creates artificial stationary states in the sense that they are not critical points of the individual functions $\R_i$
 or of the sum function $\R$. Decreasing the learning rate appears to have little to no effect on the previous observations: this point will be confirmed in the next section. 
 
@@ -489,7 +489,7 @@ For instance, here are the two steady states corresponding to two choices of lea
 	\end{array}
 	\right.
 \end{equation*}
-We recover the steady states of the simulations of figure \ref{IG_ex1} and notice that it is impossible to exactly obtain the minimum of $\R$ at $\theta=\frac{2}{5}$ if $\eta \neq 0$. \\
+We recover the steady states of the simulations of figure \ref{IG_ex1} and notice that it is impossible to exactly obtain the minimum of $\R$ at $\theta=\dfrac{2}{5}$ if $\eta \neq 0$. \\
 The splitting approach enables to suggest a plausible explanation to the artificial steady states that we have detected on SGD, RRGD, IG and Strang when $\eta$ does not tend to 0.
 Such a phenomenon is called an imbalance of the splitting. Therefore, the artificial steady states (or the predilection towards the interpolating local minimum) are related to the
 \textbf{non-commutativity} of the vector fields $F_1$ and $F_2$ (i.e. $\nR_1$ and $\nR_2$ for any mini-batch version of GD). 
@@ -538,7 +538,7 @@ Figures \ref{speth_ex1} and \ref{speth_ex2} represent the stationary distributio
 	\begin{itemize}
 		\item In \cite{splitting_sgd}, the authors interpret SGD (in fact RRGD) as a Lie-Trotter splitting. As an application, the same splitting is conserved by replacing the explicit Euler scheme by a Dormand\&Prince scheme (default integrator of the Scipy library). This process tested on linear and logistic regression problems improves the performances of SGD. However, there is no mention of the essential notion of stationary distribution and balancedness. 
 		\item For the composite problems where $\R=f+g$ with $f$ a differentiable function and $g$ a non-smooth convex function, there exists a literature about splitting methods \cite{splitting_proximal}. At first glance, no link was developed (until recently) between these methods and splitting schemes for ODE/PDE. The recent article \cite{splitting_proximal_ode} reinterprets the forward-backward, Douglas-Rachford and ADMM methods as splitting schemes on specific ODE.   
-                \item \newG{Recently, in \cite{shaw2025}, the authors explore the link between stochastic gradient and randomized splitting strategies.}
+                \item \newG{Recently, in \cite{shaw2025} (a month after the publication of a first version of this work on HAL), the authors explore the link between stochastic gradient and randomized splitting strategies.}
 	\end{itemize}
 \end{remark}
 
@@ -566,7 +566,7 @@ We therefore suggest the following scheme where the "balance" vector is slightly
 	\label{RAG_2batch}
 \end{equation}
 Note that in the previous expression, we enable the possibility to use different learning rates per batch. 
-This may be useful for instance if {\em a priori} knowledge of the batch stiffnesses are available. 
+This may be useful for instance if {\em a priori} knowledge of the batch stiffnesses is available. 
 %want to be able to use different learning rates for every iteration (adaptive method in the end): $\eta^1$ and $\eta^2$. It is possible to keep the balance property in this context with some modifications, for example by replacing the division by $\eta$ by $\frac{2}{\eta^1+\eta^2}$. Nevertheless, exploiting the most recent evaluation (mentioned above), this issue is settled immediately.
 
 Asymptotically, $F_1(y_{\infty})+F_2(y_{\infty})=0$ hence $F(y_{\infty})=0$.
@@ -598,7 +598,7 @@ for all $i \in \{1,\dots,m\}$ and $n\geq 1$.
 \subsection{Reduction of the memory cost}
 \label{red_mem}
 ~~\\
-Now, the issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Therefore, the goal is to obtain a \textbf{close approximation of $g_n^i$ by reducing the memory cost}.
+Now, the issue is that the implementation of formula \eqref{RAG_scheme} requires the storage of $m$ gradients hence its memory cost involves the product $mN$. Therefore, the goal is to obtain a \textbf{close approximation of $g_n^i$ while reducing the memory cost}.
 %The previous algorithm has been described as if all the batches were in memory. 
 The main ingredient of the previous algorithm consists in using an aggregator which \newG{is {\em consistent if not equal} to the full batch gradient}.
 The memory cost question hence resumes to being able to build a lighter but still consistent aggregator.
@@ -632,7 +632,7 @@ The scheme \eqref{RAGL_splitting} is well-balanced since $g_n$ asymptotically ap
 part of $g_n$ related to this batch. It is the most problematic part because it has the largest variations. It now only remains to choose a criterion in order to define the
 stiffest batch. We suggest to introduce a pivot variable whose indice  $i_{\text{pivot}}$ is such that
 $$i_{\text{pivot}} = \argmax_{j\in\{1,...,m\}} \|F_j(y_{n-1+(j-1)/m})\|.$$}
-This formula can be implemented with a reasonable memory cost of $3N$ instead of $mM$.
+This formula can be implemented with a reasonable memory cost of $3N$ instead of $mN$.
 \newG{Naturally, this choice is heuristic and inherently non-unique. However, it highlights the method's flexibility, relying only on minimal assumptions -- primarily consistency.
 Nonetheless, as we will see in Section  \ref{num_res}, it proves to be effective in practice.}
 \newG{A pseudo-code for this algorithm can be found in \ref{pseudo_code}, algorithm \ref{algo_red_mem}.}
@@ -665,7 +665,7 @@ such that $F=\sum_{i=1}^m F_i$ %{+\mathcal{O}(\eta)}$
     have been chosen, 
 \item that the updates $(y_n)_{n\in\mathbb{N}}$ obtained {\em via} expressions \eqref{RAG_scheme} or \eqref{RAGL_splitting}  converge toward $y_\infty$,
 \end{enumerate}
- then $y_\infty$ is a critical points of the full batch flow $F$. 
+ then $\theta_\infty$ is a critical point of the full batch function $\R$. 
 \end{theorem}
 The proofs can be found in \ref{proof}.\\
 }
@@ -675,7 +675,7 @@ first, if convergence occurs in the mini-batch setting, it is toward a critical 
 interpolation condition}.\\
 Second, the choice of the underlying optimizer used in the splitting is crucial. If {\em condition 1} is not satisfied (i.e., the full-batch optimizer does not lead to a critical
 point of $\R$), then its mini-batch variant cannot be expected to do so either.\\
-Finally, {\em condition 2}, which pertains to the sub-operators in the splitting scheme, is not especially restrictive. 
+Finally, {\em condition 2}, which pertains to the sub-operators in the splitting scheme, is absolutely not restrictive. 
 Given a full-batch optimizer, multiple splitting schemes can be devised due to the non-uniqueness of the sum decomposition. Some of these schemes may be more practical or effective
 than others - see section \ref{adam} for an illustrative example.}
 
@@ -687,7 +687,7 @@ Something important which seems, to our knowledge, to not have been noticed in t
     g_n^i = F(y_n) +\mathcal{O}(\eta). 
   \end{equation*}
   This typically means that $g_n^i$ can be used as such in order to define a stopping criterion for the optimizer.
-  Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(y_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as:
+  Take the example of GD: in this case, $F_i=-\nR_i$ and $g_n^i = \nR(\theta_n)+\mathcal{O}(\eta)$. This means that we can choose to stop our optimizer as soon as:
   \begin{equation}
   \|g_{n+1}^m\|/P \leq\epsilon, 
   \label{stopping_criterion}
@@ -735,7 +735,7 @@ Algorithm eS-Momentum is studied in section \ref{mom} and eS-Adam in section \re
 The latter, due to the particular structure of the flow (operator $^{\otimes 2}$ see
 section \ref{adam}), intensively uses the consistency of the approximation combined with the splitting.}
 The studies will numerically emphasize that the balanced mini-batch optimizers also
-satisfy condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to fact of
+satisfy condition 5 relative to the existence of a stopping criterion \eqref{stopping_criterion} which does not need a full batch estimation and condition 1 related to the fact of
 not resorting to the interpolating hypothesis (depicted in section \ref{intro}). 
 The sections also emphasize the fact that the next step for further improvements may be closely related to adaptiveness. 
 \newG{Finally, section \ref{s_mnist} focuses on a well-known high dimensional problem, the MNIST benchmark, highlighting the fact that the balanced splittings we suggest can
@@ -830,7 +830,7 @@ By tuning the learning rate for eS-GD, we mean having an estimation of the large
 have stable resolutions. 
 By tuning $n_{max}$, we mean ensuring stationarity of the distributions for the algorithms which suffer from not having a stopping criterion.
 For all the benchmarks, $n_{max}=10000$ seems to be a qualitatively good choice. 
-For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $F_1,F_2$ are available: they correspond to 
+For benchmarks \exOne and \exTwo, we used $\eta=\frac{1}{L_1+L_2}$, as the Lipshitz constants of $\nR_1,\nR_2$ are available: they correspond to 
 the largest estimation of the stability condition available. 
 For all the other benchmarks, the larger learning rates have been (coarsely) manually obtained. They are given by 
  $\eta = 1   \times 10^{-1}$  for \exOne    (a), 
@@ -894,12 +894,12 @@ Figure \ref{SGD_exs} is obtained in the previous configurations of learning rate
 On \exTwo, the results are satisfactory. But they are far from being acceptable for all the other benchmarks: for \exOne, \exThree, \exFour, \exFive, \exSeven and \exHeight,
 artificial minima are captured. These artificial minima can be quite far from the true ones, see \exFour, \exSeven, \exHeight.    
 Very often, the distributions are not peaked in the vicinities of the minima.
-On the last benchmark (figure \ref{SGD_exs} f)), neither the local nor the global minima is captured. 
+On the last benchmark (figure \ref{SGD_exs} f)), neither the local nor the global minima are captured. 
 The first hypothesis coming to mind to obtain better results would be to decrease the learning rate: figure \ref{SGD_exs_001} is obtained in exactly the same configurations but
 with learning rates $100$ times smaller than for figures \ref{SPETH_exs} and \ref{SGD_exs}. 
 For benchmarks \exOne and \exFour, it does mitigate the problem: the minima of $\R$ are recovered with good probabilities. 
 However, for all the other benchmarks, this is far from being enough: on benchmark \exTwo, i.e. on figure \ref{SGD_exs_001} (b), the distribution is not anymore
-converged: with a  learning rate $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
+convergent: with a  learning rate $100$ times smaller, $100$ times more epochs are needed to reach stationarity.
 On \exThree, the local and global minima are now within the support of the distribution, but their probabilities of occurrence remain low.
 For benchmarks \exFive, \exSeven and \exHeight, the global minimum is far from being captured even if an improvement is noticeable. 
 Globally, without the balanced splitting we suggest in this paper, interpolatory minima are favored, independently of their performances.  
@@ -1068,7 +1068,7 @@ The simplest choice for $F_i$ is $F_i=-\nR_i$, which is equivalent to IAG (SAG w
 \end{figure}
   The last line of figure \ref{mom_ex1_ex2} displays the results at epoch $n=2000$, for which we verified that stationarity is reached:  S-Momentum captures respectively
   $x=0.40533333$ instead of the unique global minimum $0.4$ of \exOne, 
-  and $x=-0.72457792$ instead of $0.71$, the global minimum of \exTwo. 
+  and $x=-0.72457792$ instead of $-0.71$, the global minimum of \exTwo. 
   In other words, the appearance of artificial minima strongly related to the choice of the learning rate emphasized in the previous examples does also occur for other optimizers
   (other $F$) and is not only restricted to SGD or RRGD. 
 
@@ -1272,7 +1272,7 @@ It is a standard baseline for evaluating the effectiveness of new algorithms, es
 }
 
 \newG{Figure \ref{mnist} presents, for exactly the same initialization and exactly the same architecture, the loss (log scale) and accuracy curves along a training for RRGD, eS-GD, lm-eS-GD (left) and RR-Momentum,
-eS-Momentum and lm-eS-Momentum. Each time, the learning rate is constant, chosen to $\eta = 10^{-2}$, and for Momentum $\beta_1 = 0.9$ is taken. 
+eS-Momentum and lm-eS-Momentum (right). Each time, the learning rate is constant, chosen to $\eta = 10^{-2}$, and for Momentum $\beta_1 = 0.9$ is taken. 
 A total of $n_\max=10000$ epochs has been used for the training (the consistent approximation of the gradient remained above the $\epsilon = 1e-4$ fixed threshold). 
 The architecture is an MLP with 128 neurons, with relu activation function and softmax activation function on the last layer. 
 Care is taken to avoid the interpolating regime (i.e., underparameterization), although in practice, verifying this condition remains challenging.
@@ -1369,7 +1369,7 @@ More precisely, the following points are tackled:
 
 The notion of \textbf{balanced splitting is then crucial} to get an appropriate behavior with constant learning rate and {\em a fortiori} with adaptive learning rate. Improving the
 proposed algorithms to include adaptative learning rate selection is therefore the natural next step to obtain efficient algorithms, able to produce comparable results on
-machine-learning test than the full-batch counterpart. %This is the subject of part II.
+machine-learning test similar to their full-batch counterparts. %This is the subject of part II.
 
 
 
@@ -1740,7 +1740,7 @@ and
 \end{table}
 
 
-\section{Figures relative to the studies of section 3}
+\section{Figures relative to the studies of sections 2 and 3}
 %In this section, we gather the figures relative to the studies of section \ref{section_splitting_schemes} as we think it eases the readability of the paper. 
 
 \begin{figure}[h!]

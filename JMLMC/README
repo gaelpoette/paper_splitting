@@ -1,0 +1,3 @@
+# To compile
+
+lualatex JMLMC.tex && lualatex JMLMC.tex && bibtex JMLMC && lualatex JMLMC.tex && bibtex JMLMC && lualatex JMLMC.tex

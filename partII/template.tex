@@ -341,11 +341,24 @@ $\forall i\in\{1,...,m\}$
   \end{equation}
   This typically means that $g_n^i$ can be used as such in order to define a stopping criterion of the form $\|g_{n+1}\|/P \leq
   \epsilon$, with $\epsilon$ prescribed by the user. 
-          %All the mentionned optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge). 
+          %All the mentionned optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge).
 \end{enumerate}
-However, the well-balanced optimizers of \cite{partI} still need the tedious tuning of the (constant) learning rate $\eta$. 
+
+Before turning to adaptivity, let us illustrate on a genuinely two-dimensional, stiff benchmark why balancing is a prerequisite for {\em any} mini-batch/splitting optimizer, and not only for eS-GD. Let \polyFive\ (introduced in \cite{Bilel}, see also Section~\ref{RAGL} for its definition) denote this benchmark and let us recall that {\em sensitivity maps} (precisely defined in Section~\ref{test_analytic}) color every initialization $\theta_0$ according to the critical point (or the divergence) its trajectory converges to. \\
+Figure~\ref{fig_speth_motivation} compares, for three popular full-batch optimizers going beyond the plain GD setting of \cite{partI} -- Momentum, Adam and RMSProp, whose Lyapunov functions are recalled in \cite{Lyap_Theory_Bilel,Bilel_thesis} -- three variants: their full-batch version (left column), a naive mini-batch/splitting version obtained with $m=2$ non-interpolating batches by simply {\em not} balancing update \eqref{RAG_scheme} (\emph{i.e.} $c_n\equiv 0$, middle column), and their extended Speth-balanced counterpart (eS-Momentum, eS-Adam, eS-RMSProp, right column) with the exact same $m=2$ batches. For a given row, the three columns share the very same constant learning rate ($\eta=10^{-2}$ for Momentum and RMSProp, $\eta=10^{-3}$ for Adam): the value tuned for the full-batch algorithm is simply reused, without any retuning, for both mini-batch variants. \\
+The conclusion is unambiguous. For Adam and RMSProp, balancing alone suffices to essentially recover the full-batch map with the {\em same} learning rate, whereas the unbalanced mini-batch version is considerably degraded by large spurious divergent areas (in red), absent from the full-batch map. Quantitatively (over $28000$ initializations), the proportion of divergent trajectories goes from $0\%$ (full-batch) to $42.7\%$ (unbalanced) back down to $0\%$ (Speth-balanced) for Adam, and from $1.6\%$ to $30.7\%$ back down to $0\%$ for RMSProp. Momentum is more challenging -- its full-batch map is already largely divergent ($68.1\%$) on this stiff benchmark, a signature of the well-documented Lyapunov instabilities of Momentum \cite{Bilel,Bilel_thesis} -- yet balancing still consistently reduces the divergent area compared to the unbalanced splitting ($72.0\%$ against $74.9\%$) and, more strikingly, restores a map whose global shape (the green and orange regions) is visually almost indistinguishable from the full-batch one, contrary to the unbalanced map, which is fragmented into many small, spurious islands. \\
+This experiment extends, to genuinely two-dimensional and non-GD optimizers, the message of \cite{partI}: balancing the mini-batch/splitting update is what allows recovering the qualitative behavior of its full-batch counterpart. But it also makes plain what is still missing: here, the learning rate was tuned {\em once}, on the full-batch problem, and merely reused for the two mini-batch variants -- information that is, in general, unavailable in a genuine mini-batch setting (typically because the full-batch optimizer cannot even be run, due to the very memory constraints that motivate mini-batching in the first place).
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{chapitre5_img/speth_motivation_poly5.png}
+	\caption{Sensitivity maps on \polyFive\ for Momentum, Adam and RMSProp (rows): full-batch (left), unbalanced mini-batch/splitting with $m=2$ (middle), extended Speth-balanced with $m=2$ (right). For a given row, all three columns share the exact same constant learning rate. Green: global minimum, purple: local minimum, orange: degenerate saddle point, red: divergence.}
+	\label{fig_speth_motivation}
+\end{figure}
+
+As just illustrated, the well-balanced optimizers of \cite{partI} still need the tedious tuning of the (constant) learning rate $\eta$ -- an information that, as discussed above, is generally out of reach in a genuine mini-batch setting.
 Building an adaptative strategy on top of the well-balanced mini-batch
-          optimizers of \cite{partI} is the purpose of this paper. 
+          optimizers of \cite{partI} is the purpose of this paper.
 
 \paragraph{Organization of the paper}
 ~~\\

@@ -250,15 +250,17 @@ grestore
 
  
 Mini-batch optimization is very popular in order to solve Deep Learning tasks \cite{image_recognition,language_recognition,plasma}. 
-It consists in the resolution of highly non-convex optimization problems \cite{DL_opti}:
+It consists in the resolution of highly non-convex optimization problems \cite{DL_opti}
 \begin{equation*}
 \displaystyle{\min_{\theta \in \Rb^N}} \R(\theta),
 \end{equation*}
-in which $\R$ has a particular sum-structure on all the labels of the problem:
+in which $\R$ has a particular sum-structure on all the labels ($x_p,y_p)_{p\in\{1,...,P\}}$ of the problem:
 \begin{equation*}
 	\R(\theta) = \displaystyle{\sum_{p=1}^{P} \loss(u(\theta,x_p), y_p)}.
 \end{equation*}
-In the above expression, $(x_p,y_p)_{1\leq p \leq P}$ are the data of the problems, $u(\theta,x)$ is a parametrized model (for example a neural network) and $\loss$ is a loss function measuring the distance between predictions $u(\theta,x)$ and real data. 
+In the above expression, %$(x_p,y_p)_{1\leq p \leq P}$ are the data of the problems, 
+$u(\theta,x)$ is a parametrized model (for example a neural network) and $\loss$ is a loss function measuring the distance between predictions $(u(\theta,x_p))_{p\in\{1,...,P\}}$
+and real data $(y_p)_{p\in\{1,...,P\}}$. 
 %In practice, the memory complexity is proportional to the number of data $P$ and $P$ is big. Therefore, the memory cost exceeds the RAM storage. 
 To overcome memory complexity, the cost function is often split into $m$ batches of size $b$:
 \begin{equation}
@@ -268,87 +270,61 @@ To overcome memory complexity, the cost function is often split into $m$ batches
 where each function $\R_i$ is computed on $b$ data and not $P \gg b$. 
 Then at every iteration/epoch, the algorithm has only access to one function $\R_i$.
 A thorough review of the existing optimizers allowing to minimize $\R$ in a mini-batch context is provided in \cite{partI}. 
-Note that, in a sense, this paper can be considered the
-logical consequence of paper \cite{partI}: 
-in this same paper, a new family of mini-batch optimizers has been put forward. 
-The construction of this new family has been motivated by the will to alleviate a strong hypothesis, often made in the litterature, 
+In paper \cite{partI}, 
+ a new family of mini-batch optimizers has been put forward. 
+The construction of this new family has been motivated by the will to alleviate a strong hypothesis, often made in the litterature 
 on the batch distribution, namely the {\em interpolation assumption} (see \cite{ESG_upper_bound,ESG_IG} for example but also  \cite{sgd_prec,adam1,adam2,zou_rms,rms_not_bounded}
 for Adam-like algorithms).
 This hypothesis is closely related to having an overparametrized network, hence a deep one, whereas 
 in our applications of interest, mainly motivated by physical problems \cite{FV_scheme,reentry,acc_newt,FRANCK,plasma,KluthRipoll}, shallow and accurate networks are necessary to
 be competitive and usable.\\
-In \cite{partI}, the authors noticed an analogy between being able to deal with non-interpolatory batches $\R_i$ and operator splitting between stiff non-commutative operators \cite{rebalanced_splitting}. 
-Based on the work of Speth \cite{rebalanced_splitting}, who designed a balanced splitting for stiff convection-diffusion operators, a new family of mini-batch optimizers has been
-presented.  
-The material of \cite{partI} is in fact an extension of the work of \cite{rebalanced_splitting} and not a direct application.
-In a nutshell, assume that the update of a full-batch optimizer is given by
+%In \cite{partI}, the authors noticed an analogy between being able to deal with non-interpolatory batches $\R_i$ and operator splitting between stiff non-commutative operators \cite{rebalanced_splitting}. 
+%Based on the work of Speth \cite{rebalanced_splitting}, who designed a balanced splitting for stiff convection-diffusion operators, a new family of mini-batch optimizers has been
+%presented.  
+%The material of \cite{partI} is in fact an extension of the work of \cite{rebalanced_splitting} and not a direct application.
+In \cite{partI}, the authors identified an analogy between handling non-interpolatory batches $\R_i$
+ and operator splitting for stiff, non-commutative operators \cite{rebalanced_splitting}. Building on the work of Speth \cite{rebalanced_splitting}, who devised a balanced splitting scheme for stiff convection-diffusion operators, a new family of mini-batch optimizers is introduced. The approach developed in \cite{partI} should be understood as an extension of \cite{rebalanced_splitting} rather than a direct application of it:
+any full-batch optimizer of interest can be written as
 \begin{equation}
-  \label{fb_opt}
-        y_{n+1} = y_{n}+\eta F(y_n),
+	y_{n+1} = y_n+\eta F(y_n),
+	\label{fb_opt}
 \end{equation}
-where $\eta$ is the learning rate and $F$ is the flow: for example, 
-for Gradient Descent (GD), $y=\theta$ and $F(y)=-\nR(\theta)$ and 
-for Momentum, $y=(\theta,v)^\top$ and $F(y)=(-v, -\bbetone v +
-\nR(\theta))^\top$. 
-All classical first-order optimizers can be put into the previous expression \eqref{fb_opt}, see \cite{Barakat_bianchi}.  
-The new mini-batch optimizer family based on an extension of Speth's well-balanced splitting
-can then be summed-up as the following update for batch $i\in\{1,..,m\}$ of epoch $n\geq 1$:
+where $\eta$ is the learning rate and $F$ is the flow. For GD, $y=\theta$ and $F(y)=-\nR(\theta)$. Momentum, RMSProp, Adam,... fit into the same form, see \cite{Barakat_bianchi}. 
+Splitting $F=\sum_{i=1}^m F_i$ with $F_i=-\nR_i$ and naively composing the $F_i$ (\emph{e.g.} \`a la Lie-Trotter) is exactly what RRGD/IG do, and it is {\em unbalanced}: as recalled above, the resulting steady state generally depends on $\eta$ and need not be a critical point of $\R$. Following Speth et al. \cite{rebalanced_splitting}, \cite{partI} cures this by sharing a correction vector between the operators: for $m=2$, $F_1^*:=F_1+c$ and $F_2^*:=F_2-c$ both admit the same steady state $y_\infty$ as $F=F_1+F_2$ as soon as $c=\frac12[F_2(y_\infty)-F_1(y_\infty)]$; since $y_\infty$ is unknown, $c$ is instead re-estimated {\em on the fly}, using only already available evaluations of the $F_i$. Generalized to $m$ operators, this balancing yields the mini-batch update put forward in \cite{partI}:
 \begin{equation}
-  \begin{array}{c}
-	y_{n+i/m} = y_{n+(i-1)/m}+\eta g_n^i,\\
-	g_n^i = \sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right).
+  \begin{array}{l}
+	y_{n+i/m} = y_{n+(i-1)/m}+\eta\, g_n^i,\\
+        g_n^i = \sum_{j=1}^i F_j\left(y_{n+(j-1)/m}\right)+\sum_{j=i+1}^m F_j\left(y_{n-1+(j-1)/m}\right),
   \end{array}
 	\label{RAG_scheme}
 \end{equation}
-As above, the mini-batch optimizer has a memory complexity of $N\times m$ since the gradients of the batches of the previous epoch need to be stored in order to be removed from,
-what we call, the aggregator $g_n^i$. A reduction of memory cost can be made, going from $m\times N$ to $3 \times N$, by applying instead the following update
-\begin{multline}
-	y_{n+i/m} = y_{n+(i-1)/m} \\
-	+\eta
-	\left\{
-	\begin{array}{ll}
-		g_n+\displaystyle{\sum_{j=1}^i} \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right] \text{ if } 1\leq i<m,\\
-		g_{n+1} \text{ if } i=m,\\
-                \text{ with } 
-	g_n = \sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right),
-	\end{array}
-	\right.
+for $i\in\{1,\dots,m\}$: the aggregator $g_n^i$ mixes fresh and delayed evaluations of every batch so that, whenever a limit $y_\infty$ exists, $F(y_\infty)=0$, without requiring the interpolation condition (Theorem~1 of \cite{partI}). Implementing \eqref{RAG_scheme} as such requires storing all $m$ evaluations $F_j\left(y_{n-1+(j-1)/m}\right)$ (memory cost $mN$). A lighter, $3N$ variant instead updates a single running aggregator $g_n=\sum_{j=1}^m F_j\left(y_{n-1+(j-1)/m}\right)$ by swapping, one batch at a time, its stale contribution for a fresh one:
+\begin{equation}
+	y_{n+i/m} = y_{n+(i-1)/m} + \eta
+	\begin{cases}
+		g_n+\displaystyle\sum_{j=1}^i \left[F_j\left(y_{n+(j-1)/m}\right)-F_j\left(y_{n+(j-2)/m}\right)\right], & 1\leq i<m,\\
+		g_{n+1}, & i=m,
+	\end{cases}
 	\label{RAGL_splitting}
-\end{multline}
-for all $i \in \{1,\dots,m\}$. Here, the aggregator is the factor of $\eta$. The previous algorithm with reduced memory cost remains balanced in the sense it keeps the good properties of mini-batch update \eqref{RAG_scheme}
-with respect to the non-interpolatory condition: in \cite{partI}, care has been taken to ensure that (for both \eqref{RAG_scheme} and \eqref{RAGL_splitting}) if a limit $y_\infty$ for $y_{n+i/m}$ exists as $n\rightarrow \infty$, then it satisfies $F(y_\infty)=0$. 
-For $F=-\nR$, the mini-batch update is close to the one of algorithm RR-SARAH \cite{RR_SARAH}.
+\end{equation}
+which remains balanced in the same sense as \eqref{RAG_scheme}. Both aggregators also share a useful consistency property (\cite{partI}): for all $i\in\{1,\dots,m\}$,
+\begin{equation}
+	g_n^i = F(y_n) +\mathcal{O}(\eta),
+	\label{stopping_criterion}
+\end{equation}
+so that $g_n^i$ can serve, throughout the paper, to build a stopping criterion without ever evaluating $F$ on the full batch.
 
-All in all, in \cite{partI}, it has been numerically emphasized on analytical one dimensional benchmarks that the new family of mini-batch optimizers can efficiently
-\begin{enumerate}
-	\item {avoid assumptions on the batch distribution}, 
-          %Firstly, the bounded variance hypothesis is not reasonable 
-          %since it is not even satisfied by a linear regression. Moreover, the major part of stochastic optimizers need interpolation condition (then over-parametrized models) to be used with constant learning rate. At the best of our knowledge, the only optimizers that get rid of these conditions are IAG and DIAG \cite{DIAG}.
-	\item achieve an arbitrary precision (concerning the gradient) without requiring too drastic decreasing learning rates. \\ \ \\
-          Moreover: \\
-          %This is only verified by variance reduction methods. 
-	\item The algorithms never use the full-batch gradient, at any stage. 
-          %The ones that fit into this category are: SGD, RRGD, IG, IAG, SAG, ZERO-SARAH, STORM, SCSG et RR-SARAH.
-        \item The reduced memory version do not store $m$ gradients (only $3$). 
-          %mFor example, the optimizers that do not need such a storage are:  SGD, RRGD, IG, SVRG, SNVRG, SPIDER, SARAH, SSRGD, PAGE, SCSG et RR-SARAH.
-	\item All the new algorithms of the family come with a \textbf{stopping criterion} that ensures that the full-batch gradient is smaller than a fixed arbitrary
-          precision, without explicitly computing it: indeed, in \cite{partI}, has been noticed the fact that the aggregators in \eqref{RAG_scheme} or \eqref{RAGL_splitting} are all
-          consistent approximations of $F=\sum_{i=1}^m F_i$ as 
-$\forall i\in\{1,...,m\}$ 
-  \begin{equation}
-    \label{stopping_criterion}
-    g_n^i = F(y_n) +\mathcal{O}(\eta). 
-  \end{equation}
-  This typically means that $g_n^i$ can be used as such in order to define a stopping criterion of the form $\|g_{n+1}\|/P \leq
-  \epsilon$, with $\epsilon$ prescribed by the user. 
-          %All the mentionned optimizers are stopped when a maximal number of epochs is achieved (to the best of our knowledge).
-\end{enumerate}
-
-Before turning to adaptivity, let us illustrate on a genuinely two-dimensional, stiff benchmark why balancing is a prerequisite for {\em any} mini-batch/splitting optimizer, and not only for eS-GD. Let \polyFive\ (introduced in \cite{Bilel}, see also Section~\ref{RAGL} for its definition) denote this benchmark and let us recall that {\em sensitivity maps} (precisely defined in Section~\ref{test_analytic}) color every initialization $\theta_0$ according to the critical point (or the divergence) its trajectory converges to. \\
-Figures~\ref{fig_speth_motivation_a} and \ref{fig_speth_motivation_b} compare, for six full-batch optimizers -- GD, Momentum, Adam, RMSProp, Lion and AdamW, whose Lyapunov functions are recalled in \cite{Lyap_Theory_Bilel,Bilel_thesis} -- three variants: their full-batch version (left column), a naive mini-batch/splitting version obtained with $m=2$ non-interpolating batches by simply {\em not} balancing update \eqref{RAG_scheme} (\emph{i.e.} $c_n\equiv 0$, middle column), and their extended Speth-balanced counterpart (eS-GD, eS-Momentum, eS-Adam, eS-RMSProp, eS-Lion, eS-AdamW, right column) with the exact same $m=2$ batches. For a given row, the three columns share the very same constant learning rate ($\eta=10^{-2}$ for GD, Momentum and RMSProp, $\eta=10^{-3}$ for Adam, Lion and AdamW): the value tuned for the full-batch algorithm is simply reused, without any retuning, for both mini-batch variants. \\
+Figures~\ref{fig_speth_motivation_a} and \ref{fig_speth_motivation_b} compare, for six full-batch optimizers -- GD, Momentum, Adam, RMSProp, Lion and AdamW
+%, whose Lyapunov functions are recalled in \cite{Lyap_Theory_Bilel,Bilel_thesis} 
+-- three variants on a simple benchmark introduced in \cite{Lyap_Theory_Bilel,Bilel_thesis}: their full-batch version (left column), a naive mini-batch/splitting version obtained with $m=2$ non-interpolating batches by simply {\em not} balancing update \eqref{RAG_scheme} (\emph{i.e.} $c_n\equiv 0$, middle column), and their extended Speth-balanced counterpart (eS-GD, eS-Momentum, eS-Adam, eS-RMSProp, eS-Lion, eS-AdamW, right column) with the exact same $m=2$ batches. For a given row, the three columns share the very same constant learning rate ($\eta=10^{-2}$ for GD, Momentum and RMSProp, $\eta=10^{-3}$ for Adam, Lion and AdamW): the value tuned for the full-batch algorithm is simply reused, without any retuning, for both mini-batch variants. \\
 The conclusion is unambiguous for five of the six optimizers. For Adam, RMSProp and AdamW, balancing alone suffices to essentially recover the full-batch map with the {\em same} learning rate, whereas the unbalanced mini-batch version is considerably degraded by large spurious divergent areas (in red), absent from the full-batch map. Quantitatively (over $28000$ initializations), the proportion of divergent trajectories goes from $0\%$ (full-batch) to $42.7\%$ (unbalanced) back down to $0\%$ (Speth-balanced) for Adam, from $1.6\%$ to $30.7\%$ back down to $0\%$ for RMSProp, and from $10.5\%$ to $49.4\%$ back down to $10.6\%$ for AdamW, whose recovered map is visually near-indistinguishable from the full-batch one. Momentum and Lion are more challenging: Momentum's full-batch map is already largely divergent ($68.1\%$) on this stiff benchmark, a signature of the well-documented Lyapunov instabilities of Momentum \cite{Bilel,Bilel_thesis}, yet balancing still consistently reduces the divergent area compared to the unbalanced splitting ($72.0\%$ against $74.9\%$) and restores a map whose global shape is visually close to the full-batch one; Lion goes from $12.8\%$ (full-batch) to $80.8\%$ (unbalanced) down to $20.2\%$ (Speth-balanced) -- two orders of magnitude closer to the full-batch value than the unbalanced splitting, and with the same diagonal split recovered, even though not pixel-perfect. \\
-GD is the instructive counter-example: at $\eta=10^{-2}$, the full-batch algorithm is {\em already} almost entirely divergent on this stiff benchmark ($96.3\%$), and balancing cannot rescue what is broken upstream -- the Speth-balanced map ($98.8\%$ divergent) is no better than the unbalanced one ($95.2\%$). This is expected: balancing only guarantees that {\em if} the mini-batch/splitting scheme converges, it converges to a critical point of the full-batch objective (Theorem~1 of \cite{partI}); it says nothing if the underlying constant learning rate is simply not admissible in the first place. \\
-This experiment extends, to genuinely two-dimensional and non-GD optimizers, the message of \cite{partI}: balancing the mini-batch/splitting update is what allows recovering the qualitative behavior of its full-batch counterpart, whenever the latter is itself well-behaved. But it also makes plain what is still missing on both counts: here, the learning rate was tuned {\em once}, on the full-batch problem, and merely reused for the two mini-batch variants -- information that is, in general, unavailable in a genuine mini-batch setting (typically because the full-batch optimizer cannot even be run, due to the very memory constraints that motivate mini-batching in the first place) -- and the GD row shows that an untuned constant learning rate can defeat balancing altogether, whether mini-batch or full-batch.
+GD is the instructive counter-example: at $\eta=10^{-2}$, the full-batch algorithm is {\em already} almost entirely divergent on this stiff benchmark ($96.3\%$), and balancing
+cannot rescue what is broken upstream. The Speth-balanced map ($98.8\%$ divergent) is no better than the unbalanced one ($95.2\%$). This is expected: balancing only guarantees
+that {\em if} the mini-batch/splitting scheme converges, it converges to a critical point of the full-batch objective (Theorem~1 of \cite{partI}): in other words, it says nothing if the underlying constant learning rate is simply not admissible in the first place. \\
+This experiment extends, to genuinely two-dimensional and non-GD optimizers, the message of \cite{partI}: balancing the mini-batch/splitting update is what allows recovering the
+qualitative behavior of its full-batch counterpart, whenever the latter is itself well-behaved. But it also makes plain what is still missing on both counts: here, the learning
+rate was tuned {\em once}, on the full-batch problem, and merely reused for the two mini-batch variants 
+(information that is, in general, unavailable in a genuine mini-batch setting typically because the full-batch optimizer cannot even be run, due to the very memory constraints that motivate mini-batching in the first place) and the GD row shows that an untuned constant learning rate can defeat balancing altogether, whether mini-batch or full-batch.
 
 \begin{figure}[h!]
 	\centering
@@ -364,9 +340,64 @@ This experiment extends, to genuinely two-dimensional and non-GD optimizers, the
 	\label{fig_speth_motivation_b}
 \end{figure}
 
-As just illustrated, the well-balanced optimizers of \cite{partI} still need the tedious tuning of the (constant) learning rate $\eta$ -- an information that, as discussed above, is generally out of reach in a genuine mini-batch setting.
+As just illustrated, the well-balanced optimizers of \cite{partI} still need the tedious tuning of the (constant) learning rate $\eta$, an information that, as discussed above, is generally out of reach in a genuine mini-batch setting.
+On the other hand, in a {\em full-batch} context, a discrete counterpart of the continuous Lyapunov stability condition has recently been used to select the learning rate $\eta$ automatically, with theoretical guarantees, generalizing the classical Armijo backtracking to a wide class of full-batch optimizers \cite{Lyap_Theory_Bilel,Bilel_thesis,Bilel_ICML}. In a nutshell, given a full-batch optimizer of the form \eqref{fb_opt} and an associated Lyapunov function $V$ (for GD, $V=\R$; for Momentum, RMSProp, Adam, see \cite{Lyap_Theory_Bilel,Bilel_thesis}), the learning rate $\eta_n$ is chosen, at every iteration, as an $\eta_n$ satisfying the discrete dissipation inequality
+\begin{equation}
+	V(y_n+\eta_n F(y_n)) - V(y_n) \leq \lambda \eta_n \dot{V}(y_n),
+	\label{lyap_ineq_intro}
+\end{equation}
+where $\lambda \in \ ]0,1[\ $ is fixed and $\dot V$ denotes the (continuous) time-derivative of $V$ along the flow $F$. For GD, since $V=\R$ and $\dot V(\theta)=-\|\nR(\theta)\|^2$, condition \eqref{lyap_ineq_intro} boils down to the well-known Armijo condition
+\begin{equation}
+	\R(\theta_n-\eta_n \nR(\theta_n)) -\R(\theta_n) \leq -\lambda \eta_n \|\nR(\theta_n)\|^2.
+	\label{armijo_full_intro}
+\end{equation}
+A backtracking linesearch (with a so-called {\em memory effect}, see \cite{Lyap_Theory_Bilel,Bilel_ICML,Bilel_thesis}) finds such an $\eta_n$ automatically, without any prior knowledge of the Lipschitz constant of $\nR$, and comes with guaranteed convergence toward critical points of $\R$, together with explicit convergence rates when $\R$ is analytic \cite{Lyap_Theory_Bilel,Bilel_thesis}.
+
+Figures~\ref{fig_lc_motivation_a} and \ref{fig_lc_motivation_b} illustrate this automatic stabilization on the same \polyFive\ benchmark, for five of the six full-batch optimizers
+of Figures~\ref{fig_speth_motivation_a}-\ref{fig_speth_motivation_b}. LC-AdamW is left out
+since, to the best of our knowledge, AdamW does not admit a known Lyapunov function.
+Some authors have even argued that such a function may not exist \cite{CuriousCase}.
+The left column recalls the fixed-$\eta$ full-batch map, the right column shows its LC counterpart, started from an arbitrary initial learning rate. \\
+The effect is often dramatic. For GD, the proportion of divergent trajectories collapses from $96.3\%$ to $0\%$ ($99.98\%$ now reach the global minimum); for RMSProp, from $1.6\%$
+to $0.075\%$; for Momentum, from $68.1\%$ to $9.7\%$, even though a residual, scattered divergent area remains -- a signature that Lyapunov stabilization tempers Momentum's
+instabilities but few more iterations may be needed for a greener map. Lion is roughly a wash ($12.8\%\to14.5\%$ divergent, $79.3\%\to84.0\%$ global): the two maps trade a few percent of divergence for a few percent of global minimum. \\
+\textcolor{blue}{Adam is the instructive counter-example this time: LC-Adam is markedly {\em worse} than the hand-tuned, fixed-$\eta$ Adam on this stiff benchmark ($0\%\to33.6\%$
+divergent, $79.1\%\to66.0\%$ global). Automatic learning rate selection is thus not a universal fix either: just as balancing alone could not rescue an ill-chosen constant $\eta$
+for GD (Figure~\ref{fig_speth_motivation_a}), Lyapunov control alone can, on some optimizers, underperform a learning rate that has simply been tuned by hand. Both ingredients,
+balancing and adaptivity, have their own blind spots.}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.75\textwidth]{chapitre5_img/lc_motivation_poly5_a.png}
+	\caption{Sensitivity maps on \polyFive\ for GD, Momentum and Adam (rows): full-batch with a fixed, hand-tuned learning rate (left, same maps as the left column of Figure~\ref{fig_speth_motivation_a}) versus its LC (Lyapunov-controlled) counterpart (right), with an automatically-adapted learning rate. Same color code as Figure~\ref{fig_speth_motivation_a}.}
+	\label{fig_lc_motivation_a}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{chapitre5_img/lc_motivation_poly5_b.png}
+	\caption{Sensitivity maps on \polyFive\ for RMSProp and Lion (rows), continuing Figure~\ref{fig_lc_motivation_a}: full-batch with a fixed learning rate (left) versus its LC counterpart (right). Same color code as Figure~\ref{fig_speth_motivation_a}.}
+	\label{fig_lc_motivation_b}
+\end{figure}
+
 Building an adaptative strategy on top of the well-balanced mini-batch
-          optimizers of \cite{partI} is the purpose of this paper.
+          optimizers of \cite{partI} is the purpose of this paper: more precisely, we aim at combining the balanced splitting of \cite{partI}, which secures the {\em right} critical points in a mini-batch setting, with the Lyapunov-based automatic learning rate selection recalled above, which secures the learning rate {\em without tuning}, into a single mini-batch optimizer enjoying both properties.
+
+This combination is, however, far from immediate. The ideal, full-batch counterpart of condition \eqref{lyap_ineq_intro} for the balanced update \eqref{RAG_scheme}, along the aggregator direction $g=g_n^i$, would read
+\begin{equation}
+	\R(\theta-\eta g) - \R(\theta) \leq -\lambda \eta \|g\|^2,
+	\label{ideal_intro}
+\end{equation}
+but checking \eqref{ideal_intro} requires evaluating $\R$ itself, hence a full pass over the $P$ data, exactly the cost mini-batching is meant to avoid. A cheap, natural fallback consists in applying the Armijo condition batch by batch, using only $\R_i$ and $\nR_i$:
+\begin{equation}
+	\R_i(\theta-\eta \nR_i(\theta)) - \R_i(\theta) \leq -\lambda \eta \|\nR_i(\theta)\|^2,
+	\label{batch_armijo_intro}
+\end{equation}
+which only costs the evaluation of one batch. But \eqref{batch_armijo_intro} does not guarantee \eqref{ideal_intro}: first, it certifies stability in the direction
+$-\nR_i(\theta)$, whereas the balanced scheme actually moves along $g$, a different direction as soon as $m>1$; second, and more importantly outside of the interpolation regime, an
+$\eta$ admissible for batch $i$ offers no guarantee whatsoever for batch $j\neq i$, since nothing prevents the batches from having arbitrarily different local stiffnesses, as was,
+for instance, the case for the Momentum and Lion rows of Figures~\ref{fig_speth_motivation_a}-\ref{fig_speth_motivation_b}. Reconciling these two, seemingly incompatible
+requirements, cheap, batch-local information on one side, and control of the true, full-batch dissipation on the other, is the crux of the construction presented in Section~\ref{section_optimizers}.
 
 \paragraph{Organization of the paper}
 ~~\\
@@ -385,7 +416,7 @@ In section \ref{section_results}, the newly developed algorithms are tested on a
 Almost all the mini-batch optimizers of the litterature use either a decreasing or a constant learning rate. 
 Tuning is generally necessary to make the methods converge. In fact, there are very few works about adaptive learning rate mini-batch optimizers:
 \begin{itemize}
-	\item first there are some extensions of the classical Armijo rule. S.Vaswani \cite{stochastic_armijo} suggested to apply the Armijo rule to each batch iteratively:
+	\item first there are attempts at extending the classical Armijo rule. S.Vaswani \cite{stochastic_armijo} suggested to apply the Armijo rule to each batch iteratively:
 	\begin{equation*}
 		\R_i(\theta_n-\eta_n^i \nR_i(\theta_n))-\R_i(\theta_n) \leq -\lambda \eta_n^i \|\nR_i(\theta_n)\|^2.
 	\end{equation*}
